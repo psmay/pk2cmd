@@ -20,7 +20,6 @@
 // DISTRIBUTION OF THIS SOFTWARE OR ITS DERIVATIVES.
 //
 //---------------------------------------------------------------------------
-#ifndef	WIN32		// This module is not used by the Windows build
 
 // Comment out the following line if you do not use usb hotplug
 #define	USB_HOTPLUG
@@ -208,23 +207,16 @@ pickit_dev *usbPickitOpen(int unitIndex, char *unitID)
 	char					unitIDSerial[64];
 	byte					retData[reqLen + 1];
 
-#ifdef LINUX
 	int					retval;
 	char					dname[32] = {0};
-#ifndef USE_DETACH
-	char					syscmd[64];
-#endif
-#endif
 
 #ifndef USB_HOTPLUG
 	if (geteuid() != 0)
 		return NULL;
 #endif
 
-#ifdef LINUX
 	if (usbdebug & USB_DEBUG_DRIVER)
 		usb_set_debug(255);
-#endif
 
 	if (verbose)
 	{
@@ -290,25 +282,12 @@ pickit_dev *usbPickitOpen(int unitIndex, char *unitID)
 
 					if (d)
 					{			// This is our device
-	#ifdef LINUX
 						{
 							retval = usb_get_driver_np(d, 0, dname, 31);
-	#ifndef USE_DETACH
-							if (!retval)
-							{
-								strcpy(syscmd, "rmmod ");
-								strcat(syscmd, dname);
-	//			printf("removing driver module: %s\n", syscmd);
-								system(syscmd);
-							}
-	#else
 							if (!retval)
 								usb_detach_kernel_driver_np(d, 0);
-	#endif
 						}
-	#endif
 
-	#ifdef CLAIM_USB
 
 						if (usb_set_configuration(d, CONFIG_VENDOR) < 0)	// if config fails with CONFIG_VENDOR,
 						{
@@ -336,7 +315,6 @@ pickit_dev *usbPickitOpen(int unitIndex, char *unitID)
 
 							return NULL;
 						}
-	#endif
 						cmd[0] = GETVERSION;
 						sendPickitCmd(d, cmd, 1);
 						recvUSB(d, 8, retData);
@@ -398,6 +376,5 @@ pickit_dev *usbPickitOpen(int unitIndex, char *unitID)
 	return NULL;
 }
 
-#endif	// #ifndef	WIN32
 
 // end

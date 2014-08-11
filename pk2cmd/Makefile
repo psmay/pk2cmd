@@ -44,23 +44,7 @@ LDFLAGS=-L$(LIBUSB)/lib -lusb
 #LIBUSB=/sw
 
 ifeq ($(TARGET),linux)
-CFLAGS=$(OPTS) -I$(LIBUSB)/include -DLINUX -DUSE_DETACH -DCLAIM_USB
-endif
-ifeq ($(TARGET),linux-old)
-CFLAGS=$(OPTS) -I$(LIBUSB)/include -DLINUX
-endif
-ifeq ($(TARGET),freebsd)
-CFLAGS=$(OPTS) -I$(LIBUSB)/include -DCLAIM_USB
-endif
-ifeq ($(TARGET),mac104)
-CFLAGS=$(OPTS) -I$(LIBUSB)/include -DDARWIN -DMACOSX_HID
-OBJS=cmd_app.o DeviceData.o DeviceFile.o ImportExportHex.o PICkitFunctions.o PIC32PE.o Pk2BootLoader.o pk2cmd.o stdafx.o pk2usbcommon.o pk2usbmacosx.o P24F_PE.o dsP33_PE.o strnatcmp.o
-LDFLAGS=-framework IOKit -framework CoreFoundation
-endif
-ifeq ($(TARGET),mac105)
-CFLAGS=$(OPTS) -I$(LIBUSB)/include -DDARWIN -DMACOSX_HID -DMACOSX105
-OBJS=cmd_app.o DeviceData.o DeviceFile.o ImportExportHex.o PICkitFunctions.o PIC32PE.o Pk2BootLoader.o pk2cmd.o stdafx.o pk2usbcommon.o pk2usbmacosx.o P24F_PE.o dsP33_PE.o strnatcmp.o
-LDFLAGS=-framework IOKit -framework CoreFoundation
+CFLAGS=$(OPTS) -I$(LIBUSB)/include -DLINUX -DUSE_DETACH -DCLAIM_USB -UDARWIN -UMACOSX_HID -UMACOSX105
 endif
 
 .PHONY: target
@@ -104,9 +88,6 @@ pk2usbcommon.o: pk2usbcommon.cpp pk2usb.h
 pk2usb.o: pk2usb.cpp pk2usb.h
 	$(CC) $(CFLAGS) -o $@  -c $<
 
-pk2usbmacosx.o: pk2usbmacosx.cpp pk2usbmacosx.h pk2usb.h
-	$(CC) $(CFLAGS) -o $@  -c $<
-
 P24F_PE.o: P24F_PE.cpp P24F_PE.h stdafx.h
 	$(CC) $(CFLAGS) -o $@  -c $<
 
@@ -130,18 +111,6 @@ clean:
 
 linux:		# build for Linux kernel 2.6
 	$(MAKE) TARGET=linux
-
-linux-old:	# build for Linux kernel 2.4
-	$(MAKE) TARGET=linux-old
-
-freebsd:	# build for freeBSD
-	$(MAKE) TARGET=freebsd
-
-mac104:		# build for Mac OSX 10.4
-	$(MAKE) TARGET=mac104
-
-mac105:		# build for Mac OSX 10.5
-	$(MAKE) TARGET=mac105
 
 # This must be last in the Makefile, or ugly things might happen
 target:

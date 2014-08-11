@@ -21,7 +21,6 @@
 //
 //---------------------------------------------------------------------------
 //
-#ifndef	WIN32
 
 #include	<stdio.h>
 #include <unistd.h>
@@ -653,4 +652,3 @@ void CUsbhidioc::CloseReport(void)
 
 // end
 
-#endif	// not WIN32

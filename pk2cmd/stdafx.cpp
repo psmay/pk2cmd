@@ -27,7 +27,6 @@
 // and not in this file
 
 
-#ifndef WIN32
 
 char *_tcsncpy_s(char *dst, const char *src, int len)
 {
@@ -129,4 +128,3 @@ int fopen_s(FILE **fp, char *path, const char *spec)
 	return errno;
 }
 
-#endif

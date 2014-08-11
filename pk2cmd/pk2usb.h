@@ -23,7 +23,6 @@
 //
 //-----------------------------------------------------------------------------
 //
-#ifndef	WIN32
 
 #ifndef _PK2USB_H
 #define _PK2USB_H
@@ -45,32 +44,9 @@
 
 #define	USB_DEBUG_FLAGS	0		// No USB debugging by default
 
-#ifndef __APPLE__
 #include	<usb.h>	// Linux
 typedef struct usb_dev_handle pickit_dev;
 extern usb_dev_handle	*deviceHandle;
-#else		// Mac OSX
-
-#include <CoreFoundation/CoreFoundation.h>
-#include <IOKit/IOKitLib.h>
-#include <IOKit/IOCFPlugIn.h>
-#include <IOKit/IOMessage.h>
-#include <IOKit/hid/IOHIDLib.h>
-#include <AvailabilityMacros.h>
-
-struct hidreport {
- 	IOHIDDeviceInterface122 **intf;
-	char	*buffer;
- 	int	size;
- 	int	size_received;
- 	int	timeout;
-};
-
-typedef struct hidreport pickit_dev;
-typedef struct hidreport *hidreport_t;
-
-extern pickit_dev	*deviceHandle;
-#endif  // Mac OSX
 
 #define	byte		unsigned char
 #define	uint		unsigned int
@@ -196,10 +172,6 @@ extern int recvUSB(pickit_dev *d, int len, byte *dest);
 // Open the pickit as a usb device.  Aborts on errors.
 extern pickit_dev *usbPickitOpen(int unitIndex, char *id);
 
-#ifdef __APPLE__
-extern void usb_release_interface(pickit_dev *deviceHandle, int pickit_interface);
-#endif
 
 #endif  // _PK2USB_H
 
-#endif  // WIN32

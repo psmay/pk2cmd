@@ -91,11 +91,7 @@
 
 Ccmd_app pk2app;
 
-#ifdef WIN32
-int _tmain(int argc, _TCHAR* argv[])
-#else
 int main(int argc, char *argv[])
-#endif
 {
 	pk2app.PK2_CMD_Entry(argc, argv);
 

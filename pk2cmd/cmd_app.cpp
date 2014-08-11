@@ -21,14 +21,9 @@
 #include "cmd_app.h"
 #include "string.h"
 #include "time.h"
-#ifdef WIN32
-#include "Windows.h"
-#include "conio.h"
-#else
 #include    <termios.h>
 #include    <sys/ioctl.h>
 extern bool verbose;
-#endif
 
 extern "C"{
 	#include "strnatcmp.h"
@@ -67,17 +62,10 @@ void Ccmd_app::PK2_CMD_Entry(int argc, _TCHAR* argv[])
 	bool loadDeviceFileFailed = false;
 	if (checkDevFilePathOptionB(argc, argv, tempString))
 	{ // check for explicit path with -B
-#ifdef WIN32
-		if (tempString[_tcslen(tempString)-1] != '\\')
-			_tcscat_s(tempString, "\\PK2DeviceFile.dat");
-		else
-			_tcscat_s(tempString, "PK2DeviceFile.dat");
-#else
 		if (tempString[_tcslen(tempString)-1] != '/')
 			_tcscat_s(tempString, "/PK2DeviceFile.dat");
 		else
 			_tcscat_s(tempString, "PK2DeviceFile.dat");
-#endif
 	}
 	else if (ReturnCode == INVALID_CMDLINE_ARG)
 	{ // -B, but bad path
@@ -1865,9 +1853,7 @@ bool Ccmd_app::delayArg(int argc, _TCHAR* argv[])
 	int i;
 	unsigned int seconds;
 	bool ret = true;
-#ifndef WIN32
 	struct termios	tios;
-#endif
 
 	for (i = 1; i < argc; i++)
 	{
@@ -1891,16 +1877,12 @@ bool Ccmd_app::delayArg(int argc, _TCHAR* argv[])
 						{
 							printf("\nPress any key to exit.\n");
 							fflush(stdout);
-#ifdef WIN32
-							while(_kbhit() == 0) {};
-#else
 							tcgetattr(0, &tios);
 							tios.c_lflag &= (~(ICANON | ECHO));
 							tcsetattr(0, TCSANOW, &tios);
 							getc(stdin);
 							tios.c_lflag |= (ICANON | ECHO);
 							tcsetattr(0, TCSANOW, &tios);
-#endif
 						}
 						else if (getValue(&seconds, &argv[i][2]))
 						{

@@ -9,13 +9,6 @@
 #define	VERSION_MINOR	21
 #define	VERSION_DOT	    0
 
-#ifdef WIN32
-
-#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
-#include	<stdio.h>
-#include <tchar.h>
-
-#else
 
 #include	<stdio.h>
 #include	<stdlib.h>
@@ -52,7 +45,6 @@ extern void	_tcsftime(char *bfr, int len, const char *fmt, struct tm *time);
 extern void	_stprintf_s(char *bfr, int size, const char *fmt, ...);
 extern int	fopen_s(FILE **fp, char *path, const char *spec);
 
-#endif
 
 // Not all compilers define 'bool' to have the same size, so we force it here.
 #ifdef bool

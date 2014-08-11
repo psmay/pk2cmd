@@ -17,9 +17,6 @@
 //---------------------------------------------------------------------------
 #include "stdafx.h"
 #include "Pk2BootLoader.h"
-#ifdef WIN32
-#include "Windows.h"
-#endif
 
 Pk2BootLoader::Pk2BootLoader(void)
 {

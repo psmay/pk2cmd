@@ -21,9 +21,6 @@
 #include "dsP33_PE.h"
 #include "P24F_PE.h"
 #include "string.h"
-#ifdef WIN32
-#include "Windows.h"
-#endif
 
 CPICkitFunctions::CPICkitFunctions(void)
 {
@@ -2501,7 +2498,6 @@ bool CPICkitFunctions::FindDevice(_TCHAR* device)
 	return result;
 }
 
-#ifndef WIN32
 // Endian independent fread. This is meant to read from PK2DeviceFile.dat which is little endian.
 void freadbin(void *inbuf, int size, int count, FILE *stream)
 {
@@ -2550,7 +2546,6 @@ void freadbin(void *inbuf, int size, int count, FILE *stream)
 }
 
 #define fread(a,b,c,d) freadbin(a,b,c,d)
-#endif
 
 bool CPICkitFunctions::ReadDeviceFile(_TCHAR* path)
 {
