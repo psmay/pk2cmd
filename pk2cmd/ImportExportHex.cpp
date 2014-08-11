@@ -42,9 +42,9 @@ bool CImportExportHex::ImportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
         unsigned int eeAddr = picFuncs->DevFile.PartsList[picFuncs->ActivePart].EEAddr;
         int progMemSizeBytes = (int)picFuncs->DevFile.PartsList[picFuncs->ActivePart].ProgramMem * bytesPerWord;
         int segmentAddress = 0;
-        bool configRead = false;
-        bool lineExceedsFlash = true;
-        bool fileExceedsFlash = false;
+        //bool configRead = false;
+        //bool lineExceedsFlash = true;
+        //bool fileExceedsFlash = false;
         int userIDs = picFuncs->DevFile.PartsList[picFuncs->ActivePart].UserIDWords;
         unsigned int userIDAddr = picFuncs->DevFile.PartsList[picFuncs->ActivePart].UserIDAddr;
         if (userIDAddr == 0)
@@ -110,13 +110,13 @@ bool CImportExportHex::ImportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
                                 wordByte |= 0xFF; // shift in ones.
                             }
 
-                           lineExceedsFlash = true; // if not in any memory section, then error
+                           //lineExceedsFlash = true; // if not in any memory section, then error
 
                             // program memory section --------------------------------------------------
                             if ((byteAddress < progMemSizeBytes) && (byteAddress >= (int)programMemStart))
                             { 
                                 picFuncs->DeviceBuffers->ProgramMemory[arrayAddress] &= wordByte; // add byte.
-                                lineExceedsFlash = false;
+                                //lineExceedsFlash = false;
                                 //NOTE: program memory locations containing config words may get modified
                                 // by the config section below that applies the config masks.
                             }
@@ -126,7 +126,7 @@ bool CImportExportHex::ImportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
                             {              
                                 arrayAddress = (int)(bootArrayStart + ((byteAddress - bootMemStart) / bytesPerWord));
                                 picFuncs->DeviceBuffers->ProgramMemory[arrayAddress] &= wordByte; // add byte.
-                                lineExceedsFlash = false;
+                                //lineExceedsFlash = false;
                                 //NOTE: program memory locations containing config words may get modified
                                 // by the config section below that applies the config masks.
                             }  
@@ -137,7 +137,7 @@ bool CImportExportHex::ImportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
                                 int eeAddress = (int)(byteAddress - eeAddr) / eeMemBytes;
                                 if (eeAddress < picFuncs->DevFile.PartsList[picFuncs->ActivePart].EEMem)
                                 {
-                                    lineExceedsFlash = false;
+                                    //lineExceedsFlash = false;
                                     if (eeMemBytes == bytesPerWord)
                                     { // same # hex bytes per EE location as ProgMem location
                                         picFuncs->DeviceBuffers->EEPromMemory[eeAddress] &= wordByte; // add byte.    
@@ -156,7 +156,7 @@ bool CImportExportHex::ImportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
                             // Some 18F parts without EEPROM have hex files created with blank EEPROM by MPLAB
                             else if ((byteAddress >= (int)eeAddr) && (eeAddr > 0) && ((int)picFuncs->DevFile.PartsList[picFuncs->ActivePart].EEMem == 0))
                             {
-                                lineExceedsFlash = false; // don't give too-large file error.
+                                //lineExceedsFlash = false; // don't give too-large file error.
                             }
                             // Config words section ----------------------------------------------------
                             if ((byteAddress >= (int)picFuncs->DevFile.PartsList[picFuncs->ActivePart].ConfigAddr)
@@ -169,8 +169,8 @@ bool CImportExportHex::ImportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
                                 }
                                 if (configNum < picFuncs->DevFile.PartsList[picFuncs->ActivePart].ConfigWords)
                                 {
-                                    lineExceedsFlash = false;
-                                    configRead = true;
+                                    //lineExceedsFlash = false;
+                                    //configRead = true;
                                     picFuncs->DeviceBuffers->ConfigWords[configNum] &= 
                                         (wordByte & picFuncs->DevFile.PartsList[picFuncs->ActivePart].ConfigMasks[configNum]);
                                     if (byteAddress < progMemSizeBytes)
@@ -201,7 +201,7 @@ bool CImportExportHex::ImportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
                                     int uIDAddress = (int)(byteAddress - userIDAddr) / userIDMemBytes;
                                     if (uIDAddress < userIDs)
                                     {
-                                        lineExceedsFlash = false;
+                                        //lineExceedsFlash = false;
                                         if (userIDMemBytes == bytesPerWord)
                                         { // same # hex bytes per EE location as ProgMem location
                                             picFuncs->DeviceBuffers->UserIDs[uIDAddress] &= wordByte; // add byte.    
@@ -227,17 +227,17 @@ bool CImportExportHex::ImportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
                                                         + picFuncs->DevFile.PartsList[picFuncs->ActivePart].IgnoreBytes))
                                     { // if data is in the ignore region, don't do anything with it
                                       // but don't generate a "hex file larger than device" warning.
-                                        lineExceedsFlash = false;
+                                        //lineExceedsFlash = false;
                                     }
                                 }
                             }
                             
                         } 
                     } 
-                    if (lineExceedsFlash)
-                    {
-                        fileExceedsFlash = true;
-                    }                  
+                    //if (lineExceedsFlash)
+                    //{
+                    //    fileExceedsFlash = true;
+                    //}                  
                 } // end if (recordType == 0) 
 
                 if ((recordType == 2) || (recordType == 4))
