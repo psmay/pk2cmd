@@ -23,7 +23,7 @@ static const int	MAX_PATH =	256;
 
 typedef char _TCHAR;
 typedef int errno_t;
-#define	TXT_LENGTH		strlen
+#define	TXT_LENGTH		(int)strlen
 #define	TCH_UPPER	 toupper
 //#define	_tcsncpy_s	strncpy
 #define	TXT_PUSH_UNSAFE	strcat
