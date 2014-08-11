@@ -65,14 +65,14 @@ bool Pk2BootLoader::ReadHexAndDownload(_TCHAR* fileName, CPICkitFunctions* picFu
 
         while (!feof(hexfile))
         {
-			if(_fgetts(fileLine, MAX_BLLINE_LEN, hexfile) == NULL)
+			if(TXT_PUSH_FROM(fileLine, MAX_BLLINE_LEN, hexfile) == NULL)
 		   {
 			   printf("\n Error reading OS hex file.\n");
 		   		if (hexfile != NULL)
 					fclose(hexfile);
 				return false;
 		   }
-            if ((fileLine[0] == ':') && (_tcslen(fileLine) >= 11))
+            if ((fileLine[0] == ':') && (TXT_LENGTH(fileLine) >= 11))
             { // skip line if not hex line entry,or not minimum length ":BBAAAATTCC"
 				int byteCount = ParseHex(&fileLine[1], 2);
 				int fileAddress = ParseHex(&fileLine[3], 4);
@@ -101,7 +101,7 @@ bool Pk2BootLoader::ReadHexAndDownload(_TCHAR* fileName, CPICkitFunctions* picFu
                             flashWriteData[2] = 0x00;  // address upper
                         }
                     
-                        if ((int)_tcslen(fileLine) >= (11 + (2 * byteCount)))
+                        if (TXT_LENGTH(fileLine) >= (11 + (2 * byteCount)))
                         { // skip if line isn't long enough for bytecount.                    
                             int startByte = fileAddress & 0x000F;
                             int endByte = startByte + byteCount;
@@ -162,14 +162,14 @@ bool Pk2BootLoader::ReadHexAndVerify(_TCHAR* fileName, CPICkitFunctions* picFunc
 		printf("Verifying new OS...\n");
         while (!feof(hexfile))
         {
-		   if (_fgetts(fileLine, MAX_BLLINE_LEN, hexfile) == NULL)
+		   if (TXT_PUSH_FROM(fileLine, MAX_BLLINE_LEN, hexfile) == NULL)
 		   {
 			   printf("\n Error reading OS hex file.\n");
 		   		if (hexfile != NULL)
 					fclose(hexfile);
 				return false;
 		   }
-			if ((fileLine[0] == ':') && (_tcslen(fileLine) >= 11))
+			if ((fileLine[0] == ':') && (TXT_LENGTH(fileLine) >= 11))
             { // skip line if not hex line entry,or not minimum length ":BBAAAATTCC"
 				int byteCount = ParseHex(&fileLine[1], 2);
 				int fileAddress = ParseHex(&fileLine[3], 4);
@@ -185,7 +185,7 @@ bool Pk2BootLoader::ReadHexAndVerify(_TCHAR* fileName, CPICkitFunctions* picFunc
                         { // only read if next line in different 16-byte block
                             picFuncs->BL_ReadFlash16(firstAddress);
                         }
-                        if ((int)_tcslen(fileLine) >= (11 + (2 * byteCount)))
+                        if (TXT_LENGTH(fileLine) >= (11 + (2 * byteCount)))
                         { // skip if line isn't long enough for bytecount.                    
                             for (int lineByte = 0; lineByte < byteCount; lineByte++)
                             {

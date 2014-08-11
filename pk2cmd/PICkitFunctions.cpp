@@ -228,7 +228,7 @@ unsigned int CPICkitFunctions::GetDeviceRevision(void)
 
 bool CPICkitFunctions::FamilyIsKeeloq(void)
 {
-	int x = _tcsncmp(DevFile.Families[ActiveFamily].FamilyName, "KEELOQ", 6);
+	int x = TXT_COMPARE(DevFile.Families[ActiveFamily].FamilyName, "KEELOQ", 6);
 	if (x == 0)
 		return true;
 	return false;
@@ -237,7 +237,7 @@ bool CPICkitFunctions::FamilyIsKeeloq(void)
 
 bool CPICkitFunctions::FamilyIsEEPROM(void)
 {  
-	int x = _tcsncmp(DevFile.Families[ActiveFamily].FamilyName, "EEPROM", 6);
+	int x = TXT_COMPARE(DevFile.Families[ActiveFamily].FamilyName, "EEPROM", 6);
 	if (x == 0)
 		return true;
 	return false;
@@ -245,7 +245,7 @@ bool CPICkitFunctions::FamilyIsEEPROM(void)
 
 bool CPICkitFunctions::FamilyIsMCP(void)
 {  
-	int x = _tcsncmp(DevFile.Families[ActiveFamily].FamilyName, "MCP", 3);
+	int x = TXT_COMPARE(DevFile.Families[ActiveFamily].FamilyName, "MCP", 3);
 	if (x == 0)
 		return true;
 	return false;
@@ -253,7 +253,7 @@ bool CPICkitFunctions::FamilyIsMCP(void)
 
 bool CPICkitFunctions::FamilyIsPIC32(void)
 {  
-	int x = _tcsncmp(DevFile.Families[ActiveFamily].FamilyName, "PIC32", 5);
+	int x = TXT_COMPARE(DevFile.Families[ActiveFamily].FamilyName, "PIC32", 5);
 	if (x == 0)
 		return true;
 	return false;
@@ -575,8 +575,8 @@ bool CPICkitFunctions::WriteDevice(bool progmem, bool eemem, bool uidmem, bool c
             // To get around this, we're using a bit of hack.  Detect PIC18F or PIC18F_K_parts,
             // and look for WRTC = 0.  If found, write config words once with CONFIG6 = 0xFFFF
             // then re-write it with the correct value.
-            if (_tcsncmp(DevFile.Families[ActiveFamily].FamilyName, "PIC18F", 9) ||
-                _tcsncmp(DevFile.Families[ActiveFamily].FamilyName, "PIC18F_K_", 9))
+            if (TXT_COMPARE(DevFile.Families[ActiveFamily].FamilyName, "PIC18F", 9) ||
+                TXT_COMPARE(DevFile.Families[ActiveFamily].FamilyName, "PIC18F_K_", 9))
             {
                 if (DevFile.PartsList[ActivePart].ConfigWords > 5)
                 { // don't blow up if part doesn't have enough config words
@@ -2482,7 +2482,7 @@ bool CPICkitFunctions::FindDevice(_TCHAR* device)
 	for (i = 0; i < DevFile.Info.NumberParts; i++)
 	{
 		KillSpace(DevFile.PartsList[i].PartName, 28); // needed for 93 series eeprom names
-		x=_tcsncmp(device, DevFile.PartsList[i].PartName, 28);
+		x=TXT_COMPARE(device, DevFile.PartsList[i].PartName, 28);
 		if (x==0)
 		{
 			// found a match!
@@ -2988,7 +2988,7 @@ void CPICkitFunctions::string2Upper(_TCHAR* lcstring, int maxLength)
 		if (*(lcstring + i) == 0)
 			break;
 		else
-			*(lcstring + i) = _totupper(*(lcstring + i));
+			*(lcstring + i) = TCH_UPPER(*(lcstring + i));
 	}
 }
 
@@ -3229,7 +3229,7 @@ void CPICkitFunctions::SetProgrammingSpeedDefault(unsigned char speed)
 
 bool CPICkitFunctions::FamilyIsPIC24H(void)
         {
-			int x = _tcsncmp(DevFile.PartsList[ActivePart].PartName, "PIC24H", 6);
+			int x = TXT_COMPARE(DevFile.PartsList[ActivePart].PartName, "PIC24H", 6);
 			if (x == 0)
 				return true;
 			return false;
@@ -3237,7 +3237,7 @@ bool CPICkitFunctions::FamilyIsPIC24H(void)
 
 bool CPICkitFunctions::FamilyIsdsPIC33F(void)
         {
-			int x = _tcsncmp(DevFile.PartsList[ActivePart].PartName, "DSPIC33F", 8);
+			int x = TXT_COMPARE(DevFile.PartsList[ActivePart].PartName, "DSPIC33F", 8);
 			if (x == 0)
 				return true;
 			return false;
@@ -3245,7 +3245,7 @@ bool CPICkitFunctions::FamilyIsdsPIC33F(void)
 
 bool CPICkitFunctions::FamilyIsPIC24F(void)
         {
-			int x = _tcsncmp(DevFile.PartsList[ActivePart].PartName, "PIC24F", 6);
+			int x = TXT_COMPARE(DevFile.PartsList[ActivePart].PartName, "PIC24F", 6);
 			if (x == 0)
 				return true;
 			return false;

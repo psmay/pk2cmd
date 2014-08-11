@@ -62,10 +62,10 @@ void Ccmd_app::PK2_CMD_Entry(int argc, _TCHAR* argv[])
 	bool loadDeviceFileFailed = false;
 	if (checkDevFilePathOptionB(argc, argv, tempString))
 	{ // check for explicit path with -B
-		if (tempString[_tcslen(tempString)-1] != '/')
-			_tcscat_s(tempString, "/PK2DeviceFile.dat");
+		if (tempString[TXT_LENGTH(tempString)-1] != '/')
+			TXT_PUSH_UNSAFE(tempString, "/PK2DeviceFile.dat");
 		else
-			_tcscat_s(tempString, "PK2DeviceFile.dat");
+			TXT_PUSH_UNSAFE(tempString, "PK2DeviceFile.dat");
 	}
 	else if (ReturnCode == INVALID_CMDLINE_ARG)
 	{ // -B, but bad path
@@ -74,7 +74,7 @@ void Ccmd_app::PK2_CMD_Entry(int argc, _TCHAR* argv[])
 	else
 	{ // no -B, check PATH
 		_tsearchenv_s("PK2DeviceFile.dat", "PATH", tempString);
-		if (_tcslen(tempString) < 17)
+		if (TXT_LENGTH(tempString) < 17)
 		{
 			_tcsncpy_s(tempString, "PK2DeviceFile.dat", 17);
 		}
@@ -472,13 +472,13 @@ bool Ccmd_app::bootloadArg(int argc, _TCHAR* argv[])
 			PicFuncs.ClosePICkit2Device();
 			PicFuncs.DetectPICkit2Device(0, true);
 
-			_tcsncpy_s(tempString, &argv[i][2], _tcslen(argv[i])-2);
+			_tcsncpy_s(tempString, &argv[i][2], TXT_LENGTH(argv[i])-2);
 			argv[i] = (char *) "";
 			j = 1;
 			while (((i+j) < argc) && (!checkSwitch(argv[i+j])))
 			{ // check for path with space(s) in it
-				_tcscat_s(tempString, " ");
-				_tcscat_s(tempString, argv[i+j]);
+				TXT_PUSH_UNSAFE(tempString, " ");
+				TXT_PUSH_UNSAFE(tempString, argv[i+j]);
 				argv[i + j++] = (char *) "";
 			}
 			ret = Pk2BootLoadFuncs.ReadHexAndDownload(tempString, &PicFuncs, pk2UnitIndex);
@@ -536,13 +536,13 @@ bool Ccmd_app::unitIDArg(int argc, _TCHAR* argv[])
 		// -N set Unit ID
 		if ((checkSwitch(argv[i])) && ((argv[i][1] == 'N') || (argv[i][1] == 'n')))
 		{
-			_tcsncpy_s(writeString, &argv[i][2], _tcslen(argv[i])-2);
+			_tcsncpy_s(writeString, &argv[i][2], TXT_LENGTH(argv[i])-2);
 			argv[i] = (char *) "";
 			j = 1;
 			while (((i+j) < argc) && (!checkSwitch(argv[i+j])))
 			{ // check for name with space(s) in it
-				_tcscat_s(writeString, " ");
-				_tcscat_s(writeString, argv[i+j]);
+				TXT_PUSH_UNSAFE(writeString, " ");
+				TXT_PUSH_UNSAFE(writeString, argv[i+j]);
 				argv[i + j++] = (char *) "";
 			}
 			ret = PicFuncs.UnitIDWrite(writeString);
@@ -554,7 +554,7 @@ bool Ccmd_app::unitIDArg(int argc, _TCHAR* argv[])
 				return true; // unit id command found
 			}
 			ret = PicFuncs.UnitIDRead(readString);
-			if ((_tcslen(writeString) == 0) && !ret)
+			if ((TXT_LENGTH(writeString) == 0) && !ret)
 			{
 				printf("Unit ID successfully cleared...\n");
 				fflush(stdout);
@@ -595,12 +595,12 @@ bool Ccmd_app::selectUnitArg(int argc, _TCHAR* argv[])
 		// -S use Unit ID
 		if ((checkSwitch(argv[i])) && ((argv[i][1] == 'S') || (argv[i][1] == 's')))
 		{
-			if ((_tcslen(argv[i]) == 3) && (argv[i][2] == '#'))
+			if ((TXT_LENGTH(argv[i]) == 3) && (argv[i][2] == '#'))
 				listFWVer = true;
 
-			if ((_tcslen(argv[i]) > 2) && !listFWVer)
+			if ((TXT_LENGTH(argv[i]) > 2) && !listFWVer)
 			{ // find specific unit
-				_tcsncpy_s(unitIDString, &argv[i][2], _tcslen(argv[i])-2);
+				_tcsncpy_s(unitIDString, &argv[i][2], TXT_LENGTH(argv[i])-2);
 				argv[i] = (char *) "";
 				for (j = 0; j < 8; j++)
 				{
@@ -609,10 +609,10 @@ bool Ccmd_app::selectUnitArg(int argc, _TCHAR* argv[])
 						//ret = PicFuncs.UnitIDRead(readString);
 
 						pUnitID = PicFuncs.GetUnitID();
-						_tcsncpy_s(readString, pUnitID, _tcslen(pUnitID));
-						if (_tcsncmp(readString, "-", 1) != 0) // UnitID not blank
+						_tcsncpy_s(readString, pUnitID, TXT_LENGTH(pUnitID));
+						if (TXT_COMPARE(readString, "-", 1) != 0) // UnitID not blank
 						{
-							k = _tcsncmp(unitIDString, readString, _tcslen(unitIDString));
+							k = TXT_COMPARE(unitIDString, readString, TXT_LENGTH(unitIDString));
 							if (k == 0)
 							{
 								pk2UnitIndex = j;
@@ -656,7 +656,7 @@ bool Ccmd_app::selectUnitArg(int argc, _TCHAR* argv[])
 						//}
 							
 						pUnitID = PicFuncs.GetUnitID();
-						_tcsncpy_s(readString, pUnitID, _tcslen(pUnitID));
+						_tcsncpy_s(readString, pUnitID, TXT_LENGTH(pUnitID));
 
 						//if (ret)
 						//{
@@ -666,7 +666,7 @@ bool Ccmd_app::selectUnitArg(int argc, _TCHAR* argv[])
 						//{
 						//	len = printf("%d          -", j);
 						//}
-						if (_tcsncmp(readString, "PIC18F2550", 10) == 0)
+						if (TXT_COMPARE(readString, "PIC18F2550", 10) == 0)
 						{
 							if (listFWVer)
 								len = printf("%d          -", j); 
@@ -726,7 +726,7 @@ void Ccmd_app::string2Upper(_TCHAR* lcstring, int maxLength)
 		if (*(lcstring + i) == 0)
 			break;
 		else
-			*(lcstring + i) = _totupper(*(lcstring + i));
+			*(lcstring + i) = TCH_UPPER(*(lcstring + i));
 	}
 }
 
@@ -764,7 +764,7 @@ bool Ccmd_app::priority1Args(int argc, _TCHAR* argv[], bool preserveArgs)
 					// Set VDD voltage
 					if (!preserveArgs) // skip during auto-detect
 					{
-						tempf = (float)_tstof(&argv[i][2]);
+						tempf = (float)TXT_TO_DOUBLE(&argv[i][2]);
 						if (tempf > PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].VddMax)
 						{
 							printf("-A Vdd setpoint exceeds maximum for this device of %.1fV\n", 
@@ -790,20 +790,20 @@ bool Ccmd_app::priority1Args(int argc, _TCHAR* argv[], bool preserveArgs)
 					if (!preserveArgs) // skip if still looking for a part
 					{
 						// Hex File Selection
-						_tcsncpy_s(tempString, &argv[i][2], _tcslen(argv[i])-2);
+						_tcsncpy_s(tempString, &argv[i][2], TXT_LENGTH(argv[i])-2);
 						argv[i] = (char *) "";
 						j = 1;
 						while (((i+j) < argc) && (!checkSwitch(argv[i+j])))
 						{ // check for path with space(s) in it
-							_tcscat_s(tempString, " ");
-							_tcscat_s(tempString, argv[i+j]);
+							TXT_PUSH_UNSAFE(tempString, " ");
+							TXT_PUSH_UNSAFE(tempString, argv[i+j]);
 							if (!preserveArgs)
 								argv[i + j] = (char *) "";
 							j++;
 						}
 						// Check for BIN file:
 						ret = false; // assume not bin file
-						j = (int)_tcslen(tempString);
+						j = TXT_LENGTH(tempString);
 						if (j > 3)
 						{ // this is kind of brute force, but avoids a lot of string library calls and another tempstring
 							if (tempString[j-1] == ' ') // may have space on the end
@@ -890,7 +890,7 @@ bool Ccmd_app::priority1Args(int argc, _TCHAR* argv[], bool preserveArgs)
 					}
 					else
 					{
-						tempf = (float)_tstof(&argv[i][2]);
+						tempf = (float)TXT_TO_DOUBLE(&argv[i][2]);
 						PicFuncs.SetVppSetPoint(tempf);
 						argv[i] = (char *) "";
 					}
@@ -1229,7 +1229,7 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 					eedata = false;
 					userid = false;
 					config = false;
-					for (j = 2; j < (int)_tcslen(argv[i]); j++)
+					for (j = 2; j < TXT_LENGTH(argv[i]); j++)
 					{
 						switch (argv[i][j])
 						{
@@ -1308,12 +1308,12 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 							case 'v':
 							case 'V':
 								{
-								_tcsncpy_s(tempString, &argv[i][3], _tcslen(argv[i])-3);
+								_tcsncpy_s(tempString, &argv[i][3], TXT_LENGTH(argv[i])-3);
 								argv[i] = (char *) "";
 								int k = 1;
 								if (((i+k) < argc) && (!checkSwitch(argv[i+k])))
 								{ // check for space after v
-									_tcscat_s(tempString, argv[i+k]);
+									TXT_PUSH_UNSAFE(tempString, argv[i+k]);
 									argv[i + k++] = (char *) "";
 								}
 								int vtop = 0;
@@ -1399,7 +1399,7 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 					eedata = false;
 					userid = false;
 					config = false;
-					for (j = 2; j < (int)_tcslen(argv[i]); j++)
+					for (j = 2; j < TXT_LENGTH(argv[i]); j++)
 					{
 						switch (argv[i][j])
 						{
@@ -1511,19 +1511,19 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 					case 'F':
 							if (PicFuncs.ReadDevice(READ_MEM, true, true, true, true))
 							{
-								_tcsncpy_s(tempString, &argv[i][3], _tcslen(argv[i])-3);
+								_tcsncpy_s(tempString, &argv[i][3], TXT_LENGTH(argv[i])-3);
 								argv[i] = (char *) "";
 								j = 1;
 								while (((i+j) < argc) && (!checkSwitch(argv[i+j])))
 								{ // check for path with space(s) in it
-									if (_tcslen(tempString) != 0) // don't add space if it's between "F" and start of filename
-										_tcscat_s(tempString, " ");
-									_tcscat_s(tempString, argv[i+j]);
+									if (TXT_LENGTH(tempString) != 0) // don't add space if it's between "F" and start of filename
+										TXT_PUSH_UNSAFE(tempString, " ");
+									TXT_PUSH_UNSAFE(tempString, argv[i+j]);
 									argv[i + j++] = (char *) "";
 								}
 								// Check for BIN file:
 								ret = false; // assume not bin file
-								j = (int)_tcslen(tempString);
+								j = TXT_LENGTH(tempString);
 								if (j > 3)
 								{ // this is kind of brute force, but avoids a lot of string library calls and another tempstring
 									if (tempString[j-1] == ' ') // may have space on the end
@@ -1565,12 +1565,12 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 					case 'p':
 					case 'P':
 						// Read Program mem range to screen
-						_tcsncpy_s(tempString, &argv[i][3], _tcslen(argv[i])-3);
+						_tcsncpy_s(tempString, &argv[i][3], TXT_LENGTH(argv[i])-3);
 						argv[i] = (char *) "";
 						j = 1;
 						if (((i+j) < argc) && (!checkSwitch(argv[i+j])))
 						{ // check for space after p
-							_tcscat_s(tempString, argv[i+j]);
+							TXT_PUSH_UNSAFE(tempString, argv[i+j]);
 							argv[i + j++] = (char *) "";
 						}
 						ret = getRange(&startAddr, &stopAddr, tempString);
@@ -1596,12 +1596,12 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 						if (PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].EEMem > 0)
 						{
 							// Read EE mem range to screen
-							_tcsncpy_s(tempString, &argv[i][3], _tcslen(argv[i])-3);
+							_tcsncpy_s(tempString, &argv[i][3], TXT_LENGTH(argv[i])-3);
 							argv[i] = (char *) "";
 							j = 1;
 							if (((i+j) < argc) && (!checkSwitch(argv[i+j])))
 							{ // check for space after p
-								_tcscat_s(tempString, argv[i+j]);
+								TXT_PUSH_UNSAFE(tempString, argv[i+j]);
 								argv[i + j++] = (char *) "";
 							}
 							ret = getRange(&startAddr, &stopAddr, tempString);
@@ -2217,13 +2217,13 @@ bool Ccmd_app::checkDevFilePathOptionB(int argc, _TCHAR* argv[], _TCHAR* path_st
 	}
 
 	// Get path to device file:
-	_tcsncpy_s(path_temp, &argv[i][2], _tcslen(argv[i])-2);
+	_tcsncpy_s(path_temp, &argv[i][2], TXT_LENGTH(argv[i])-2);
 	argv[i] = (char *) "";
 	int j = 1;
 	while (((i+j) < argc) && (!checkSwitch(argv[i+j])))
 	{ // check for path with space(s) in it
-		_tcscat_s(path_temp, " ");
-		_tcscat_s(path_temp, argv[i+j]);
+		TXT_PUSH_UNSAFE(path_temp, " ");
+		TXT_PUSH_UNSAFE(path_temp, argv[i+j]);
 		argv[i + j++] = (char *) "";
 	}
 	i = 0;
@@ -2248,7 +2248,7 @@ bool Ccmd_app::checkHelp1(int argc, _TCHAR* argv[])
 	// look for '?' in all arguments.  Display help for first found
 	for (i = 0; i < argc; i++)
 	{
-		if (_tcschr(argv[i], '?'))
+		if (TXT_SEEK_TCHAR(argv[i], '?'))
 			break;
 	}
 	
@@ -2260,7 +2260,7 @@ bool Ccmd_app::checkHelp1(int argc, _TCHAR* argv[])
 		switch (argv[i][1])
 		{
 			case '?':
-				if (_tcslen(argv[i]) > 2)
+				if (TXT_LENGTH(argv[i]) > 2)
 				{
 					if ((argv[i][2] == 'e') || (argv[i][2] == 'E'))
 					{
@@ -2866,7 +2866,7 @@ bool Ccmd_app::checkHelp2(int argc, _TCHAR* argv[], bool loadDeviceFileFailed)
 	// look for '?' in all arguments.  Display help for first found
 	for (i = 0; i < argc; i++)
 	{
-		if (_tcschr(argv[i], '?'))
+		if (TXT_SEEK_TCHAR(argv[i], '?'))
 			break;
 	}
 	
@@ -2878,7 +2878,7 @@ bool Ccmd_app::checkHelp2(int argc, _TCHAR* argv[], bool loadDeviceFileFailed)
 		switch (argv[i][1])
 		{
 			case '?':
-				if (_tcslen(argv[i]) > 2)
+				if (TXT_LENGTH(argv[i]) > 2)
 				{
 					if ((argv[i][2] == 'v') || (argv[i][2] == 'V'))
 					{
@@ -2912,12 +2912,12 @@ bool Ccmd_app::checkHelp2(int argc, _TCHAR* argv[], bool loadDeviceFileFailed)
 						{
 							_TCHAR searchTerm[MAX_PATH];
 							// get search term
-							_tcsncpy_s(searchTerm, &argv[i][3], _tcslen(argv[i])-3);
+							_tcsncpy_s(searchTerm, &argv[i][3], TXT_LENGTH(argv[i])-3);
 							argv[i] = (char *) "";
 							int j = 1;
 							while (((i+j) < argc) && (!checkSwitch(argv[i+j])))
 							{ // check for term with space(s) in it
-								_tcscat_s(searchTerm, argv[i+j]);
+								TXT_PUSH_UNSAFE(searchTerm, argv[i+j]);
 								argv[i + j++] = (char *) "";
 							}
 							displayPartList(argc, argv, searchTerm);
@@ -3181,10 +3181,10 @@ void Ccmd_app::displayPartList(int argc, _TCHAR* argv[], _TCHAR* argSearch)
 				}
 				else
 				{ // search parts
-					int l = (int)_tcslen(argSearch);
+					int l = TXT_LENGTH(argSearch);
 					for (partIdx = 0; partIdx < partNum; partIdx++)
 					{
-						if (_tcsncmp(partlist_array[partIdx], argSearch, l) == 0)
+						if (TXT_COMPARE(partlist_array[partIdx], argSearch, l) == 0)
 							printf("%-28s %s\n", partlist_array[partIdx], PicFuncs.DevFile.Families[order].FamilyName);
 					}
 				}
