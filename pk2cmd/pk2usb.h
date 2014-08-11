@@ -123,22 +123,7 @@ extern int	targetPower;
 extern FILE	*usbFile;
 extern byte	cmd[reqLen + 1];
 
-class CUsbhidioc //: public CDialog
-{
-public:
-	CUsbhidioc(void);
-	char *GetPK2UnitID(void);
-    bool FindTheHID(int unitIndex);
-    bool ReadReport (char *);
-    bool WriteReport(char *, unsigned int);
-    void CloseReport ();
-
-protected:
-//    void GetDeviceCapabilities();
-//    void PrepareForOverlappedTransfer();
-
-		char m_UnitID[32];
-};
+#include "usbhidioc.h"
 
 struct scriptInterpreter {
 	byte	scriptcode;	// opcode in script buffer

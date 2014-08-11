@@ -1,3 +1,7 @@
+
+#ifndef USBHIDIOC_H
+#define USBHIDIOC_H
+
 // usbhidiocDlg.h : header file
 //
 
@@ -15,10 +19,10 @@ public:
     void CloseReport ();
 
 protected:
-    void GetDeviceCapabilities();
-    void PrepareForOverlappedTransfer();
+    //void GetDeviceCapabilities();
+    //void PrepareForOverlappedTransfer();
 
 	char m_UnitID[32];
 };
 
-
+#endif
