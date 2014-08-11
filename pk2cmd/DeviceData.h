@@ -1,9 +1,9 @@
 #pragma once
 
-#define	MAX_MEM	262144
-#define	MAX_EE	8192
-#define	MAX_CFG	9 // Changed for compat level 6
-#define	MAX_UID	128
+static const int MAX_MEM =	262144;
+static const int MAX_EE =	8192;
+static const int MAX_CFG =	9; // Changed for compat level 6
+static const int MAX_UID =	128;
 
 class CDeviceData
 {

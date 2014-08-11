@@ -33,13 +33,6 @@
 #include	"stdafx.h"
 #include	"pk2usb.h"
 
-#if HAVE_LIBUSB_INTERRUPT_MODE
-// latest libusb: interrupt mode, works with all kernels
-#  define PICKIT_USB(direction) usb_interrupt_##direction
-#else 
-// older libusb: bulk mode, will only work with older kernels
-#  define PICKIT_USB(direction) usb_bulk_##direction
-#endif
 
 // Prototypes
 //   none
@@ -103,7 +96,8 @@ int sendUSB(pickit_dev *d, byte *src, int len)
 		fflush(usbFile);
 	}
 
-	r = PICKIT_USB(write)(d, pickit_endpoint_out, (char *) src, reqLen, pickit_timeout);
+	// PSM: Replace with usb_bulk_write if interrupt not supported
+	r = usb_interrupt_write(d, pickit_endpoint_out, (char *) src, reqLen, pickit_timeout);
 
 	if (rescan)		// Microchip code entered/exited bootloader,
 		deviceHandle = NULL;	// so reset the device handle
@@ -130,7 +124,8 @@ int readBlock(pickit_dev *d, int len, byte *dest)
 	int	i, j, r;
 	byte	bfr[reqLen + 1];
 
-	r = PICKIT_USB(read)(d, pickit_endpoint_in, (char *) bfr, reqLen, pickit_timeout);
+	// PSM: Replace with usb_bulk_read if interrupt not supported
+	r = usb_interrupt_read(d, pickit_endpoint_in, (char *) bfr, reqLen, pickit_timeout);
 
 	if (r != reqLen)
 	{

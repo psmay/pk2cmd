@@ -1,7 +1,7 @@
 #pragma once
 #include "PICkitFunctions.h"
 
-#define MAX_LINE_LEN 80
+static const int MAX_LINE_LEN = 80;
 
 class CImportExportHex
 {

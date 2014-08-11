@@ -1,6 +1,6 @@
 #pragma once
 
-#define OSCCAL_MASK 7
+static const int OSCCAL_MASK = 7;
 
 class CDeviceFile
 {

@@ -3,28 +3,28 @@
 #include "DeviceFile.h"
 #include "DeviceData.h"
 
-#define SCRIPT_REDIR_TABLE_LEN 32
-#define UPLOAD_BUFFER_SIZE 128
-#define DOWNLOAD_BUFFER_SIZE 256
-#define READ_MEM 0
-#define BLANK_CHECK 1
-#define VERIFY_MEM 2
-#define VERIFY_NOPRG_ENTRY 3
-#define VERIFY_MEM_SHORT 4	
-#define STATUS_VDD_ERROR 0x0010
-#define STATUS_VPP_ERROR 0x0020
-#define READ_BIT true
-#define WRITE_BIT false
-#define PROTOCOL_CFG 0
-#define ADR_MASK_CFG 1
-#define ADR_BITS_CFG 2
-#define CS_PINS_CFG 3
-#define I2C_BUS 1
-#define SPI_BUS 2
-#define MICROWIRE_BUS 3
-#define UNIO_BUS 4
-#define ERASE_EE true
-#define WRITE_EE false
+static const int SCRIPT_REDIR_TABLE_LEN = 32;
+static const int UPLOAD_BUFFER_SIZE = 128;
+static const int DOWNLOAD_BUFFER_SIZE = 256;
+static const int READ_MEM = 0;
+static const int BLANK_CHECK = 1;
+static const int VERIFY_MEM = 2;
+static const int VERIFY_NOPRG_ENTRY = 3;
+static const int VERIFY_MEM_SHORT = 4;
+static const int STATUS_VDD_ERROR = 0x0010;
+static const int STATUS_VPP_ERROR = 0x0020;
+static const bool READ_BIT = true;
+static const bool WRITE_BIT = false;
+static const int PROTOCOL_CFG = 0;
+static const int ADR_MASK_CFG = 1;
+static const int ADR_BITS_CFG = 2;
+static const int CS_PINS_CFG = 3;
+static const int I2C_BUS = 1;
+static const int SPI_BUS = 2;
+static const int MICROWIRE_BUS = 3;
+static const int UNIO_BUS = 4;
+static const bool ERASE_EE = true;
+static const bool WRITE_EE = false;
 
 class CPICkitFunctions
 {

@@ -1,7 +1,7 @@
 #pragma once
 #include "PICkitFunctions.h"
 
-#define MAX_BLLINE_LEN 80
+static const int MAX_BLLINE_LEN = 80;
 
 class Pk2BootLoader
 {

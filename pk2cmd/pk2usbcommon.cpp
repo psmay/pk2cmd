@@ -120,7 +120,7 @@ struct scriptInterpreter scriptInterpreter[] = {
 // The following must match the script buffer reserved locations
 // defined in PICkitFunctions.h.
 
-#define	SCRIPT_MAX	29
+static const int SCRIPT_MAX = 29;
 
 char	*scriptNames[SCRIPT_MAX + 1] = {
 	(char *) "SCR_PROG_ENTRY",

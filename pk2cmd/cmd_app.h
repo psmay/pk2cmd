@@ -3,21 +3,21 @@
 #include "ImportExportHex.h"
 #include "Pk2BootLoader.h"
 
-#define K_MAX_ARGS	32
+static const int K_MAX_ARGS =	32;
 
 // Return Codes
-#define OPSUCCESS                   0  // operation completed as expected
-#define VOLTAGE_ERROR               5  // Vdd or vpp error detected
-#define OPFAILURE                   7  // operation failed
-#define NO_PROGRAMMER               10 // Unable to find a PICkit 2 programmer
-#define WRONG_OS                    11 // OS firmware must be upgraded
-#define FILE_OPEN_ERROR             15 // returned if a file to read to (-gf..) cannot be opened.
-#define DEVICEFILE_ERROR            24 // the device file was not found or an error occured while loading.
-#define UPDGRADE_ERROR              28 // returned when OS upgrade fails. 
-#define PGMVFY_ERROR                34 // returned if program or verify operation fails.
-#define INVALID_CMDLINE_ARG         36
-#define INVALID_HEXFILE             37 // Error reading hex file.
-#define AUTODETECT_FAILED           39 // Couldn't find a part
+static const int OPSUCCESS =                 0;  // operation completed as expected
+static const int VOLTAGE_ERROR =             5;  // Vdd or vpp error detected
+static const int OPFAILURE =                 7;  // operation failed
+static const int NO_PROGRAMMER =             10; // Unable to find a PICkit 2 programmer
+static const int WRONG_OS =                  11; // OS firmware must be upgraded
+static const int FILE_OPEN_ERROR =           15; // returned if a file to read to (-gf..) cannot be opened.
+static const int DEVICEFILE_ERROR =          24; // the device file was not found or an error occured while loading.
+static const int UPDGRADE_ERROR =            28; // returned when OS upgrade fails. 
+static const int PGMVFY_ERROR =              34; // returned if program or verify operation fails.
+static const int INVALID_CMDLINE_ARG =       36;
+static const int INVALID_HEXFILE =           37; // Error reading hex file.
+static const int AUTODETECT_FAILED =         39; // Couldn't find a part
 
 class Ccmd_app
 {

@@ -5,9 +5,9 @@
 
 #pragma once
 
-#define	VERSION_MAJOR	1
-#define	VERSION_MINOR	21
-#define	VERSION_DOT	    0
+static const int	VERSION_MAJOR =	1;
+static const int	VERSION_MINOR =	21;
+static const int	VERSION_DOT =	0;
 
 
 #include	<stdio.h>
@@ -19,10 +19,10 @@
 #include <errno.h>
 #include	<time.h>
 
-#define	MAX_PATH	256
+static const int	MAX_PATH =	256;
 
-#define	_TCHAR		char
-#define	errno_t		int
+typedef char _TCHAR;
+typedef int errno_t;
 #define	_tcslen		strlen
 #define	_totupper	 toupper
 //#define	_tcsncpy_s	strncpy
@@ -47,9 +47,9 @@ extern int	fopen_s(FILE **fp, char *path, const char *spec);
 
 
 // Not all compilers define 'bool' to have the same size, so we force it here.
-#ifdef bool
-#undef bool
-#endif
-#define	bool	unsigned char
+//#ifdef bool
+//#undef bool
+//#endif
+//#define	bool	unsigned char
 
 // TODO: reference additional headers your program requires here

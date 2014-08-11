@@ -1,7 +1,7 @@
-#define K_PE33_LEN		1024
+static const int K_PE33_LEN =		1024;
 
-#define K_DSPIC33_PE_VERSION 0x0026
-#define K_DSPIC33_PE_ID	     0x00CB
+static const int K_DSPIC33_PE_VERSION =  0x0026;
+static const int K_DSPIC33_PE_ID =	     0x00CB;
 
 class CdsP33_PE
 {
