@@ -6,7 +6,7 @@
 #pragma once
 
 #define	VERSION_MAJOR	1
-#define	VERSION_MINOR	20
+#define	VERSION_MINOR	21
 #define	VERSION_DOT	    0
 
 #ifdef WIN32

@@ -2665,7 +2665,11 @@ bool CPICkitFunctions::ReadDeviceFile(_TCHAR* path)
 			fread(&DevFile.PartsList[i].IgnoreBytes, sizeof(DevFile.PartsList[i].IgnoreBytes), 1, datfile);
 			fread(&DevFile.PartsList[i].ChipErasePrepScript, sizeof(DevFile.PartsList[i].ChipErasePrepScript), 1, datfile);
 			fread(&DevFile.PartsList[i].BootFlash, sizeof(DevFile.PartsList[i].BootFlash), 1, datfile);
-			fread(&DevFile.PartsList[i].UNUSED4, sizeof(DevFile.PartsList[i].UNUSED4), 1, datfile);
+			//fread(&DevFile.PartsList[i].UNUSED4, sizeof(DevFile.PartsList[i].UNUSED4), 1, datfile); // Removed for compat level 6
+			fread(&DevFile.PartsList[i].Config9Mask, sizeof(DevFile.PartsList[i].Config9Mask), 1, datfile); // Added for compat level 6
+			DevFile.PartsList[i].ConfigMasks[8] = DevFile.PartsList[i].Config9Mask;
+			fread(&DevFile.PartsList[i].Config9Blank, sizeof(DevFile.PartsList[i].Config9Blank), 1, datfile); // Added for compat level 6
+			DevFile.PartsList[i].ConfigBlank[8] = DevFile.PartsList[i].Config9Blank;
 			fread(&DevFile.PartsList[i].ProgMemEraseScript, sizeof(DevFile.PartsList[i].ProgMemEraseScript), 1, datfile);
 			fread(&DevFile.PartsList[i].EEMemEraseScript, sizeof(DevFile.PartsList[i].EEMemEraseScript), 1, datfile);
 			fread(&DevFile.PartsList[i].ConfigMemEraseScript, sizeof(DevFile.PartsList[i].ConfigMemEraseScript), 1, datfile);
@@ -2691,7 +2695,8 @@ bool CPICkitFunctions::ReadDeviceFile(_TCHAR* path)
 			fread(&DevFile.PartsList[i].DebugReserved6Script, sizeof(DevFile.PartsList[i].DebugReserved6Script), 1, datfile);
 			fread(&DevFile.PartsList[i].DebugReserved7Script, sizeof(DevFile.PartsList[i].DebugReserved7Script), 1, datfile);
 			fread(&DevFile.PartsList[i].DebugReserved8Script, sizeof(DevFile.PartsList[i].DebugReserved8Script), 1, datfile);
-			fread(&DevFile.PartsList[i].DebugReserved9Script, sizeof(DevFile.PartsList[i].DebugReserved9Script), 1, datfile);
+			//fread(&DevFile.PartsList[i].DebugReserved9Script, sizeof(DevFile.PartsList[i].DebugReserved9Script), 1, datfile); // Removed for compat level 6
+			fread(&DevFile.PartsList[i].LVPScript, sizeof(DevFile.PartsList[i].LVPScript), 1, datfile); // Added for compat level 6
 		}
 
 		// load device scripts

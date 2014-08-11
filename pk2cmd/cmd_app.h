@@ -27,7 +27,8 @@ public:
 	void PK2_CMD_Entry(int argc, _TCHAR* argv[]);
 	void ResetAtExit(void);
 
-	static const unsigned char DevFileCompatLevel = 5;
+	// Updated to compat level 6, Aug 2010.
+	static const unsigned char DevFileCompatLevel = 6;
 	static const unsigned char DevFileCompatLevelMin = 0;
 
 	CPICkitFunctions PicFuncs;

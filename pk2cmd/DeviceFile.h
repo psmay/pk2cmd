@@ -70,8 +70,8 @@ class CDeviceFile
         unsigned char UserIDWords;
         unsigned int UserIDAddr;             // HEX
         unsigned int BandGapMask;            // HEX
-        unsigned short int ConfigMasks[8];        // HEX always init array to size 8
-        unsigned short int ConfigBlank[8];        // HEX always init array to size 8
+        unsigned short int ConfigMasks[9];        // HEX always init array to size 9; note that word 9 comes from later in the device file
+        unsigned short int ConfigBlank[9];        // HEX always init array to size 9; note that word 9 comes from later in the device file
         unsigned short int CPMask;               // HEX
         unsigned char CPConfig;
         bool OSSCALSave;
@@ -112,7 +112,9 @@ class CDeviceFile
         unsigned short int IgnoreBytes;            
         unsigned short int ChipErasePrepScript;
         unsigned int BootFlash;
-        unsigned int UNUSED4;
+        //unsigned int UNUSED4; // Removed for compat level 6
+        unsigned short int Config9Mask; // Added for compat level 6
+        unsigned short int Config9Blank; // Added for compat level 6
         unsigned short int ProgMemEraseScript; // added 7-10-06
         unsigned short int EEMemEraseScript; // added 7-10-06
         unsigned short int ConfigMemEraseScript; // added 7-10-06
@@ -138,7 +140,8 @@ class CDeviceFile
         unsigned short int DebugReserved6Script;
         unsigned short int DebugReserved7Script;
         unsigned short int DebugReserved8Script;
-        unsigned short int DebugReserved9Script;
+        //unsigned short int DebugReserved9Script; // Removed for compat level 6
+        unsigned short int LVPScript; // Added for compat level 6
         };
 
     struct DeviceScripts
