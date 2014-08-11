@@ -26,33 +26,15 @@ OBJS=cmd_app.o DeviceData.o DeviceFile.o ImportExportHex.o PICkitFunctions.o PIC
 LIBUSB=/usr/local
 LDFLAGS=-L$(LIBUSB)/lib -lusb
 
-# CHOOSE A TARGET BEFORE COMPILING
-#
-# linux = Linux kernel 2.6 or greater
-# linux-old = Linux kernel 2.4
-# mac104 = Mac OSX version 10.4
-# mac105 = Mac OSX version 10.5
-# freebsd = FreeBSD (see Note in ReadmeMakefile.txt)
-#
-#TARGET=linux
-#TARGET=linux-old
-#TARGET=freebsd
-#TARGET=mac104
-#TARGET=mac105
-
-# ----- This may be necessary for OSX fink
-#LIBUSB=/sw
-
-ifeq ($(TARGET),linux)
+# Flags for linux
 CFLAGS=$(OPTS) -I$(LIBUSB)/include -DLINUX -DUSE_DETACH -DCLAIM_USB -UDARWIN -UMACOSX_HID -UMACOSX105
-endif
 
-.PHONY: target
+.PHONY: all
 
-all: target $(APP)
+all: $(APP)
 #	@echo $(HOME)
 
-$(APP): target $(OBJS)
+$(APP): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS) 
 
 cmd_app.o: cmd_app.cpp cmd_app.h stdafx.h
@@ -107,14 +89,5 @@ clean:
 	rm -f *.o
 	rm -f $(APP)
 
-# Specific platforms:
 
-linux:		# build for Linux kernel 2.6
-	$(MAKE) TARGET=linux
-
-# This must be last in the Makefile, or ugly things might happen
-target:
-ifeq ($(TARGET),)
-	$(error You must select a TARGET in Makefile or specify the target on the command line, for example: make linux)
-endif
 
