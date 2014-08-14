@@ -24,7 +24,7 @@ class Ccmd_app
 public:
 	Ccmd_app(void);
 	~Ccmd_app(void);
-	void PK2_CMD_Entry(int argc, _TCHAR* argv[]);
+	void PK2_CMD_Entry(TextVec& args);
 	void ResetAtExit(void);
 
 	// Updated to compat level 6, Aug 2010.
@@ -37,23 +37,23 @@ public:
 	int ReturnCode;
 
 protected:
-	void processArgvForSpaces(int argc, _TCHAR* argv[]);
-	bool Pk2OperationCheck(int argc, _TCHAR* argv[]);
-	bool bootloadArg(int argc, _TCHAR* argv[]);
-	bool unitIDArg(int argc, _TCHAR* argv[]);
-	bool selectUnitArg(int argc, _TCHAR* argv[]);
+	void processArgvForSpaces(TextVec& args);
+	bool Pk2OperationCheck(TextVec& args);
+	bool bootloadArg(TextVec& args);
+	bool unitIDArg(TextVec& args);
+	bool selectUnitArg(TextVec& args);
 	int getPk2UnitIndex(void);
 	void string2Upper(_TCHAR* lcstring, int maxLength);
-	void processArgs(int argc, _TCHAR* argv[]);
-	bool detectAllFamilies(int argc, _TCHAR* argv[]);
+	void processArgs(TextVec& args);
+	bool detectAllFamilies(TextVec& args);
 	void printFamilies(void);
-	bool detectSpecificFamily(_TCHAR* idString, int argc, _TCHAR* argv[]);
-	bool priority1Args(int argc, _TCHAR* argv[], bool preserveArgs);
-	bool checkArgsForBlankCheck(int argc, _TCHAR* argv[]);
-	bool priority2Args(int argc, _TCHAR* argv[]);
-	bool priority3Args(int argc, _TCHAR* argv[]);
-	bool priority4Args(int argc, _TCHAR* argv[]);
-	bool delayArg(int argc, _TCHAR* argv[]);
+	bool detectSpecificFamily(_TCHAR* idString, TextVec& args);
+	bool priority1Args(TextVec& args, bool preserveArgs);
+	bool checkArgsForBlankCheck(TextVec& args);
+	bool priority2Args(TextVec& args);
+	bool priority3Args(TextVec& args);
+	bool priority4Args(TextVec& args);
+	bool delayArg(TextVec& args);
 	void printProgramRange(int startAddr, int stopAddr);
 	void printEEDataRange(int startAddr, int stopAddr);
 	void printUserIDs(void);
@@ -63,12 +63,12 @@ protected:
 	bool checkSwitch(_TCHAR* argv);
 	bool findPICkit2(int unitIndex);
 	void printMemError(void);
-	bool checkDevFilePathOptionB(int argc, _TCHAR* argv[], _TCHAR* path_string);
-	bool checkHelp1(int argc, _TCHAR* argv[]);
-	bool checkHelp2(int argc, _TCHAR* argv[], bool loadDeviceFileFailed);
+	bool checkDevFilePathOptionB(TextVec& args, _TCHAR* path_string);
+	bool checkHelp1(TextVec& args);
+	bool checkHelp2(TextVec& args, bool loadDeviceFileFailed);
 	void displayHelp(void);
 	void displayLicense(void);
-	void displayPartList(int argc, _TCHAR* argv[], _TCHAR* argSearch);
+	void displayPartList(TextVec& args, _TCHAR* argSearch);
 	static int strnatcmpWrapper(const void *a, const void *b);
 
 	bool preserveEEPROM;
@@ -77,6 +77,5 @@ protected:
 	bool resetOnExit;
 	bool Pk2Operation;		// operation does require connecting to/using PICkit 2
 	int	 pk2UnitIndex;
-	int	 nargc;
-	char* nargv[K_MAX_ARGS];
+	TextVec nargs;
 };

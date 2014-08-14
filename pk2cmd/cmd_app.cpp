@@ -8,7 +8,7 @@
 // Software must have this entire copyright and disclaimer notice prominently
 // posted in a location where end users will see it (e.g., installation program,
 // program headers, About Box, etc.).  To the maximum extent permitted by law,
-// this Software is distributed “AS IS” and WITHOUT ANY WARRANTY INCLUDING BUT
+// this Software is distributed ï¿½AS ISï¿½ and WITHOUT ANY WARRANTY INCLUDING BUT
 // NOT LIMITED TO ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR
 // PARTICULAR PURPOSE, or NON-INFRINGEMENT. IN NO EVENT WILL MICROCHIP OR ITS
 // LICENSORS BE LIABLE FOR ANY INCIDENTAL, SPECIAL, INDIRECT OR CONSEQUENTIAL
@@ -44,23 +44,22 @@ Ccmd_app::~Ccmd_app(void)
 {
 }
 
-void Ccmd_app::PK2_CMD_Entry(int argc, _TCHAR* argv[])
+void Ccmd_app::PK2_CMD_Entry(TextVec& args)
 {
 	_TCHAR tempString[MAX_PATH] = "";
 
-	processArgvForSpaces(argc, argv);
-	argc = nargc;
-	argv = nargv;
+	processArgvForSpaces(args);
+	args = nargs;
 
 	// Check for help display requests
-	if (checkHelp1(argc, argv))
+	if (checkHelp1(args))
 	{
 		return;
 	}
 
 	// Load device file
 	bool loadDeviceFileFailed = false;
-	if (checkDevFilePathOptionB(argc, argv, tempString))
+	if (checkDevFilePathOptionB(args, tempString))
 	{ // check for explicit path with -B
 		if (tempString[TXT_LENGTH(tempString)-1] != '/')
 			TXT_PUSH_UNSAFE(tempString, "/PK2DeviceFile.dat");
@@ -106,30 +105,30 @@ void Ccmd_app::PK2_CMD_Entry(int argc, _TCHAR* argv[])
 	}
 
 	// Check for help display requests that need the device file.
-	if (checkHelp2(argc, argv, loadDeviceFileFailed) || loadDeviceFileFailed)
+	if (checkHelp2(args, loadDeviceFileFailed) || loadDeviceFileFailed)
 	{
 		return;
 	}
 
 	// Check for Pk2Operation
-	Pk2Operation = Pk2OperationCheck(argc, argv);
+	Pk2Operation = Pk2OperationCheck(args);
 
 	// Look for PICkit 2
 	if (Pk2Operation)
 	{
-		if (!selectUnitArg(argc, argv))
+		if (!selectUnitArg(args))
 			return; // just listing units
 
 		if (!findPICkit2(pk2UnitIndex))
 		{
 			if (ReturnCode == WRONG_OS)
-				bootloadArg(argc, argv); // see if -d found
+				bootloadArg(args); // see if -d found
 			return;
 		}
 	}
 
 	// execute commands
-	processArgs(argc, argv);
+	processArgs(args);
 
 	if (Pk2Operation)
 	{
@@ -159,16 +158,16 @@ void Ccmd_app::ResetAtExit(void)
 	}
 }
 
-bool Ccmd_app::Pk2OperationCheck(int argc, _TCHAR* argv[])
+bool Ccmd_app::Pk2OperationCheck(TextVec& args)
 {
 	int i;
 	bool ret = false;
 
-	for (i = 1; i < argc; i++)
+	for (i = 1; i < args.size(); i++)
 	{
-		if (checkSwitch(argv[i]))
+		if (checkSwitch(args[i]))
 		{
-			switch(argv[i][1])
+			switch(args[i][1])
 			{ // these options require PICkit 2 communications.
 				case 'A':
 				case 'a':
@@ -209,9 +208,9 @@ bool Ccmd_app::Pk2OperationCheck(int argc, _TCHAR* argv[])
 
 				case 'P':
 				case 'p':
-					//if ((argv[i][2]) == 0) 
+					//if ((args[i][2]) == 0)
 					//	ret = true; // auto detect
-					//if ((((argv[i][2]) == 'F') || ((argv[i][2]) == 'f')) && ((argv[i][3]) != 0))
+					//if ((((args[i][2]) == 'F') || ((args[i][2]) == 'f')) && ((args[i][3]) != 0))
 					//	ret = true; // family detect
 					ret = true; // always true so Vdd gets shut off, MCLR is released
 					break;
@@ -227,28 +226,31 @@ bool Ccmd_app::Pk2OperationCheck(int argc, _TCHAR* argv[])
 	return false;
 }
 
-void Ccmd_app::processArgvForSpaces(int argc, _TCHAR* argv[])
+void Ccmd_app::processArgvForSpaces(TextVec& args)
 {
 	int	i, j;
 
-	nargc = 0;
+	// Blank nargv.
 
-	for (i=0; i < K_MAX_ARGS; i++)
-		nargv[i] = NULL;
+	//nargc = 0;
 
-	for (i=0, j=0; i < argc; i++, j++)
+	//for (i=0; i < K_MAX_ARGS; i++)
+	//	nargv[i] = NULL;
+
+	nargs.clear();
+
+	for (i=0, j=0; i < args.size(); i++, j++)
 	{
-		nargv[j] = (char *) malloc(MAX_PATH);
-		strcpy(nargv[j], argv[i]);
-		nargc++;
+		nargs.push_back( (char *) malloc(MAX_PATH) );
+		strcpy(nargs[j], args[i]);
 
-		if (checkSwitch(argv[i]))
+		if (checkSwitch(args[i]))
 		{
-			if ((i < (argc - 1)) && (strlen(argv[i]) == 2)) // only append next string if first is just option
+			if ((i < (args.size() - 1)) && (strlen(args[i]) == 2)) // only append next string if first is just option
 			{
-				if (!checkSwitch(argv[i + 1]))
+				if (!checkSwitch(args[i + 1]))
 				{
-					strcat(nargv[j], argv[++i]);
+					strcat(nargs[j], args[++i]);
 				}
 			}
 		}
@@ -256,7 +258,7 @@ void Ccmd_app::processArgvForSpaces(int argc, _TCHAR* argv[])
 
 }
 
-void Ccmd_app::processArgs(int argc, _TCHAR* argv[])
+void Ccmd_app::processArgs(TextVec& args)
 {
 	int i;
 	_TCHAR tempString[MAX_PATH] = "";
@@ -267,36 +269,36 @@ void Ccmd_app::processArgs(int argc, _TCHAR* argv[])
 		PicFuncs.VddOff();
 	}
 
-	if (bootloadArg(argc, argv)) // ignore all other commands if -d found
+	if (bootloadArg(args)) // ignore all other commands if -d found
 		return;
 
-	if (unitIDArg(argc, argv))	// ignore other commands if -n found
+	if (unitIDArg(args))	// ignore other commands if -n found
 		return;
 
 	// look for part name first
-	for (i = 0; i < argc; i++)
+	for (i = 0; i < args.size(); i++)
 	{
-		if (checkSwitch(argv[i]))
+		if (checkSwitch(args[i]))
 		{
-			if ((argv[i][1] == 'P') || (argv[i][1] == 'p'))
+			if ((args[i][1] == 'P') || (args[i][1] == 'p'))
 				break;
 		}
 	}
-	if (i == argc)
+	if (i == args.size())
 	{ // no part specified
 		printf("-P is a required option\n\n");
 		fflush(stdout);
 		ReturnCode = INVALID_CMDLINE_ARG;
 		return;
 	}
-	_tcsncpy_s(tempString, &argv[i][2], 28);
-	argv[i] = (char *) ""; // blank argument, we've already processed it.
+	_tcsncpy_s(tempString, &args[i][2], 28);
+	args[i] = (char *) ""; // blank argument, we've already processed it.
 	string2Upper(tempString, MAX_PATH);
 
 	// auto detect?
 	if (tempString[0] == 0) 
 	{ // no argument, full autodetect
-		if (detectAllFamilies(argc, argv))
+		if (detectAllFamilies(args))
 		{ // found a device
 			_tcsncpy_s(tempString, PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].PartName, 28);
 			printf("Auto-Detect: Found part %s.\n\n", tempString);
@@ -320,7 +322,7 @@ void Ccmd_app::processArgs(int argc, _TCHAR* argv[])
 	}
 	else  if (((tempString[0] == 'f') || (tempString[0] == 'F')) && (tempString[1] != 0))
 	{ // auto detect family
-		if (detectSpecificFamily(&tempString[1], argc, argv))
+		if (detectSpecificFamily(&tempString[1], args))
 		{ // found a device
 			_tcsncpy_s(tempString, PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].PartName, 28);
 			printf("Auto-Detect found part %s.\n\n", tempString);
@@ -345,34 +347,34 @@ void Ccmd_app::processArgs(int argc, _TCHAR* argv[])
 		return;
 	}
 
-	if (!priority1Args(argc, argv, false))
+	if (!priority1Args(args, false))
 		return;
-	if (!checkArgsForBlankCheck(argc, argv))
+	if (!checkArgsForBlankCheck(args))
 	{
 		printf("-C Blank Check must be done independent of other programming commands.\n");
 		fflush(stdout);
 		ReturnCode = INVALID_CMDLINE_ARG;
 		return;
 	}
-	if (!priority2Args(argc, argv))
+	if (!priority2Args(args))
 		return;
 
-	if (!priority3Args(argc, argv))
+	if (!priority3Args(args))
 	return;
 
-	if (!priority4Args(argc, argv))
+	if (!priority4Args(args))
 	return;
 
-	if (!delayArg(argc, argv))
+	if (!delayArg(args))
 	return;
 
 	// unrecognized commands ignored.
 }
 
-bool Ccmd_app::detectAllFamilies(int argc, _TCHAR* argv[])
+bool Ccmd_app::detectAllFamilies(TextVec& args)
 {
 	// on auto detect, must run these args first
-	if (!priority1Args(argc, argv, true))
+	if (!priority1Args(args, true))
 		return false;
     for (int searchIndex = 0; searchIndex < PicFuncs.DevFile.Info.NumberFamilies ; searchIndex++)
     {
@@ -408,7 +410,7 @@ void Ccmd_app::printFamilies(void)
 	fflush(stdout);
 }
 
-bool Ccmd_app::detectSpecificFamily(_TCHAR* idString, int argc, _TCHAR* argv[])
+bool Ccmd_app::detectSpecificFamily(_TCHAR* idString, TextVec& args)
 {
 	int familyID = 0;
 
@@ -420,7 +422,7 @@ bool Ccmd_app::detectSpecificFamily(_TCHAR* idString, int argc, _TCHAR* argv[])
 		return false;
 	}
 	// on auto detect, must run these args first
-	if (!priority1Args(argc, argv, true))
+	if (!priority1Args(args, true))
 		return false;
 
 	int idNumber = 0;
@@ -449,16 +451,16 @@ bool Ccmd_app::detectSpecificFamily(_TCHAR* idString, int argc, _TCHAR* argv[])
 	return false;
 }
 
-bool Ccmd_app::bootloadArg(int argc, _TCHAR* argv[])
+bool Ccmd_app::bootloadArg(TextVec& args)
 {
 	int i, j;
 	_TCHAR tempString[MAX_PATH] = "";
 	bool ret;
 
-	for (i = 1; i < argc; i++)
+	for (i = 1; i < args.size(); i++)
 	{
 		// -D download OS
-		if ((checkSwitch(argv[i])) && ((argv[i][1] == 'D') || (argv[i][1] == 'd')))
+		if ((checkSwitch(args[i])) && ((args[i][1] == 'D') || (args[i][1] == 'd')))
 		{
 			PicFuncs.ClosePICkit2Device();
 			if ((pk2UnitIndex > 0) || (PicFuncs.DetectPICkit2Device(1, false)))
@@ -472,14 +474,14 @@ bool Ccmd_app::bootloadArg(int argc, _TCHAR* argv[])
 			PicFuncs.ClosePICkit2Device();
 			PicFuncs.DetectPICkit2Device(0, true);
 
-			_tcsncpy_s(tempString, &argv[i][2], TXT_LENGTH(argv[i])-2);
-			argv[i] = (char *) "";
+			_tcsncpy_s(tempString, &args[i][2], TXT_LENGTH(args[i])-2);
+			args[i] = (char *) "";
 			j = 1;
-			while (((i+j) < argc) && (!checkSwitch(argv[i+j])))
+			while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
 			{ // check for path with space(s) in it
 				TXT_PUSH_UNSAFE(tempString, " ");
-				TXT_PUSH_UNSAFE(tempString, argv[i+j]);
-				argv[i + j++] = (char *) "";
+				TXT_PUSH_UNSAFE(tempString, args[i+j]);
+				args[i + j++] = (char *) "";
 			}
 			ret = Pk2BootLoadFuncs.ReadHexAndDownload(tempString, &PicFuncs, pk2UnitIndex);
 			if (!ret)
@@ -524,26 +526,26 @@ bool Ccmd_app::bootloadArg(int argc, _TCHAR* argv[])
 	return false; // no bootload command
 }
 
-bool Ccmd_app::unitIDArg(int argc, _TCHAR* argv[])
+bool Ccmd_app::unitIDArg(TextVec& args)
 {
 	int i, j;
 	_TCHAR writeString[MAX_PATH] = "";
 	_TCHAR readString[MAX_PATH] = "";
 	bool ret;
 
-	for (i = 1; i < argc; i++)
+	for (i = 1; i < args.size(); i++)
 	{
 		// -N set Unit ID
-		if ((checkSwitch(argv[i])) && ((argv[i][1] == 'N') || (argv[i][1] == 'n')))
+		if ((checkSwitch(args[i])) && ((args[i][1] == 'N') || (args[i][1] == 'n')))
 		{
-			_tcsncpy_s(writeString, &argv[i][2], TXT_LENGTH(argv[i])-2);
-			argv[i] = (char *) "";
+			_tcsncpy_s(writeString, &args[i][2], TXT_LENGTH(args[i])-2);
+			args[i] = (char *) "";
 			j = 1;
-			while (((i+j) < argc) && (!checkSwitch(argv[i+j])))
+			while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
 			{ // check for name with space(s) in it
 				TXT_PUSH_UNSAFE(writeString, " ");
-				TXT_PUSH_UNSAFE(writeString, argv[i+j]);
-				argv[i + j++] = (char *) "";
+				TXT_PUSH_UNSAFE(writeString, args[i+j]);
+				args[i + j++] = (char *) "";
 			}
 			ret = PicFuncs.UnitIDWrite(writeString);
 			if (!ret)
@@ -582,7 +584,7 @@ bool Ccmd_app::unitIDArg(int argc, _TCHAR* argv[])
 	return false; // no unit id command
 }
 
-bool Ccmd_app::selectUnitArg(int argc, _TCHAR* argv[])
+bool Ccmd_app::selectUnitArg(TextVec& args)
 {
 	int i, j, k, len;
 	bool listFWVer = false;
@@ -590,18 +592,18 @@ bool Ccmd_app::selectUnitArg(int argc, _TCHAR* argv[])
 	_TCHAR readString[MAX_PATH] = "";
 	_TCHAR *pUnitID = 0;
 
-	for (i = 1; i < argc; i++)
+	for (i = 1; i < args.size(); i++)
 	{
 		// -S use Unit ID
-		if ((checkSwitch(argv[i])) && ((argv[i][1] == 'S') || (argv[i][1] == 's')))
+		if ((checkSwitch(args[i])) && ((args[i][1] == 'S') || (args[i][1] == 's')))
 		{
-			if ((TXT_LENGTH(argv[i]) == 3) && (argv[i][2] == '#'))
+			if ((TXT_LENGTH(args[i]) == 3) && (args[i][2] == '#'))
 				listFWVer = true;
 
-			if ((TXT_LENGTH(argv[i]) > 2) && !listFWVer)
+			if ((TXT_LENGTH(args[i]) > 2) && !listFWVer)
 			{ // find specific unit
-				_tcsncpy_s(unitIDString, &argv[i][2], TXT_LENGTH(argv[i])-2);
-				argv[i] = (char *) "";
+				_tcsncpy_s(unitIDString, &args[i][2], TXT_LENGTH(args[i])-2);
+				args[i] = (char *) "";
 				for (j = 0; j < 8; j++)
 				{
 					if (PicFuncs.DetectPICkit2Device(j, false))
@@ -730,7 +732,7 @@ void Ccmd_app::string2Upper(_TCHAR* lcstring, int maxLength)
 	}
 }
 
-bool Ccmd_app::priority1Args(int argc, _TCHAR* argv[], bool preserveArgs)
+bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 {	// returns false if any command has an error.
 
 	// priority 1 args are -A, -F, -J, -Q, -V, -W, -X, -Z
@@ -753,18 +755,18 @@ bool Ccmd_app::priority1Args(int argc, _TCHAR* argv[], bool preserveArgs)
 		PicFuncs.GetDefaultVpp();
 	}
 
-	for (i = 1; i < argc; i++)
+	for (i = 1; i < args.size(); i++)
 	{
-		if (checkSwitch(argv[i]))
+		if (checkSwitch(args[i]))
 		{
-			switch(argv[i][1])
+			switch(args[i][1])
 			{
 				case 'A':
 				case 'a':
 					// Set VDD voltage
 					if (!preserveArgs) // skip during auto-detect
 					{
-						tempf = (float)TXT_TO_DOUBLE(&argv[i][2]);
+						tempf = (float)TXT_TO_DOUBLE(&args[i][2]);
 						if (tempf > PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].VddMax)
 						{
 							printf("-A Vdd setpoint exceeds maximum for this device of %.1fV\n", 
@@ -781,7 +783,7 @@ bool Ccmd_app::priority1Args(int argc, _TCHAR* argv[], bool preserveArgs)
 							fflush(stdout);
 						}
 						PicFuncs.SetVddSetPoint(tempf);
-						argv[i] = (char *)"";
+						args[i] = (char *)"";
 					}
 					break;
 
@@ -790,15 +792,15 @@ bool Ccmd_app::priority1Args(int argc, _TCHAR* argv[], bool preserveArgs)
 					if (!preserveArgs) // skip if still looking for a part
 					{
 						// Hex File Selection
-						_tcsncpy_s(tempString, &argv[i][2], TXT_LENGTH(argv[i])-2);
-						argv[i] = (char *) "";
+						_tcsncpy_s(tempString, &args[i][2], TXT_LENGTH(args[i])-2);
+						args[i] = (char *) "";
 						j = 1;
-						while (((i+j) < argc) && (!checkSwitch(argv[i+j])))
+						while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
 						{ // check for path with space(s) in it
 							TXT_PUSH_UNSAFE(tempString, " ");
-							TXT_PUSH_UNSAFE(tempString, argv[i+j]);
+							TXT_PUSH_UNSAFE(tempString, args[i+j]);
 							if (!preserveArgs)
-								argv[i + j] = (char *) "";
+								args[i + j] = (char *) "";
 							j++;
 						}
 						// Check for BIN file:
@@ -835,25 +837,25 @@ bool Ccmd_app::priority1Args(int argc, _TCHAR* argv[], bool preserveArgs)
 				case 'J':
 				case 'j':
 					// Display percentage operation completion
-					if ((argv[i][2] == 'n') || (argv[i][2] == 'N'))
+					if ((args[i][2] == 'n') || (args[i][2] == 'N'))
 						PicFuncs.SetTimerFunctions(true, true); // use newlines
 					else
 						PicFuncs.SetTimerFunctions(true, false);
 					if (!preserveArgs)
-						argv[i] = (char *) "";
+						args[i] = (char *) "";
 					break;
 
 				case 'L':
 				case 'l':
 					// Set ICSP speed
-					if (argv[i][2] == 0)
+					if (args[i][2] == 0)
 					{ // no specified value - illegal
 						printf("-L Invalid value.\n");
 						fflush(stdout);
 						ret = false;
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
-					else if (getValue(&tempi, &argv[i][2]))
+					else if (getValue(&tempi, &args[i][2]))
 					{
 						if (tempi > 16)
 							tempi = 16;
@@ -867,7 +869,7 @@ bool Ccmd_app::priority1Args(int argc, _TCHAR* argv[], bool preserveArgs)
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
 					if (!preserveArgs)
-						argv[i] = (char *) "";
+						args[i] = (char *) "";
 					break;
 
 				case 'Q':
@@ -875,7 +877,7 @@ bool Ccmd_app::priority1Args(int argc, _TCHAR* argv[], bool preserveArgs)
 					// Disable PE
 					PicFuncs.DisablePE33();
 					if (!preserveArgs)
-						argv[i] = (char *) "";
+						args[i] = (char *) "";
 					break;
 
 				case 'V':
@@ -890,9 +892,9 @@ bool Ccmd_app::priority1Args(int argc, _TCHAR* argv[], bool preserveArgs)
 					}
 					else
 					{
-						tempf = (float)TXT_TO_DOUBLE(&argv[i][2]);
+						tempf = (float)TXT_TO_DOUBLE(&args[i][2]);
 						PicFuncs.SetVppSetPoint(tempf);
-						argv[i] = (char *) "";
+						args[i] = (char *) "";
 					}
 					break;
 
@@ -904,7 +906,7 @@ bool Ccmd_app::priority1Args(int argc, _TCHAR* argv[], bool preserveArgs)
 					PicFuncs.ReadPICkitVoltages(&vdd, &vpp);
 					PicFuncs.SetVddSetPoint(vdd);
 					if (!preserveArgs)
-						argv[i] = (char *) "";
+						args[i] = (char *) "";
 					break;
 
 				case 'X':
@@ -927,15 +929,15 @@ bool Ccmd_app::priority1Args(int argc, _TCHAR* argv[], bool preserveArgs)
 							fflush(stdout);
 						}
 						PicFuncs.SetVppFirstEnable(true);	
-							argv[i] = (char *) "";
+							args[i] = (char *) "";
 					}
 					break;
 
 				case 'Z':
 				case 'z':
-					for (j = 1; j < argc; j++)
+					for (j = 1; j < args.size(); j++)
 					{
-						if ((checkSwitch(argv[j])) && ((argv[j][1] == 'M') || (argv[j][1] == 'm')))
+						if ((checkSwitch(args[j])) && ((args[j][1] == 'M') || (args[j][1] == 'm')))
 						{
 							preserveEEPROM = true;
 						}
@@ -948,7 +950,7 @@ bool Ccmd_app::priority1Args(int argc, _TCHAR* argv[], bool preserveArgs)
 						fflush(stdout);
 					}
 					if (!preserveArgs)
-						argv[i] = (char *) "";
+						args[i] = (char *) "";
 					break;
 
 				default:
@@ -969,18 +971,18 @@ bool Ccmd_app::priority1Args(int argc, _TCHAR* argv[], bool preserveArgs)
 	return ret;
 }
 
-bool Ccmd_app::checkArgsForBlankCheck(int argc, _TCHAR* argv[])
+bool Ccmd_app::checkArgsForBlankCheck(TextVec& args)
 {	// returns false if there is an error.
 
 	// Blank Check (-C) cannot be used with -E, -G, -M, -U, -Y
 	bool blankCheck = false;
 	bool contradication = false;
 
-	for (int i = 1; i < argc; i++)
+	for (int i = 1; i < args.size(); i++)
 	{
-		if (checkSwitch(argv[i]))
+		if (checkSwitch(args[i]))
 		{
-			switch(argv[i][1])
+			switch(args[i][1])
 			{
 				case 'C':
 				case 'c':
@@ -1021,7 +1023,7 @@ bool Ccmd_app::checkArgsForBlankCheck(int argc, _TCHAR* argv[])
 	return !(blankCheck && contradication);
 }
 
-bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
+bool Ccmd_app::priority2Args(TextVec& args)
 {	// returns false if any command has an error.
 
 	// priority 2 args are -C, -U, -E, -M, -Y, -G
@@ -1045,10 +1047,10 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 	// Prep PICkit 2 (set Vdd, vpp, download scripts)
 	PicFuncs.PrepPICkit2();
 
-	for (i = 1; i < argc; i++)
+	for (i = 1; i < args.size(); i++)
 	{
 		// -C Blank Check
-		if ((checkSwitch(argv[i])) && ((argv[i][1] == 'C') || (argv[i][1] == 'c')) && ret)
+		if ((checkSwitch(args[i])) && ((args[i][1] == 'C') || (args[i][1] == 'c')) && ret)
 		{
 			if (PicFuncs.FamilyIsKeeloq())
 			{
@@ -1078,18 +1080,18 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 		}
 	}
 
-	for (i = 1; i < argc; i++)
+	for (i = 1; i < args.size(); i++)
 	{
 		// -U Overwrite Cal
-		if ((checkSwitch(argv[i])) && ((argv[i][1] == 'U') || (argv[i][1] == 'u')) && ret)
+		if ((checkSwitch(args[i])) && ((args[i][1] == 'U') || (args[i][1] == 'u')) && ret)
 		{
 			if (PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].OSSCALSave)
 			{
-				for (j = 1; j < argc; j++)
+				for (j = 1; j < args.size(); j++)
 				{
-					if ((checkSwitch(argv[j])) && ((argv[j][1] == 'M') || (argv[j][1] == 'm')))
+					if ((checkSwitch(args[j])) && ((args[j][1] == 'M') || (args[j][1] == 'm')))
 					{
-						ret = getValue(&PicFuncs.DeviceBuffers->OSCCAL, &argv[i][2]);
+						ret = getValue(&PicFuncs.DeviceBuffers->OSCCAL, &args[i][2]);
 						if (ret)
 						{
 							PicFuncs.OverwriteOSCCAL = true;
@@ -1120,10 +1122,10 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 		}
 	}
 
-	for (i = 1; i < argc; i++)
+	for (i = 1; i < args.size(); i++)
 	{
 		// -E Erase
-		if ((checkSwitch(argv[i])) && ((argv[i][1] == 'E') || (argv[i][1] == 'e')) && ret)
+		if ((checkSwitch(args[i])) && ((args[i][1] == 'E') || (args[i][1] == 'e')) && ret)
 		{
 			if (PicFuncs.FamilyIsKeeloq())
 			{
@@ -1160,10 +1162,10 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 		}
 	}
 
-	for (i = 1; i < argc; i++)
+	for (i = 1; i < args.size(); i++)
 	{
 		// -M Program 
-		if ((checkSwitch(argv[i])) && ((argv[i][1] == 'M') || (argv[i][1] == 'm')) && ret)
+		if ((checkSwitch(args[i])) && ((args[i][1] == 'M') || (args[i][1] == 'm')) && ret)
 		{
 			if (hexLoaded)
 			{
@@ -1171,7 +1173,7 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 				bool verify = true;
 				bool argError = true;
 								
-				if (argv[i][2] == 0)
+				if (args[i][2] == 0)
 				{ // no specified region - erase then program all
 					if (PicFuncs.FamilyIsEEPROM())
 					{
@@ -1229,9 +1231,9 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 					eedata = false;
 					userid = false;
 					config = false;
-					for (j = 2; j < TXT_LENGTH(argv[i]); j++)
+					for (j = 2; j < TXT_LENGTH(args[i]); j++)
 					{
-						switch (argv[i][j])
+						switch (args[i][j])
 						{
 							case 'p':
 							case 'P':
@@ -1308,13 +1310,13 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 							case 'v':
 							case 'V':
 								{
-								_tcsncpy_s(tempString, &argv[i][3], TXT_LENGTH(argv[i])-3);
-								argv[i] = (char *) "";
+								_tcsncpy_s(tempString, &args[i][3], TXT_LENGTH(args[i])-3);
+								args[i] = (char *) "";
 								int k = 1;
-								if (((i+k) < argc) && (!checkSwitch(argv[i+k])))
+								if (((i+k) < args.size()) && (!checkSwitch(args[i+k])))
 								{ // check for space after v
-									TXT_PUSH_UNSAFE(tempString, argv[i+k]);
-									argv[i + k++] = (char *) "";
+									TXT_PUSH_UNSAFE(tempString, args[i+k]);
+									args[i + k++] = (char *) "";
 								}
 								int vtop = 0;
 								int vbot = 0;
@@ -1372,10 +1374,10 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 		}
 	}
 
-	for (i = 1; i < argc; i++)
+	for (i = 1; i < args.size(); i++)
 	{
 		// -Y Verify
-		if ((checkSwitch(argv[i])) && ((argv[i][1] == 'Y') || (argv[i][1] == 'y')) && ret)
+		if ((checkSwitch(args[i])) && ((args[i][1] == 'Y') || (args[i][1] == 'y')) && ret)
 		{
 			if (hexLoaded)
 			{
@@ -1386,7 +1388,7 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 					fflush(stdout);
 					ret = false;
 				}
-				else if (argv[i][2] == 0)
+				else if (args[i][2] == 0)
 				{ // no specified region - verify all
 					program = true;
 					eedata = true;
@@ -1399,9 +1401,9 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 					eedata = false;
 					userid = false;
 					config = false;
-					for (j = 2; j < TXT_LENGTH(argv[i]); j++)
+					for (j = 2; j < TXT_LENGTH(args[i]); j++)
 					{
-						switch (argv[i][j])
+						switch (args[i][j])
 						{
 							case 'p':
 							case 'P':
@@ -1485,15 +1487,15 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 		}
 	}
 
-	for (i = 1; i < argc; i++)
+	for (i = 1; i < args.size(); i++)
 	{
 		// -G Read 
-		if ((checkSwitch(argv[i])) && ((argv[i][1] == 'G') || (argv[i][1] == 'g')) && ret)
+		if ((checkSwitch(args[i])) && ((args[i][1] == 'G') || (args[i][1] == 'g')) && ret)
 		{
 			int startAddr = 0;
 			int stopAddr = 0;
 
-			if (argv[i][2] == 0)
+			if (args[i][2] == 0)
 			{ // no specified type - illegal
 				ret = false;
 			}
@@ -1505,21 +1507,21 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 			}
 			else
 			{
-				switch (argv[i][2])
+				switch (args[i][2])
 				{
 					case 'f':
 					case 'F':
 							if (PicFuncs.ReadDevice(READ_MEM, true, true, true, true))
 							{
-								_tcsncpy_s(tempString, &argv[i][3], TXT_LENGTH(argv[i])-3);
-								argv[i] = (char *) "";
+								_tcsncpy_s(tempString, &args[i][3], TXT_LENGTH(args[i])-3);
+								args[i] = (char *) "";
 								j = 1;
-								while (((i+j) < argc) && (!checkSwitch(argv[i+j])))
+								while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
 								{ // check for path with space(s) in it
 									if (TXT_LENGTH(tempString) != 0) // don't add space if it's between "F" and start of filename
 										TXT_PUSH_UNSAFE(tempString, " ");
-									TXT_PUSH_UNSAFE(tempString, argv[i+j]);
-									argv[i + j++] = (char *) "";
+									TXT_PUSH_UNSAFE(tempString, args[i+j]);
+									args[i + j++] = (char *) "";
 								}
 								// Check for BIN file:
 								ret = false; // assume not bin file
@@ -1565,13 +1567,13 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 					case 'p':
 					case 'P':
 						// Read Program mem range to screen
-						_tcsncpy_s(tempString, &argv[i][3], TXT_LENGTH(argv[i])-3);
-						argv[i] = (char *) "";
+						_tcsncpy_s(tempString, &args[i][3], TXT_LENGTH(args[i])-3);
+						args[i] = (char *) "";
 						j = 1;
-						if (((i+j) < argc) && (!checkSwitch(argv[i+j])))
+						if (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
 						{ // check for space after p
-							TXT_PUSH_UNSAFE(tempString, argv[i+j]);
-							argv[i + j++] = (char *) "";
+							TXT_PUSH_UNSAFE(tempString, args[i+j]);
+							args[i + j++] = (char *) "";
 						}
 						ret = getRange(&startAddr, &stopAddr, tempString);
 						if (ret)
@@ -1596,13 +1598,13 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 						if (PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].EEMem > 0)
 						{
 							// Read EE mem range to screen
-							_tcsncpy_s(tempString, &argv[i][3], TXT_LENGTH(argv[i])-3);
-							argv[i] = (char *) "";
+							_tcsncpy_s(tempString, &args[i][3], TXT_LENGTH(args[i])-3);
+							args[i] = (char *) "";
 							j = 1;
-							if (((i+j) < argc) && (!checkSwitch(argv[i+j])))
+							if (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
 							{ // check for space after p
-								TXT_PUSH_UNSAFE(tempString, argv[i+j]);
-								argv[i + j++] = (char *) "";
+								TXT_PUSH_UNSAFE(tempString, args[i+j]);
+								args[i + j++] = (char *) "";
 							}
 							ret = getRange(&startAddr, &stopAddr, tempString);
 							if (ret)
@@ -1711,7 +1713,7 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR* argv[])
 	return ret;
 }
 
-bool Ccmd_app::priority3Args(int argc, _TCHAR* argv[])
+bool Ccmd_app::priority3Args(TextVec& args)
 {	// returns false if any command has an error.
 
 	// priority 3 args are -I, -K
@@ -1719,11 +1721,11 @@ bool Ccmd_app::priority3Args(int argc, _TCHAR* argv[])
 	int i, j;
 	bool ret = true;
 
-	for (i = 1; i < argc; i++)
+	for (i = 1; i < args.size(); i++)
 	{
-		if (checkSwitch(argv[i]))
+		if (checkSwitch(args[i]))
 		{
-			switch(argv[i][1])
+			switch(args[i][1])
 			{
 				case 'I':
 				case 'i':
@@ -1794,7 +1796,7 @@ bool Ccmd_app::priority3Args(int argc, _TCHAR* argv[])
 	return ret;
 }
 
-bool Ccmd_app::priority4Args(int argc, _TCHAR* argv[])
+bool Ccmd_app::priority4Args(TextVec& args)
 {	// returns false if any command has an error.
 
 	// priority 4 args are -R, -T
@@ -1809,11 +1811,11 @@ bool Ccmd_app::priority4Args(int argc, _TCHAR* argv[])
 			PicFuncs.VddOff();      // ensure VDD off if no -T
 	}
 
-	for (i = 1; i < argc; i++)
+	for (i = 1; i < args.size(); i++)
 	{
-		if (checkSwitch(argv[i]))
+		if (checkSwitch(args[i]))
 		{
-			switch(argv[i][1])
+			switch(args[i][1])
 			{
 				case 'R':
 				case 'r':
@@ -1845,7 +1847,7 @@ bool Ccmd_app::priority4Args(int argc, _TCHAR* argv[])
 	return ret;
 }
 
-bool Ccmd_app::delayArg(int argc, _TCHAR* argv[])
+bool Ccmd_app::delayArg(TextVec& args)
 {	// returns false if command has an error.
 
 	// delay arg is -H
@@ -1855,16 +1857,16 @@ bool Ccmd_app::delayArg(int argc, _TCHAR* argv[])
 	bool ret = true;
 	struct termios	tios;
 
-	for (i = 1; i < argc; i++)
+	for (i = 1; i < args.size(); i++)
 	{
-		if (checkSwitch(argv[i]))
+		if (checkSwitch(args[i]))
 		{
-			switch(argv[i][1])
+			switch(args[i][1])
 			{
 				case 'H':
 				case 'h':
 					// Delay before exit
-					if (argv[i][2] == 0)
+					if (args[i][2] == 0)
 					{ // no specified value - illegal
 						printf("-H Invalid value.\n");
 						fflush(stdout);
@@ -1873,7 +1875,7 @@ bool Ccmd_app::delayArg(int argc, _TCHAR* argv[])
 					}
 					else
 					{
-						if ((argv[i][2] == 'K') || (argv[i][2] == 'k'))
+						if ((args[i][2] == 'K') || (args[i][2] == 'k'))
 						{
 							printf("\nPress any key to exit.\n");
 							fflush(stdout);
@@ -1884,7 +1886,7 @@ bool Ccmd_app::delayArg(int argc, _TCHAR* argv[])
 							tios.c_lflag |= (ICANON | ECHO);
 							tcsetattr(0, TCSANOW, &tios);
 						}
-						else if (getValue(&seconds, &argv[i][2]))
+						else if (getValue(&seconds, &args[i][2]))
 						{
 							if (seconds == 0)
 							{ // bad value
@@ -2149,9 +2151,9 @@ bool Ccmd_app::getValue(unsigned int* value, _TCHAR* str_value)
 	return true;
 }
 
-bool Ccmd_app::checkSwitch(_TCHAR* argv)
+bool Ccmd_app::checkSwitch(_TCHAR * arg)
 {
-	return ((argv[0] == '-') || (argv[0] == '/'));
+	return ((arg[0] == '-') || (arg[0] == '/'));
 }
 
 bool Ccmd_app::findPICkit2(int unitIndex)
@@ -2192,23 +2194,23 @@ void Ccmd_app::printMemError(void)
 	fflush(stdout);
 }
 
-bool Ccmd_app::checkDevFilePathOptionB(int argc, _TCHAR* argv[], _TCHAR* path_string)
+bool Ccmd_app::checkDevFilePathOptionB(TextVec& args, _TCHAR* path_string)
 {
 	_TCHAR path_temp[MAX_PATH];
 
 	int i;
 	// look for 'B' option. 
-	for (i = 0; i < argc; i++)
+	for (i = 0; i < args.size(); i++)
 	{
-		if (checkSwitch(argv[i]))
+		if (checkSwitch(args[i]))
 		{
-			if ((argv[i][1] == 'b') || (argv[i][1] == 'B'))
+			if ((args[i][1] == 'b') || (args[i][1] == 'B'))
 				break;
 		}
 	}
-	if (i == argc)
+	if (i == args.size())
 		return false; // -b not found
-	if (argv[i][2] == 0)
+	if (args[i][2] == 0)
 	{
 		printf("-B No path given\n");
 		ReturnCode = INVALID_CMDLINE_ARG;
@@ -2217,14 +2219,14 @@ bool Ccmd_app::checkDevFilePathOptionB(int argc, _TCHAR* argv[], _TCHAR* path_st
 	}
 
 	// Get path to device file:
-	_tcsncpy_s(path_temp, &argv[i][2], TXT_LENGTH(argv[i])-2);
-	argv[i] = (char *) "";
+	_tcsncpy_s(path_temp, &args[i][2], TXT_LENGTH(args[i])-2);
+	args[i] = (char *) "";
 	int j = 1;
-	while (((i+j) < argc) && (!checkSwitch(argv[i+j])))
+	while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
 	{ // check for path with space(s) in it
 		TXT_PUSH_UNSAFE(path_temp, " ");
-		TXT_PUSH_UNSAFE(path_temp, argv[i+j]);
-		argv[i + j++] = (char *) "";
+		TXT_PUSH_UNSAFE(path_temp, args[i+j]);
+		args[i + j++] = (char *) "";
 	}
 	i = 0;
 	do
@@ -2234,35 +2236,35 @@ bool Ccmd_app::checkDevFilePathOptionB(int argc, _TCHAR* argv[], _TCHAR* path_st
 	return true;
 }
 
-bool Ccmd_app::checkHelp1(int argc, _TCHAR* argv[])
+bool Ccmd_app::checkHelp1(TextVec& args)
 { // Helps that don't need the device file.
 	int i;
 
 	// if no arguments, display main help screen
-	if (argc == 1)
+	if (args.size() == 1)
 	{
 		displayHelp();
 		return true;
 	}
 
 	// look for '?' in all arguments.  Display help for first found
-	for (i = 0; i < argc; i++)
+	for (i = 0; i < args.size(); i++)
 	{
-		if (TXT_SEEK_TCHAR(argv[i], '?'))
+		if (TXT_SEEK_TCHAR(args[i], '?'))
 			break;
 	}
 	
-	if (i == argc) // none found
+	if (i == args.size()) // none found
 		return false;
 
-	if (checkSwitch(argv[i]))
+	if (checkSwitch(args[i]))
 	{
-		switch (argv[i][1])
+		switch (args[i][1])
 		{
 			case '?':
-				if (TXT_LENGTH(argv[i]) > 2)
+				if (TXT_LENGTH(args[i]) > 2)
 				{
-					if ((argv[i][2] == 'e') || (argv[i][2] == 'E'))
+					if ((args[i][2] == 'e') || (args[i][2] == 'E'))
 					{
 						printf ("PK2CMD return codes:\n");
 						printf ("Value   Code                    Notes\n");
@@ -2300,7 +2302,7 @@ bool Ccmd_app::checkHelp1(int argc, _TCHAR* argv[])
 						printf ("39      AUTODETECT_FAILED       A part autodetect operation failed to find\n");
 						printf ("                                a known part.\n\n");
 					}
-					else if ((argv[i][2] == 'l') || (argv[i][2] == 'L'))
+					else if ((args[i][2] == 'l') || (args[i][2] == 'L'))
 					{
 						displayLicense();
 					}
@@ -2859,28 +2861,28 @@ void Ccmd_app::displayHelp(void)
 	printf("		Jeff Post, Xiaofan Chen, and Shigenobu Kimura\n");
 }
 
-bool Ccmd_app::checkHelp2(int argc, _TCHAR* argv[], bool loadDeviceFileFailed)
+bool Ccmd_app::checkHelp2(TextVec& args, bool loadDeviceFileFailed)
 {  // helps that need the device file loaded
 	int i;
 
 	// look for '?' in all arguments.  Display help for first found
-	for (i = 0; i < argc; i++)
+	for (i = 0; i < args.size(); i++)
 	{
-		if (TXT_SEEK_TCHAR(argv[i], '?'))
+		if (TXT_SEEK_TCHAR(args[i], '?'))
 			break;
 	}
 	
-	if (i == argc) // none found
+	if (i == args.size()) // none found
 		return false;
 
-	if (checkSwitch(argv[i]))
+	if (checkSwitch(args[i]))
 	{
-		switch (argv[i][1])
+		switch (args[i][1])
 		{
 			case '?':
-				if (TXT_LENGTH(argv[i]) > 2)
+				if (TXT_LENGTH(args[i]) > 2)
 				{
-					if ((argv[i][2] == 'v') || (argv[i][2] == 'V'))
+					if ((args[i][2] == 'v') || (args[i][2] == 'V'))
 					{
 						printf ("\nExecutable Version:    %d.%02d.%02d", VERSION_MAJOR, VERSION_MINOR, VERSION_DOT);
 						
@@ -2890,7 +2892,7 @@ bool Ccmd_app::checkHelp2(int argc, _TCHAR* argv[], bool loadDeviceFileFailed)
 							printf ("\nDevice File Version:   %d.%02d.%02d\n", PicFuncs.DevFile.Info.VersionMajor,
 								PicFuncs.DevFile.Info.VersionMinor, PicFuncs.DevFile.Info.VersionDot);
 						// Look for PICkit 2
-						selectUnitArg(argc, argv);
+						selectUnitArg(args);
 						if (PicFuncs.DetectPICkit2Device(pk2UnitIndex, true))
 						{
 							printf ("OS Firmware Version:   %d.%02d.%02d\n\n", PicFuncs.FirmwareVersion.major,
@@ -2902,7 +2904,7 @@ bool Ccmd_app::checkHelp2(int argc, _TCHAR* argv[], bool loadDeviceFileFailed)
 						}
 
 					}
-					else if ((argv[i][2] == 'p') || (argv[i][2] == 'P'))
+					else if ((args[i][2] == 'p') || (args[i][2] == 'P'))
 					{
 						if (loadDeviceFileFailed)
 						{
@@ -2912,15 +2914,15 @@ bool Ccmd_app::checkHelp2(int argc, _TCHAR* argv[], bool loadDeviceFileFailed)
 						{
 							_TCHAR searchTerm[MAX_PATH];
 							// get search term
-							_tcsncpy_s(searchTerm, &argv[i][3], TXT_LENGTH(argv[i])-3);
-							argv[i] = (char *) "";
+							_tcsncpy_s(searchTerm, &args[i][3], TXT_LENGTH(args[i])-3);
+							args[i] = (char *) "";
 							int j = 1;
-							while (((i+j) < argc) && (!checkSwitch(argv[i+j])))
+							while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
 							{ // check for term with space(s) in it
-								TXT_PUSH_UNSAFE(searchTerm, argv[i+j]);
-								argv[i + j++] = (char *) "";
+								TXT_PUSH_UNSAFE(searchTerm, args[i+j]);
+								args[i + j++] = (char *) "";
 							}
-							displayPartList(argc, argv, searchTerm);
+							displayPartList(args, searchTerm);
 						}
 					}
 					else
@@ -3138,7 +3140,7 @@ void Ccmd_app::displayLicense(void)
 
 }
 
-void Ccmd_app::displayPartList(int argc, _TCHAR* argv[], _TCHAR* argSearch)
+void Ccmd_app::displayPartList(TextVec& args, _TCHAR* argSearch)
 {
 	_TCHAR *partlist_array[1024];
 	int partNum, partIdx;

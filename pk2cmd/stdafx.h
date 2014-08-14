@@ -24,9 +24,11 @@ static const int	VERSION_DOT =	0;
 using namespace std;
 
 
+
 static const int	MAX_PATH =	256;
 
 typedef char _TCHAR;
+typedef vector<_TCHAR*> TextVec;
 typedef int errno_t;
 #define	TXT_LENGTH		(int)strlen
 #define	TCH_UPPER	 toupper
