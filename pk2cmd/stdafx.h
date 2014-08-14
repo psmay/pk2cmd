@@ -19,6 +19,11 @@ static const int	VERSION_DOT =	0;
 #include <errno.h>
 #include	<time.h>
 
+#include <string>
+#include <vector>
+using namespace std;
+
+
 static const int	MAX_PATH =	256;
 
 typedef char _TCHAR;
