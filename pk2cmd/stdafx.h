@@ -59,4 +59,6 @@ extern int	fopen_s(FILE **fp, char *path, const char *spec);
 //#endif
 //#define	bool	unsigned char
 
+#define XRIGHT(str,skip) &str[skip]
+
 // TODO: reference additional headers your program requires here

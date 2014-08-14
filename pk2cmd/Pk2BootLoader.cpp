@@ -7,7 +7,7 @@
 // Software must have this entire copyright and disclaimer notice prominently
 // posted in a location where end users will see it (e.g., installation program,
 // program headers, About Box, etc.).  To the maximum extent permitted by law,
-// this Software is distributed “AS IS” and WITHOUT ANY WARRANTY INCLUDING BUT
+// this Software is distributed ï¿½AS ISï¿½ and WITHOUT ANY WARRANTY INCLUDING BUT
 // NOT LIMITED TO ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR
 // PARTICULAR PURPOSE, or NON-INFRINGEMENT. IN NO EVENT WILL MICROCHIP OR ITS
 // LICENSORS BE LIABLE FOR ANY INCIDENTAL, SPECIAL, INDIRECT OR CONSEQUENTIAL
@@ -74,9 +74,9 @@ bool Pk2BootLoader::ReadHexAndDownload(_TCHAR* fileName, CPICkitFunctions* picFu
 		   }
             if ((fileLine[0] == ':') && (TXT_LENGTH(fileLine) >= 11))
             { // skip line if not hex line entry,or not minimum length ":BBAAAATTCC"
-				int byteCount = ParseHex(&fileLine[1], 2);
-				int fileAddress = ParseHex(&fileLine[3], 4);
-				int recordType = ParseHex(&fileLine[7], 2);
+				int byteCount = ParseHex(XRIGHT(fileLine,1), 2);
+				int fileAddress = ParseHex(XRIGHT(fileLine,3), 4);
+				int recordType = ParseHex(XRIGHT(fileLine,7), 2);
 
                 if ((second16) && ((fileAddress & 0x00000010) == 0))
                 {// if just moved to new 32-byte boundary.
@@ -116,7 +116,7 @@ bool Pk2BootLoader::ReadHexAndDownload(_TCHAR* fileName, CPICkitFunctions* picFu
                                 if ((rowByte >= startByte) && (rowByte < endByte))
                                 {
                                     // get the byte value from hex file
-									unsigned int wordByte = ParseHex(&fileLine[9 + (2 * (rowByte - startByte))], 2);
+									unsigned int wordByte = ParseHex(XRIGHT(fileLine, 9 + (2 * (rowByte - startByte))), 2);
                                     flashWriteData[offset + rowByte] = (unsigned char)(wordByte & 0xFF);
                                 }
 
@@ -171,9 +171,9 @@ bool Pk2BootLoader::ReadHexAndVerify(_TCHAR* fileName, CPICkitFunctions* picFunc
 		   }
 			if ((fileLine[0] == ':') && (TXT_LENGTH(fileLine) >= 11))
             { // skip line if not hex line entry,or not minimum length ":BBAAAATTCC"
-				int byteCount = ParseHex(&fileLine[1], 2);
-				int fileAddress = ParseHex(&fileLine[3], 4);
-				int recordType = ParseHex(&fileLine[7], 2);
+				int byteCount = ParseHex(XRIGHT(fileLine,1), 2);
+				int fileAddress = ParseHex(XRIGHT(fileLine,3), 4);
+				int recordType = ParseHex(XRIGHT(fileLine,7), 2);
 
                 if (recordType == 0)
                 { // Data Record}
@@ -190,7 +190,7 @@ bool Pk2BootLoader::ReadHexAndVerify(_TCHAR* fileName, CPICkitFunctions* picFunc
                             for (int lineByte = 0; lineByte < byteCount; lineByte++)
                             {
                                 // get the byte value from hex file
-                                unsigned int wordByte = ParseHex(&fileLine[9 + (2 * lineByte)], 2);
+                                unsigned int wordByte = ParseHex(XRIGHT(fileLine, 9 + (2 * lineByte)), 2);
                                 if (picFuncs->Usb_read_array[5 + startByte + lineByte] != (unsigned char)(wordByte & 0xFF))
                                 {
                                     verified  = false;

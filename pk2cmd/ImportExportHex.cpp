@@ -7,7 +7,7 @@
 // Software must have this entire copyright and disclaimer notice prominently
 // posted in a location where end users will see it (e.g., installation program,
 // program headers, About Box, etc.).  To the maximum extent permitted by law,
-// this Software is distributed “AS IS” and WITHOUT ANY WARRANTY INCLUDING BUT
+// this Software is distributed ï¿½AS ISï¿½ and WITHOUT ANY WARRANTY INCLUDING BUT
 // NOT LIMITED TO ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR
 // PARTICULAR PURPOSE, or NON-INFRINGEMENT. IN NO EVENT WILL MICROCHIP OR ITS
 // LICENSORS BE LIABLE FOR ANY INCIDENTAL, SPECIAL, INDIRECT OR CONSEQUENTIAL
@@ -85,9 +85,9 @@ bool CImportExportHex::ImportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
 		   }
            if ((fileLine[0] == ':') && (TXT_LENGTH(fileLine) >= 11))
             { // skip line if not hex line entry,or not minimum length ":BBAAAATTCC"
-                int byteCount = ParseHex(&fileLine[1], 2);
-				int fileAddress = segmentAddress + ParseHex(&fileLine[3], 4);
-				int recordType = ParseHex(&fileLine[7], 2);
+                int byteCount = ParseHex(XRIGHT(fileLine,1), 2);
+				int fileAddress = segmentAddress + ParseHex(XRIGHT(fileLine,3), 4);
+				int recordType = ParseHex(XRIGHT(fileLine,7), 2);
 
                 if (recordType == 0)
                 { // Data Record}
@@ -102,7 +102,7 @@ bool CImportExportHex::ImportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
                             // compute byte position withing memory word
                             int bytePosition = byteAddress % bytesPerWord;
                             // get the byte value from hex file
-                            unsigned int wordByte = 0xFFFFFF00 | ParseHex(&fileLine[9 + (2 * lineByte)], 2); 
+                            unsigned int wordByte = 0xFFFFFF00 | ParseHex(XRIGHT(fileLine, 9 + (2 * lineByte)), 2);
                             // shift the byte into its proper position in the word.
                             for (int shift = 0; shift < bytePosition; shift++)
 							{ // shift byte into proper position
@@ -244,7 +244,7 @@ bool CImportExportHex::ImportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
                 { // Segment address
                     if (TXT_LENGTH(fileLine) >= (11 + (2 * byteCount)))
                     { // skip if line isn't long enough for bytecount.                                                    
-                        segmentAddress = ParseHex(&fileLine[9], 4);
+                        segmentAddress = ParseHex(XRIGHT(fileLine,9), 4);
                     } 
                     if (recordType == 2)
                     {
@@ -447,7 +447,7 @@ bool CImportExportHex::ExportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
 					_stprintf_s(hexWord, 32, "%08X", picFuncs->DeviceBuffers->ProgramMemory[arrayIndex + i]);
 					for (int j = 0; j < bytesPerWord; j++)
 					{
-						TXT_PUSH(hexLine, &hexWord[6 - 2 * j], 2);
+						TXT_PUSH(hexLine, XRIGHT(hexWord, 6 - 2 * j), 2);
 					}
 				}
 				_stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
@@ -489,7 +489,7 @@ bool CImportExportHex::ExportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
                         _stprintf_s(hexWord, 32, "%08X", picFuncs->DeviceBuffers->ProgramMemory[arrayIndex + i]);
                         for (int j = 0; j < bytesPerWord; j++)
                         {
-                            TXT_PUSH(hexLine, &hexWord[6 - 2 * j], 2);
+                            TXT_PUSH(hexLine, XRIGHT(hexWord, 6 - 2 * j), 2);
                         }
                     }
 					_stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
@@ -542,7 +542,7 @@ bool CImportExportHex::ExportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
 						_stprintf_s(hexWord, 32, "%08X", picFuncs->DeviceBuffers->EEPromMemory[arrayIndex + i]);
 						for (int j = 0; j < eeBytesPerWord; j++)
 						{
-							TXT_PUSH(hexLine, &hexWord[6 - 2 * j], 2);
+							TXT_PUSH(hexLine, XRIGHT(hexWord, 6 - 2 * j), 2);
 						}
 					}
 					_stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
@@ -600,7 +600,7 @@ bool CImportExportHex::ExportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
 						_stprintf_s(hexWord, 32, "%08X", picFuncs->DeviceBuffers->ConfigWords[cfgsWritten + i]);
 						for (int j = 0; j < cfgBytesPerWord; j++)
 						{
-							TXT_PUSH(hexLine, &hexWord[8 - ((j+1)*2)], 2);
+							TXT_PUSH(hexLine, XRIGHT(hexWord, 8 - ((j+1)*2)), 2);
 						}
 					}
 					_stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
@@ -648,7 +648,7 @@ bool CImportExportHex::ExportHexFile(_TCHAR* filePath, CPICkitFunctions* picFunc
 						_stprintf_s(hexWord, 32, "%08X", picFuncs->DeviceBuffers->UserIDs[arrayIndex + i]);
 						for (int j = 0; j < idBytesPerWord; j++)
 						{
-							TXT_PUSH(hexLine, &hexWord[6 - 2 * j], 2);
+							TXT_PUSH(hexLine, XRIGHT(hexWord, 6 - 2 * j), 2);
 						}
 					}
 					_stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
@@ -713,7 +713,7 @@ bool CImportExportHex::ExportBINFile(_TCHAR* filePath, CPICkitFunctions* picFunc
 
 unsigned char CImportExportHex::computeChecksum(_TCHAR* fileLine)
 {
-	int byteCount = ParseHex(&fileLine[1], 2);
+	int byteCount = ParseHex(XRIGHT(fileLine,1), 2);
     if (TXT_LENGTH(fileLine) >= (9 + (2* byteCount)))
     { // skip if line isn't long enough for bytecount.             
          int checksum = byteCount;

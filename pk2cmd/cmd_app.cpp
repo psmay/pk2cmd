@@ -29,7 +29,7 @@ extern "C"{
 	#include "strnatcmp.h"
 }
 
-#define XRIGHT(str,skip) &str[skip]
+
 
 Ccmd_app::Ccmd_app(void)
 {
@@ -316,7 +316,7 @@ void Ccmd_app::processArgs(TextVec& args)
 	}
 	else  if (((tempString[0] == 'f') || (tempString[0] == 'F')) && (tempString[1] != 0))
 	{ // auto detect family
-		if (detectSpecificFamily(&tempString[1], args))
+		if (detectSpecificFamily(XRIGHT(tempString,1), args))
 		{ // found a device
 			_tcsncpy_s(tempString, PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].PartName, 28);
 			printf("Auto-Detect found part %s.\n\n", tempString);
