@@ -88,7 +88,7 @@ void Ccmd_app::PK2_CMD_Entry(TextVec& args)
 
 	if (!PicFuncs.ReadDeviceFile(tempString))
 	{
-		printf(DEVICE_FILE_NAME " device file not found.\n");
+		cout << format(DEVICE_FILE_NAME " device file not found.\n");
 		ReturnCode = DEVICEFILE_ERROR;
 		loadDeviceFileFailed = true;
 	}
@@ -97,13 +97,13 @@ void Ccmd_app::PK2_CMD_Entry(TextVec& args)
 		char compatMinLevel = DevFileCompatLevelMin;
 		if (PicFuncs.DevFile.Info.Compatibility < compatMinLevel)
 		{
-			printf(DEVICE_FILE_NAME " device file is too old.\n");
+			cout << format(DEVICE_FILE_NAME " device file is too old.\n");
 			ReturnCode = DEVICEFILE_ERROR;
 			loadDeviceFileFailed = true;
 		}
 		if (PicFuncs.DevFile.Info.Compatibility > DevFileCompatLevel)
 		{
-			printf(DEVICE_FILE_NAME " device file requires an update of pk2cmd.\n");
+			cout << format(DEVICE_FILE_NAME " device file requires an update of pk2cmd.\n");
 			ReturnCode = DEVICEFILE_ERROR;
 			loadDeviceFileFailed = true;
 		}
@@ -140,12 +140,12 @@ void Ccmd_app::PK2_CMD_Entry(TextVec& args)
 		int status = PicFuncs.ReadPkStatus();
 		if ((STATUS_VDD_ERROR & status) > 0)
 		{
-			printf("VDD Error detected.  Check target for proper connectivity.\n");
+			cout << format("VDD Error detected.  Check target for proper connectivity.\n");
 			ReturnCode = VOLTAGE_ERROR;
 		}
 		else if ((STATUS_VPP_ERROR & status) > 0)
 		{
-			printf("VPP Error detected.  Check target for proper connectivity.\n");
+			cout << format("VPP Error detected.  Check target for proper connectivity.\n");
 			ReturnCode = VOLTAGE_ERROR;
 		}
 	}
@@ -156,7 +156,7 @@ void Ccmd_app::ResetAtExit(void)
 {
 	if (resetOnExit)
 	{
-		printf("Resetting PICkit 2...\n");
+		cout << format("Resetting PICkit 2...\n");
 		PicFuncs.ResetPICkit2(); // must re-enumerate with new UnitID in serial string
 	}
 }
@@ -296,7 +296,7 @@ void Ccmd_app::processArgs(TextVec& args)
 	}
 	if (i == NSIZE(args))
 	{ // no part specified
-		printf("-P is a required option\n\n");
+		cout << format("-P is a required option\n\n");
 		ReturnCode = INVALID_CMDLINE_ARG;
 		return;
 	}
@@ -310,7 +310,7 @@ void Ccmd_app::processArgs(TextVec& args)
 		if (detectAllFamilies(args))
 		{ // found a device
 			XCOPY28(tempString, PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].PartName);
-			printf("Auto-Detect: Found part %s.\n\n", tempString);
+			cout << format("Auto-Detect: Found part %s.\n\n", tempString);
 		}
 		else if (ReturnCode == INVALID_CMDLINE_ARG)
 		{ // arg error
@@ -318,7 +318,7 @@ void Ccmd_app::processArgs(TextVec& args)
 		}
 		else
 		{
-			printf("Auto-Detect: No known part found.\n\n");
+			cout << format("Auto-Detect: No known part found.\n\n");
 			ReturnCode = AUTODETECT_FAILED;
 			return;
 		}
@@ -333,7 +333,7 @@ void Ccmd_app::processArgs(TextVec& args)
 		if (detectSpecificFamily(XRIGHT(tempString,1), args))
 		{ // found a device
 			XCOPY28(tempString, PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].PartName);
-			printf("Auto-Detect found part %s.\n\n", tempString);
+			cout << format("Auto-Detect found part %s.\n\n", tempString);
 		}
 		else if (ReturnCode == INVALID_CMDLINE_ARG)
 		{ // arg error
@@ -349,7 +349,7 @@ void Ccmd_app::processArgs(TextVec& args)
 	// look for the device in the device file - still need to do this on autodetect to properly set up buffers.
 	if(!PicFuncs.FindDevice(tempString))
 	{
-		printf("Could not find device %s.\n\n", tempString);
+		cout << format("Could not find device %s.\n\n", tempString);
 		ReturnCode = INVALID_CMDLINE_ARG;
 		return;
 	}
@@ -358,7 +358,7 @@ void Ccmd_app::processArgs(TextVec& args)
 		return;
 	if (!checkArgsForBlankCheck(args))
 	{
-		printf("-C Blank Check must be done independent of other programming commands.\n");
+		cout << format("-C Blank Check must be done independent of other programming commands.\n");
 		ReturnCode = INVALID_CMDLINE_ARG;
 		return;
 	}
@@ -400,8 +400,8 @@ bool Ccmd_app::detectAllFamilies(TextVec& args)
 
 void Ccmd_app::printFamilies(void)
 {
-	printf("\nAuto-Detectable Part Families:\n\n");
-	printf("     ID#  Family\n");
+	cout << format("\nAuto-Detectable Part Families:\n\n");
+	cout << format("     ID#  Family\n");
 	int familyID = 0;
     for (int index = 0; index < PicFuncs.DevFile.Info.NumberFamilies ; index++)
     {
@@ -409,7 +409,7 @@ void Ccmd_app::printFamilies(void)
 		{
 			if ((PicFuncs.DevFile.Families[order].FamilyType == index) && PicFuncs.DevFile.Families[order].PartDetect)
 			{
-				printf("     %2i   %s\n", familyID++, PicFuncs.DevFile.Families[order].FamilyName);
+				cout << format("     %2i   %s\n", familyID++, PicFuncs.DevFile.Families[order].FamilyName);
 			}
 		}
     }
@@ -421,7 +421,7 @@ bool Ccmd_app::detectSpecificFamily(_TCHAR* idString, TextVec& args)
 
 	if (!getValue((unsigned int*)&familyID, idString))
 	{
-		printf("-PF Illegal family ID value.\n");
+		cout << format("-PF Illegal family ID value.\n");
 		ReturnCode = INVALID_CMDLINE_ARG;
 		return false;
 	}
@@ -442,13 +442,13 @@ bool Ccmd_app::detectSpecificFamily(_TCHAR* idString, TextVec& args)
 					{
 						return true;
 					}
-					printf("Auto-Detect: No known %s part found.\n\n", PicFuncs.DevFile.Families[order].FamilyName);
+					cout << format("Auto-Detect: No known %s part found.\n\n", PicFuncs.DevFile.Families[order].FamilyName);
 					return false;
 				}
 			}
 		}
     }
-	printf("-PF Illegal family ID value.\n");
+	cout << format("-PF Illegal family ID value.\n");
 	ReturnCode = INVALID_CMDLINE_ARG;
 	return false;
 }
@@ -469,7 +469,7 @@ bool Ccmd_app::bootloadArg(TextVec& args)
 			PicFuncs.ClosePICkit2Device();
 			if ((pk2UnitIndex > 0) || (PicFuncs.DetectPICkit2Device(1, false)))
 			{
-				printf("\nTo update the PICkit 2 OS, it must be the only unit connected.\n");
+				cout << format("\nTo update the PICkit 2 OS, it must be the only unit connected.\n");
 				ReturnCode = OPFAILURE;
 				return true;
 			}
@@ -489,34 +489,34 @@ bool Ccmd_app::bootloadArg(TextVec& args)
 			ret = Pk2BootLoadFuncs.ReadHexAndDownload(tempString, &PicFuncs, pk2UnitIndex);
 			if (!ret)
 			{
-				printf("Error opening hex file.\n");
+				cout << format("Error opening hex file.\n");
 				ReturnCode = OPFAILURE;
 				return true; // download command found
 			}
 			ret = Pk2BootLoadFuncs.ReadHexAndVerify(tempString, &PicFuncs);
 			if (!ret)
 			{
-				printf("Error validating OS download.\n");
+				cout << format("Error validating OS download.\n");
 				ReturnCode = OPFAILURE;
 				return true; // download command found
 			}
 			ret = PicFuncs.BL_WriteFWLoadedKey();
 			if (!ret)
 			{
-				printf("Error with OS download.\n");
+				cout << format("Error with OS download.\n");
 				ReturnCode = OPFAILURE;
 				return true; // download command found
 			}
-			printf("Resetting PICkit 2...\n");
+			cout << format("Resetting PICkit 2...\n");
 			PicFuncs.BL_Reset();
 			Sleep(5000);
 			if (!PicFuncs.DetectPICkit2Device(pk2UnitIndex, true))
 			{
-				printf("PICkit 2 failed to reset.\n");
+				cout << format("PICkit 2 failed to reset.\n");
 				ReturnCode = OPFAILURE;
 				return true; // download command found
 			}
-			printf("OS Update Successful.\n");
+			cout << format("OS Update Successful.\n");
 			return true;
 		}
 	}
@@ -549,14 +549,14 @@ bool Ccmd_app::unitIDArg(TextVec& args)
 			ret = PicFuncs.UnitIDWrite(writeString);
 			if (!ret)
 			{
-				printf("Error writing Unit ID.\n");
+				cout << format("Error writing Unit ID.\n");
 				ReturnCode = OPFAILURE;
 				return true; // unit id command found
 			}
 			ret = PicFuncs.UnitIDRead(readString);
 			if ((TXT_LENGTH(writeString) == 0) && !ret)
 			{
-				printf("Unit ID successfully cleared...\n");
+				cout << format("Unit ID successfully cleared...\n");
 				resetOnExit = true;
 				return true;
 			}
@@ -564,14 +564,14 @@ bool Ccmd_app::unitIDArg(TextVec& args)
 			{
 				if ((writeString[j] != readString[j]) || !ret)
 				{
-					printf("Error verifying Unit ID.\n");
+					cout << format("Error verifying Unit ID.\n");
 					ReturnCode = OPFAILURE;
 					return true; // unit id command found
 				}
 				if (writeString[j] == 0)
 					break;
 			}
-			printf("Unit ID successfully assigned...\n");
+			cout << format("Unit ID successfully assigned...\n");
 			resetOnExit = true;
 			return true;
 		}
@@ -624,9 +624,9 @@ bool Ccmd_app::selectUnitArg(TextVec& args)
 					else
 					{
 						if (j == 0)
-							printf("\nNo PICkit 2 Units Found...\n");
+							cout << format("\nNo PICkit 2 Units Found...\n");
 						else
-							printf("\nPICkit 2 with Unit ID '%s' not found.\n", unitIDString);
+							cout << format("\nPICkit 2 with Unit ID '%s' not found.\n", unitIDString);
 						break;
 					}
 				}				
@@ -641,9 +641,9 @@ bool Ccmd_app::selectUnitArg(TextVec& args)
 						if (j == 0)
 						{
 							if (listFWVer)
-								printf("\nUnit #     Unit ID          OS Firmware\n");
+								cout << format("\nUnit #     Unit ID          OS Firmware\n");
 							else
-								printf("\nUnit #     Unit ID\n");
+								cout << format("\nUnit #     Unit ID\n");
 						}
 
 						//if ((PicFuncs.FirmwareVersion.major < 2) || (PicFuncs.FirmwareVersion.major == 'v'))
@@ -658,48 +658,55 @@ bool Ccmd_app::selectUnitArg(TextVec& args)
 
 						//if (ret)
 						//{
-						//	len = printf("%d          %s", j, readString);
+						//	len = cout << format("%d          %s", j, readString);
 						//}
 						//else
 						//{
-						//	len = printf("%d          -", j);
+						//	len = cout << format("%d          -", j);
 						//}
 						if (TXT_COMPARE(readString, "PIC18F2550", 10) == 0)
 						{
+							string stmp;
 							if (listFWVer)
-								len = printf("%d          -", j); 
+								stmp = format("%d          -", j);
 							else
-								len = printf("%d          <bootloader>", j);
+								stmp = format("%d          <bootloader>", j);
+
+							cout << stmp;
+							len = NSIZE(stmp);
 						}
 						else
 						{
-							len = printf("%d          %s", j, readString);
+							string stmp;
+							stmp = format("%d          %s", j, readString);
+							cout << stmp;
+							len = NSIZE(stmp);
 						}
 
 						while (len < 28)
 						{
-							printf(" ");
+							cout << format(" ");
 							len++;
 						}
 						
 						if (listFWVer)
 						{
 							if (PicFuncs.FirmwareVersion.major == 'v')
-								printf("<bootloader>");
+								cout << format("<bootloader>");
 							else
-								printf("%d.%02d.%02d",
+								cout << format("%d.%02d.%02d",
 									PicFuncs.FirmwareVersion.major,
 									PicFuncs.FirmwareVersion.minor,
 									PicFuncs.FirmwareVersion.dot); 
 						}
 
-						printf("\n");
+						cout << format("\n");
 						PicFuncs.ClosePICkit2Device();
 					}
 					else
 					{
 						if (j == 0)
-							printf("\nNo PICkit 2 Units Found...\n");
+							cout << format("\nNo PICkit 2 Units Found...\n");
 						break;
 					}
 				}
@@ -765,14 +772,14 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 						tempf = (float)TXT_TO_DOUBLE(XRIGHT(*parg,2));
 						if (tempf > PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].VddMax)
 						{
-							printf("-A Vdd setpoint exceeds maximum for this device of %.1fV\n", 
+							cout << format("-A Vdd setpoint exceeds maximum for this device of %.1fV\n",
 									PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].VddMax);
 							ret = false;
 							ReturnCode = INVALID_CMDLINE_ARG;
 						}
 						if (tempf < 2.5)
 						{
-							printf("-A Vdd setpoint below PICkit 2 minimum of 2.5V\n");
+							cout << format("-A Vdd setpoint below PICkit 2 minimum of 2.5V\n");
 							ret = false;
 							ReturnCode = INVALID_CMDLINE_ARG;
 						}
@@ -814,7 +821,7 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 						}
 						if (ret && PicFuncs.FamilyIsEEPROM())
 						{ // bin file
-							printf("Importing -f file as .BIN\n");
+							cout << format("Importing -f file as .BIN\n");
 							ret = ImportExportFuncs.ImportBINFile(tempString, &PicFuncs);
 						}
 						else
@@ -844,7 +851,7 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					// Set ICSP speed
 					if ((*parg)[2] == 0)
 					{ // no specified value - illegal
-						printf("-L Invalid value.\n");
+						cout << format("-L Invalid value.\n");
 						ret = false;
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
@@ -856,7 +863,7 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					}
 					else
 					{ // no specified value - illegal
-						printf("-L Invalid value.\n");
+						cout << format("-L Invalid value.\n");
 						ret = false;
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
@@ -877,7 +884,7 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					// VPP override
 					if (preserveArgs)
 					{ // cannot be used with part detect
-						printf("-V Cannot be used with part auto-detect.\n");
+						cout << format("-V Cannot be used with part auto-detect.\n");
 						ret = false;
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
@@ -905,7 +912,7 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					// VPP first
 					if (preserveArgs)
 					{ // cannot be used with part detect
-						printf("-X Cannot be used with part auto-detect.\n");
+						cout << format("-X Cannot be used with part auto-detect.\n");
 						ret = false;
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
@@ -913,7 +920,7 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					{
 						if (PicFuncs.DevFile.Families[PicFuncs.ActiveFamily].ProgEntryVPPScript == 0)
 						{
-							printf("-X This part does not support VPP first program mode\n");
+							cout << format("-X This part does not support VPP first program mode\n");
 							ret = false;
 							ReturnCode = INVALID_CMDLINE_ARG;
 						}
@@ -933,7 +940,7 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					}
 					if (!preserveEEPROM)
 					{
-						printf("-Z Preserve EEData must be used in conjunction with the -M program command.\n");
+						cout << format("-Z Preserve EEData must be used in conjunction with the -M program command.\n");
 						ret = false;
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
@@ -950,7 +957,7 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 	}	
 	if (PicFuncs.GetSelfPowered() && PicFuncs.GetVppFirstEnable())
 	{
-		printf("-W -X VPP first not supported with external power\n");
+		cout << format("-W -X VPP first not supported with external power\n");
 		ret = false;
 		ReturnCode = INVALID_CMDLINE_ARG;
 	}
@@ -1045,23 +1052,23 @@ bool Ccmd_app::priority2Args(TextVec& args)
 		{
 			if (PicFuncs.FamilyIsKeeloq())
 			{
-				printf("BlankCheck not supported for KEELOQ devices.\n");
+				cout << format("BlankCheck not supported for KEELOQ devices.\n");
 				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
 			}
 			else if (PicFuncs.FamilyIsMCP())
 			{
-				printf("BlankCheck not supported for MCP devices.\n");
+				cout << format("BlankCheck not supported for MCP devices.\n");
 				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
 			}
 			else if (PicFuncs.ReadDevice(BLANK_CHECK, true, true, true, true))
 			{
-				printf("Device is blank\n");
+				cout << format("Device is blank\n");
 			}
 			else
 			{
-				printf("%s memory is NOT blank.\n\n", PicFuncs.ReadError.memoryType);
+				cout << format("%s memory is NOT blank.\n\n", PicFuncs.ReadError.memoryType);
 				printMemError();
 				ret = false;
 			}
@@ -1088,21 +1095,21 @@ bool Ccmd_app::priority2Args(TextVec& args)
 						}
 						else
 						{
-							printf("-U Error parsing value.\n");
+							cout << format("-U Error parsing value.\n");
 							ReturnCode = INVALID_CMDLINE_ARG;
 						}
 					}
 				}
 				if (!PicFuncs.OverwriteOSCCAL)
 				{
-					printf("-U Overwrite OSCCAL must be used in conjunction with the -M program command.\n");
+					cout << format("-U Overwrite OSCCAL must be used in conjunction with the -M program command.\n");
 					ret = false;
 					ReturnCode = INVALID_CMDLINE_ARG;
 				}
 			}
 			else
 			{
-					printf("-U Overwrite OSCCAL cannot be used with this device.\n");
+					cout << format("-U Overwrite OSCCAL cannot be used with this device.\n");
 					ret = false;
 					ReturnCode = INVALID_CMDLINE_ARG;
 			}
@@ -1118,13 +1125,13 @@ bool Ccmd_app::priority2Args(TextVec& args)
 		{
 			if (PicFuncs.FamilyIsKeeloq())
 			{
-				printf("Erase not supported for KEELOQ devices.\n");
+				cout << format("Erase not supported for KEELOQ devices.\n");
 				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
 			}
 			else if (PicFuncs.FamilyIsMCP())
 			{
-				printf("Erase not supported for MCP devices.\n");
+				cout << format("Erase not supported for MCP devices.\n");
 				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
 			}
@@ -1132,7 +1139,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 				&& (PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ConfigMasks[PROTOCOL_CFG] != MICROWIRE_BUS)
 				&& (PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ConfigMasks[PROTOCOL_CFG] != UNIO_BUS))
 			{ // Microwire / UNIO have a true "chip erase".  Other devices must write every byte blank.
-				printf("Erasing Device...\n");
+				cout << format("Erasing Device...\n");
 				if (!PicFuncs.SerialEEPROMErase())
 				{
 					ret = false;
@@ -1141,7 +1148,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 			}
 			else
 			{
-				printf("Erasing Device...\n");
+				cout << format("Erasing Device...\n");
 				PicFuncs.EraseDevice(true, !preserveEEPROM, &usingLowVoltageErase);
 			}
 		}
@@ -1243,7 +1250,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 								{
 									if (preserveEEPROM)
 									{
-										printf("Cannot both program and preserve EEData memory.\n");
+										cout << format("Cannot both program and preserve EEData memory.\n");
 										ReturnCode = INVALID_CMDLINE_ARG;
 										ret = false;
 									}
@@ -1278,7 +1285,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 										int configWords = PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ConfigWords;
 										if ((configLocation < (int)PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ProgramMem) && (configWords > 0))
 										{
-											printf("This device has configuration words in Program Memory.\nThey cannot be programmed separately.\n");
+											cout << format("This device has configuration words in Program Memory.\nThey cannot be programmed separately.\n");
 											ReturnCode = INVALID_CMDLINE_ARG;
 											ret = false;
 										}
@@ -1327,29 +1334,29 @@ bool Ccmd_app::priority2Args(TextVec& args)
 						else
 							ret = PicFuncs.ReadDevice(VERIFY_MEM_SHORT, program, eedata, userid, config);
 					}
-					printf("PICkit 2 Program Report\n");
-					printf("%s\n", stime);
-					printf("Device Type: %s\n\n", PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].PartName);
+					cout << format("PICkit 2 Program Report\n");
+					cout << format("%s\n", stime);
+					cout << format("Device Type: %s\n\n", PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].PartName);
 					if (ret)
 					{
-						printf("Program Succeeded.\n");
+						cout << format("Program Succeeded.\n");
 					}
 					else
 					{
-						printf("%s Memory Errors\n\n", PicFuncs.ReadError.memoryType);
+						cout << format("%s Memory Errors\n\n", PicFuncs.ReadError.memoryType);
 						printMemError();
 						ReturnCode = PGMVFY_ERROR;
 					}
 				}
 				else
 				{
-					printf("Invalid Memory region entered for program\n");
+					cout << format("Invalid Memory region entered for program\n");
 					ReturnCode = INVALID_CMDLINE_ARG;
 				}
 			}
 			else
 			{
-				printf("No Image loaded.\nPlease load a hex file before programming or verifying.\n");
+				cout << format("No Image loaded.\nPlease load a hex file before programming or verifying.\n");
 				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
 			}
@@ -1368,7 +1375,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 
 				if (PicFuncs.FamilyIsKeeloq())
 				{
-					printf("Verify not supported for KEELOQ devices.\n");
+					cout << format("Verify not supported for KEELOQ devices.\n");
 					ret = false;
 				}
 				else if ((*parg)[2] == 0)
@@ -1418,7 +1425,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 									int configWords = PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ConfigWords;
 									if ((configLocation < (int)PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ProgramMem) && (configWords > 0))
 									{
-										printf("This device has configuration words in Program Memory.\n");
+										cout << format("This device has configuration words in Program Memory.\n");
 										ReturnCode = INVALID_CMDLINE_ARG;
 										ret = false;
 									}
@@ -1437,29 +1444,29 @@ bool Ccmd_app::priority2Args(TextVec& args)
 				if (ret)
 				{
 					ret = PicFuncs.ReadDevice(VERIFY_MEM, program, eedata, userid, config);
-					printf("PICkit 2 Verify Report\n");
-					printf("%s\n", stime);
-					printf("Device Type: %s\n\n", PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].PartName);
+					cout << format("PICkit 2 Verify Report\n");
+					cout << format("%s\n", stime);
+					cout << format("Device Type: %s\n\n", PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].PartName);
 					if (ret)
 					{
-						printf("Verify Succeeded.\n");
+						cout << format("Verify Succeeded.\n");
 					}
 					else
 					{
-						printf("%s Memory Errors\n\n", PicFuncs.ReadError.memoryType);
+						cout << format("%s Memory Errors\n\n", PicFuncs.ReadError.memoryType);
 						printMemError();
 						ReturnCode = PGMVFY_ERROR;
 					}
 				}
 				else
 				{
-					printf("Invalid Memory region entered for verify\n");
+					cout << format("Invalid Memory region entered for verify\n");
 					ReturnCode = INVALID_CMDLINE_ARG;
 				}
 			}
 			else
 			{
-				printf("No Image loaded.\nPlease load a hex file before programming or verifying.\n");
+				cout << format("No Image loaded.\nPlease load a hex file before programming or verifying.\n");
 				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
 			}
@@ -1482,7 +1489,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 			}
 			else if (PicFuncs.FamilyIsKeeloq())
 			{
-				printf("Read not supported for KEELOQ devices.\n");
+				cout << format("Read not supported for KEELOQ devices.\n");
 				ret = false;
 			}
 			else
@@ -1520,7 +1527,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 								}
 								if (ret && PicFuncs.FamilyIsEEPROM())
 								{ // BIN file
-									printf("Exporting -gf file as .BIN\n");
+									cout << format("Exporting -gf file as .BIN\n");
 									ret = ImportExportFuncs.ExportBINFile(tempString, &PicFuncs);
 								}
 								else
@@ -1529,7 +1536,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 								}
 								if (ret)
 								{
-									printf("Read successfully.\n");
+									cout << format("Read successfully.\n");
 									hexLoaded = true;
 								}
 								else
@@ -1537,7 +1544,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 							}
 							else
 							{
-								printf("\nRead Error\n");
+								cout << format("\nRead Error\n");
 								ReturnCode = OPFAILURE;
 							}
 						break;
@@ -1558,12 +1565,12 @@ bool Ccmd_app::priority2Args(TextVec& args)
 						{
 							if (PicFuncs.ReadDevice(READ_MEM, true, false, false, false))
 							{
-								printf("Read successfully.\n");
+								cout << format("Read successfully.\n");
 								printProgramRange(startAddr, stopAddr);
 							}
 							else
 							{
-								printf("\nRead Error\n");
+								cout << format("\nRead Error\n");
 								ReturnCode = OPFAILURE;
 							}
 						}
@@ -1587,12 +1594,12 @@ bool Ccmd_app::priority2Args(TextVec& args)
 							{
 								if (PicFuncs.ReadDevice(READ_MEM, false, true, false, false))
 								{
-									printf("Read successfully.\n");
+									cout << format("Read successfully.\n");
 									printEEDataRange(startAddr, stopAddr);
 								}
 								else
 								{
-									printf("\nRead Error\n");
+									cout << format("\nRead Error\n");
 									ReturnCode = OPFAILURE;
 								}
 							}
@@ -1608,12 +1615,12 @@ bool Ccmd_app::priority2Args(TextVec& args)
 							// Read User IDs to screen
 							if (PicFuncs.ReadDevice(READ_MEM, false, false, true, false))
 								{
-									printf("Read successfully.\n");
+									cout << format("Read successfully.\n");
 									printUserIDs();
 								}
 								else
 								{
-									printf("\nRead Error\n");
+									cout << format("\nRead Error\n");
 									ReturnCode = OPFAILURE;
 								}
 						}
@@ -1631,7 +1638,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 							int configWords = PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ConfigWords;
 							if ((configLocation < (int)PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ProgramMem) && (configWords > 0))
 							{
-								printf("This device has configuration words in Program Memory.\n");
+								cout << format("This device has configuration words in Program Memory.\n");
 								ReturnCode = INVALID_CMDLINE_ARG;
 								ret = false;
 							}
@@ -1640,12 +1647,12 @@ bool Ccmd_app::priority2Args(TextVec& args)
 								// Read Configuration to screen
 								if (PicFuncs.ReadDevice(READ_MEM, false, false, false, true))
 									{
-										printf("Read successfully.\n");
+										cout << format("Read successfully.\n");
 										printConfiguration();
 									}
 									else
 									{
-										printf("\nRead Error\n");
+										cout << format("\nRead Error\n");
 										ReturnCode = OPFAILURE;
 									}
 							}
@@ -1658,7 +1665,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 					case 'V':
 						{
 						unsigned int vector = PicFuncs.ReadVector();
-						printf("%8X\n", vector);
+						cout << format("%8X\n", vector);
 					    break;
 						}
 
@@ -1670,7 +1677,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 			{
 				if (ReturnCode != FILE_OPEN_ERROR)
 				{
-					printf("Illegal read parameter entered.\n");
+					cout << format("Illegal read parameter entered.\n");
 					ReturnCode = INVALID_CMDLINE_ARG;
 				}
 			}
@@ -1702,12 +1709,12 @@ bool Ccmd_app::priority3Args(TextVec& args)
 					if (PicFuncs.DevFile.Families[PicFuncs.ActiveFamily].PartDetect)
 					{
 						int deviceID = PicFuncs.ReadDeviceID();
-						printf("Device ID = %04X\n", deviceID);
-						printf("Revision  = %04X\n", PicFuncs.GetDeviceRevision());
+						cout << format("Device ID = %04X\n", deviceID);
+						cout << format("Revision  = %04X\n", PicFuncs.GetDeviceRevision());
 						// Display the device name matching the ID, not necessary the active device.
 						if (deviceID == 0)
 						{
-							printf("Device Name = <no device>\n");
+							cout << format("Device Name = <no device>\n");
 						}
 						else
 						{
@@ -1717,24 +1724,24 @@ bool Ccmd_app::priority3Args(TextVec& args)
 								{
 									if (j == PicFuncs.ActivePart)
 									{
-										printf("Device Name = %s\n", PicFuncs.DevFile.PartsList[j].PartName);
+										cout << format("Device Name = %s\n", PicFuncs.DevFile.PartsList[j].PartName);
 									}
 									else
 									{
-										printf("Device Name = %s   !WARNING! -P device mismatch\n", PicFuncs.DevFile.PartsList[j].PartName);
+										cout << format("Device Name = %s   !WARNING! -P device mismatch\n", PicFuncs.DevFile.PartsList[j].PartName);
 									}
 									break;
 								}
 							}
 							if (j == PicFuncs.DevFile.Info.NumberParts)
 							{ // no matching device found.
-								printf("Device Name = <unknown device>\n");
+								cout << format("Device Name = <unknown device>\n");
 							}
 						}
 					}
 					else
 					{
-						printf("This device does not have a Device ID.\n");
+						cout << format("This device does not have a Device ID.\n");
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
 					break;
@@ -1744,11 +1751,11 @@ bool Ccmd_app::priority3Args(TextVec& args)
 					// Calculate Checksum
 					if (hexLoaded)
 					{
-						printf("Checksum = %04X\n", PicFuncs.ComputeChecksum());
+						cout << format("Checksum = %04X\n", PicFuncs.ComputeChecksum());
 					}
 					else
 					{
-						printf("The checksum can only be calculated when a hex file is loaded or written.\n");
+						cout << format("The checksum can only be calculated when a hex file is loaded or written.\n");
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
 					break;
@@ -1797,7 +1804,7 @@ bool Ccmd_app::priority4Args(TextVec& args)
 					// Power Target
 					if (PicFuncs.GetSelfPowered())
 					{
-						printf("-W -T Cannot power an externally powered target.\n");
+						cout << format("-W -T Cannot power an externally powered target.\n");
 						ret = false;
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
@@ -1838,7 +1845,7 @@ bool Ccmd_app::delayArg(TextVec& args)
 					// Delay before exit
 					if ((*parg)[2] == 0)
 					{ // no specified value - illegal
-						printf("-H Invalid value.\n");
+						cout << format("-H Invalid value.\n");
 						ret = false;
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
@@ -1846,7 +1853,7 @@ bool Ccmd_app::delayArg(TextVec& args)
 					{
 						if (((*parg)[2] == 'K') || ((*parg)[2] == 'k'))
 						{
-							printf("\nPress any key to exit.\n");
+							cout << format("\nPress any key to exit.\n");
 							tcgetattr(0, &tios);
 							tios.c_lflag &= (~(ICANON | ECHO));
 							tcsetattr(0, TCSANOW, &tios);
@@ -1858,19 +1865,19 @@ bool Ccmd_app::delayArg(TextVec& args)
 						{
 							if (seconds == 0)
 							{ // bad value
-								printf("-H Invalid value.\n");
+								cout << format("-H Invalid value.\n");
 								ret = false;
 								ReturnCode = INVALID_CMDLINE_ARG;
 							}
 							else
 							{
-								printf("\nDelaying %d seconds before exit.\n", seconds);
+								cout << format("\nDelaying %d seconds before exit.\n", seconds);
 								PicFuncs.DelaySeconds(seconds);
 							}
 						}
 						else 
 						{ // bad value
-							printf("-H Invalid value.\n");
+							cout << format("-H Invalid value.\n");
 							ret = false;
 							ReturnCode = INVALID_CMDLINE_ARG;
 						}
@@ -1900,11 +1907,11 @@ void Ccmd_app::printProgramRange(int startAddr, int stopAddr)
 	if (stopWord >= (int)PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ProgramMem)
 		stopWord = PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ProgramMem - 1;
 
-	printf("\nProgram Memory");
+	cout << format("\nProgram Memory");
 
 	do
 	{ // address loop
-		printf("\n%08X ", startWord * addrInc);
+		cout << format("\n%08X ", startWord * addrInc);
 
 		col = 0;
 		if (PicFuncs.FamilyIsEEPROM())
@@ -1913,7 +1920,7 @@ void Ccmd_app::printProgramRange(int startAddr, int stopAddr)
 			{
 				do
 				{ // data columns loop
-					printf("%04X  ", PicFuncs.DeviceBuffers->ProgramMemory[startWord++]);
+					cout << format("%04X  ", PicFuncs.DeviceBuffers->ProgramMemory[startWord++]);
 					col++;
 				} while ((startWord <= stopWord) && (col < 8));
 			}
@@ -1921,7 +1928,7 @@ void Ccmd_app::printProgramRange(int startAddr, int stopAddr)
 			{
 				do
 				{ // data columns loop
-					printf("%02X  ", PicFuncs.DeviceBuffers->ProgramMemory[startWord++]);
+					cout << format("%02X  ", PicFuncs.DeviceBuffers->ProgramMemory[startWord++]);
 					col++;
 				} while ((startWord <= stopWord) && (col < 16));
 			}
@@ -1930,13 +1937,13 @@ void Ccmd_app::printProgramRange(int startAddr, int stopAddr)
 		{
 			do
 			{ // data columns loop
-				printf("%06X  ", PicFuncs.DeviceBuffers->ProgramMemory[startWord++]);
+				cout << format("%06X  ", PicFuncs.DeviceBuffers->ProgramMemory[startWord++]);
 				col++;
 			} while ((startWord <= stopWord) && (col < 8));
 		}
 
 	} while (startWord <= stopWord);
-	printf("\n");
+	cout << format("\n");
 }
 
 void Ccmd_app::printEEDataRange(int startAddr, int stopAddr)
@@ -1952,24 +1959,24 @@ void Ccmd_app::printEEDataRange(int startAddr, int stopAddr)
 	if (stopWord >= PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].EEMem)
 		stopWord = PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].EEMem -1;
 
-	printf("\nEEData Memory");
+	cout << format("\nEEData Memory");
 
 	do
 	{ // address loop
-		printf("\n%04X ", startWord * addrInc);
+		cout << format("\n%04X ", startWord * addrInc);
 
 		col = 0;
 		do
 		{ // data columns loop
 			if (addrInc > 1)
-				printf("%04X  ", PicFuncs.DeviceBuffers->EEPromMemory[startWord++]);
+				cout << format("%04X  ", PicFuncs.DeviceBuffers->EEPromMemory[startWord++]);
 			else
-				printf("%02X  ", PicFuncs.DeviceBuffers->EEPromMemory[startWord++]);
+				cout << format("%02X  ", PicFuncs.DeviceBuffers->EEPromMemory[startWord++]);
 			col++;
 		} while ((startWord <= stopWord) && (col < 8));
 
 	} while (startWord <= stopWord);
-	printf("\n");
+	cout << format("\n");
 }
 
 void Ccmd_app::printUserIDs(void)
@@ -1978,23 +1985,23 @@ void Ccmd_app::printUserIDs(void)
 	int stopWord = PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].UserIDWords -1;
 	int col;
 
-	printf("\nID Memory\n");
+	cout << format("\nID Memory\n");
 
 	do
 	{ // address loop
-		printf("\n");
+		cout << format("\n");
 		col = 0;
 		do
 		{ // data columns loop
 			if (PicFuncs.DevFile.Families[PicFuncs.ActiveFamily].BlankValue > 0xFFFF)
-				printf("%06X  ", PicFuncs.DeviceBuffers->UserIDs[startWord++]);
+				cout << format("%06X  ", PicFuncs.DeviceBuffers->UserIDs[startWord++]);
 			else
-				printf("%04X  ", PicFuncs.DeviceBuffers->UserIDs[startWord++]);
+				cout << format("%04X  ", PicFuncs.DeviceBuffers->UserIDs[startWord++]);
 			col++;
 		} while ((startWord <= stopWord) && (col < 8));
 
 	} while (startWord <= stopWord);
-	printf("\n");
+	cout << format("\n");
 }
 
 void Ccmd_app::printConfiguration(void)
@@ -2003,19 +2010,19 @@ void Ccmd_app::printConfiguration(void)
 	int stopWord = PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ConfigWords -1;
 	int col;
 
-	printf("\nConfiguration Memory\n");
+	cout << format("\nConfiguration Memory\n");
 
 	do
 	{ // address loop
-		printf("\n");
+		cout << format("\n");
 		col = 0;
 		do
 		{ // data columns loop
 			if (PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].BandGapMask == 0)
-				printf("%04X  ", (PicFuncs.DeviceBuffers->ConfigWords[startWord] 
+				cout << format("%04X  ", (PicFuncs.DeviceBuffers->ConfigWords[startWord]
 								& PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ConfigMasks[startWord]));
 			else
-				printf("%04X  ", (PicFuncs.DeviceBuffers->ConfigWords[startWord] 
+				cout << format("%04X  ", (PicFuncs.DeviceBuffers->ConfigWords[startWord]
 								& PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ConfigMasks[startWord])
 								| PicFuncs.DeviceBuffers->BandGap);
 			startWord++;
@@ -2023,7 +2030,7 @@ void Ccmd_app::printConfiguration(void)
 		} while ((startWord <= stopWord) && (col < 8));
 
 	} while (startWord <= stopWord);
-	printf("\n");
+	cout << format("\n");
 }
 
 bool Ccmd_app::getRange(int* start, int* stop, _TCHAR* str_range)
@@ -2129,15 +2136,15 @@ bool Ccmd_app::findPICkit2(int unitIndex)
 		{
 			return true;
 		}
-		printf("PICkit 2 found with Operating System v%d.%02d.%02d\n", PicFuncs.FirmwareVersion.major, 
+		cout << format("PICkit 2 found with Operating System v%d.%02d.%02d\n", PicFuncs.FirmwareVersion.major,
 									PicFuncs.FirmwareVersion.minor, PicFuncs.FirmwareVersion.dot);
-		printf("Use -D to download minimum required OS v%d.%02d.%02d or later\n", PicFuncs.FW_MAJ_MIN, 
+		cout << format("Use -D to download minimum required OS v%d.%02d.%02d or later\n", PicFuncs.FW_MAJ_MIN,
 									PicFuncs.FW_MNR_MIN, PicFuncs.FW_DOT_MIN);
 		ReturnCode = WRONG_OS;
 	}
 	else
 	{
-		printf("No PICkit 2 found.\n");
+		cout << format("No PICkit 2 found.\n");
 		ReturnCode = NO_PROGRAMMER;
 	}
 	return false;
@@ -2147,8 +2154,8 @@ void Ccmd_app::printMemError(void)
 {
 	if (!PicFuncs.FamilyIsPIC32() && !PicFuncs.useProgExec33())
 	{
-		printf("Address   Good     Bad\n");
-		printf("%06X    %06X   %06X\n", PicFuncs.ReadError.address, PicFuncs.ReadError.expected, PicFuncs.ReadError.read);
+		cout << format("Address   Good     Bad\n");
+		cout << format("%06X    %06X   %06X\n", PicFuncs.ReadError.address, PicFuncs.ReadError.expected, PicFuncs.ReadError.read);
 	}
 }
 
@@ -2174,7 +2181,7 @@ bool Ccmd_app::checkDevFilePathOptionB(TextVec& args, _TCHAR* path_string)
 		return false; // -b not found
 	if ((*parg)[2] == 0)
 	{
-		printf("-B No path given\n");
+		cout << format("-B No path given\n");
 		ReturnCode = INVALID_CMDLINE_ARG;
 		return false;
 	}
@@ -2285,388 +2292,388 @@ bool Ccmd_app::checkHelp1(TextVec& args)
 
 			case 'a':
 			case 'A':
-				printf("Specifies the VDD voltage that the device is programmed at.  The value\n");
-				printf("entered must be less than the allowed maximum of the device and 5.0 Volts\n");
-				printf("(whichever is less), and greater than the allowed minimum of the device and\n");
-				printf("2.5 Volts (whichever is greater).  A default voltage for the device will be\n");
-				printf("used if this command is not specified.\n\n");
-				printf("The parameter for this command is the floating point value of the desired\n");
-				printf("VDD voltage.\n\n");
-				printf("Syntax Example -a4.5\n");
+				cout << format("Specifies the VDD voltage that the device is programmed at.  The value\n");
+				cout << format("entered must be less than the allowed maximum of the device and 5.0 Volts\n");
+				cout << format("(whichever is less), and greater than the allowed minimum of the device and\n");
+				cout << format("2.5 Volts (whichever is greater).  A default voltage for the device will be\n");
+				cout << format("used if this command is not specified.\n\n");
+				cout << format("The parameter for this command is the floating point value of the desired\n");
+				cout << format("VDD voltage.\n\n");
+				cout << format("Syntax Example -a4.5\n");
 				break;
 
 			case 'b':
 			case 'B':
-				printf("Specifies the path to the device file " DEVICE_FILE_NAME ".  By default, the\n");
-				printf("directory from which the executable is searched first, then the PATH\n");
-				printf("environment variable.  This option can be used to explicity specify the\n");
-				printf("path to the device file.\n\n");
-				printf("The parameter for this command is the complete file path to\n");
-				printf(DEVICE_FILE_NAME ", not including the filename.\n\n");
-				printf("Syntax Example -fc:\\pickit_2\\pk2cmd_dir\n");
+				cout << format("Specifies the path to the device file " DEVICE_FILE_NAME ".  By default, the\n");
+				cout << format("directory from which the executable is searched first, then the PATH\n");
+				cout << format("environment variable.  This option can be used to explicity specify the\n");
+				cout << format("path to the device file.\n\n");
+				cout << format("The parameter for this command is the complete file path to\n");
+				cout << format(DEVICE_FILE_NAME ", not including the filename.\n\n");
+				cout << format("Syntax Example -fc:\\pickit_2\\pk2cmd_dir\n");
 				break;
 
 			case 'c':
 			case 'C':
-				printf("Checks to see if the device is blank or not. Each memory region (Program,\n");
-				printf("EEPROM, Configuration, and User ID memory) will be checked, and a message\n");
-				printf("indicating whether or not the device is blank, will be displayed. If the\n");
-				printf("device is not blank, the memory region and location of the first error\n");
-				printf("will be displayed.\n\n");
-				printf("This command takes no parameters.\n\n");
-				printf("Syntax Example -c\n");
+				cout << format("Checks to see if the device is blank or not. Each memory region (Program,\n");
+				cout << format("EEPROM, Configuration, and User ID memory) will be checked, and a message\n");
+				cout << format("indicating whether or not the device is blank, will be displayed. If the\n");
+				cout << format("device is not blank, the memory region and location of the first error\n");
+				cout << format("will be displayed.\n\n");
+				cout << format("This command takes no parameters.\n\n");
+				cout << format("Syntax Example -c\n");
 				break;
 
 			case 'd':
 			case 'D':
-				printf("Upgrades the firmware on the programmer. This command must be done\n");
-				printf("independently of any other commands.\n\n");
-				printf("The parameter for this command is the complete file path to the .hex\n");
-				printf("file to be downloaded.\n\n");
-				printf("Syntax Example -dc:\\filepath\\PK2V021000.hex\n");
+				cout << format("Upgrades the firmware on the programmer. This command must be done\n");
+				cout << format("independently of any other commands.\n\n");
+				cout << format("The parameter for this command is the complete file path to the .hex\n");
+				cout << format("file to be downloaded.\n\n");
+				cout << format("Syntax Example -dc:\\filepath\\PK2V021000.hex\n");
 				break;
 
 			case 'e':
 			case 'E':
-				printf("Erases the device.  A warning will be issued if the device can\n");
-				printf("only be bulk erased and VDD is below the bulk erase voltage.\n\n");
-				printf("This command takes no parameters.\n\n");
-				printf("Syntax Example -e\n");
+				cout << format("Erases the device.  A warning will be issued if the device can\n");
+				cout << format("only be bulk erased and VDD is below the bulk erase voltage.\n\n");
+				cout << format("This command takes no parameters.\n\n");
+				cout << format("Syntax Example -e\n");
 				break;
 
 			case 'f':
 			case 'F':
-				printf("Loads a hex file to the programmer. The device will not actually be\n");
-				printf("programmed with the contents of the transferred hex file unless the\n");
-				printf("program command (-m) is also issued.\n\n");
-				printf("Binary format files are also supported for serial EEPROM devices only.\n");
-				printf("To load a binary file, the filename must end in BIN, ex: myfile.bin\n\n");
-				printf("The parameter for this command is the complete file path to the hex\n");
-				printf("file to be loaded\n\n");
-				printf("Syntax Example -fc:\\filepath\\myfile.hex\n");
+				cout << format("Loads a hex file to the programmer. The device will not actually be\n");
+				cout << format("programmed with the contents of the transferred hex file unless the\n");
+				cout << format("program command (-m) is also issued.\n\n");
+				cout << format("Binary format files are also supported for serial EEPROM devices only.\n");
+				cout << format("To load a binary file, the filename must end in BIN, ex: myfile.bin\n\n");
+				cout << format("The parameter for this command is the complete file path to the hex\n");
+				cout << format("file to be loaded\n\n");
+				cout << format("Syntax Example -fc:\\filepath\\myfile.hex\n");
 				break;
 
 			case 'g':
 			case 'G':
-				printf("Reads the device and outputs it to either the screen or a hexfile\n");
-				printf("based on the type of read performed. The command must be immediately\n");
-				printf("followed by the type of read, which can be one of the following:\n");
-				printf("     f = Read into hex file. This command must be immediately followed\n");
-				printf("         by the complete file path and name of the file to be created.\n");
-				printf("         Serial EEPROMs only may read into a binary file.  A binary file\n");
-				printf("         will be created if the filename ends in BIN, ex: myfile.bin\n");
-				printf("     p = Read program memory and output the result to the screen. This\n");
-				printf("         command must be immediately followed by the hex address range\n");
-				printf("         to be read, which must be in the form of x-y, where x = start\n");
-				printf("         address and y = end address.\n");
-				printf("     e = Read EEData memory and output the result to the screen. This\n");
-				printf("         command must be immediately followed by the hex address range\n");
-				printf("         to be read, which must be in the form of x-y, where x = start\n");
-				printf("         address and y = end address.\n");
-				printf("     i = Read User ID memory and output the result to the screen. No\n");
-				printf("         further parameters are required for this command.\n");
-				printf("     c = Read Configuration memory and output the result to the screen.\n");
-				printf("         No further parameters are required for this command.\n");
-				printf("Multiple types of read commands can be included in the same command line.\n");
-				printf("NOTE: For HCS and serial EEPROM devices, memory is considered region 'P'\n");
-				printf("\n");
-				printf("Syntax Examples -gfc:\\filepath\\myfile\n");
-				printf("                -gp100-200\n");
-				printf("                -gi -ge0-40 -gc\n");
+				cout << format("Reads the device and outputs it to either the screen or a hexfile\n");
+				cout << format("based on the type of read performed. The command must be immediately\n");
+				cout << format("followed by the type of read, which can be one of the following:\n");
+				cout << format("     f = Read into hex file. This command must be immediately followed\n");
+				cout << format("         by the complete file path and name of the file to be created.\n");
+				cout << format("         Serial EEPROMs only may read into a binary file.  A binary file\n");
+				cout << format("         will be created if the filename ends in BIN, ex: myfile.bin\n");
+				cout << format("     p = Read program memory and output the result to the screen. This\n");
+				cout << format("         command must be immediately followed by the hex address range\n");
+				cout << format("         to be read, which must be in the form of x-y, where x = start\n");
+				cout << format("         address and y = end address.\n");
+				cout << format("     e = Read EEData memory and output the result to the screen. This\n");
+				cout << format("         command must be immediately followed by the hex address range\n");
+				cout << format("         to be read, which must be in the form of x-y, where x = start\n");
+				cout << format("         address and y = end address.\n");
+				cout << format("     i = Read User ID memory and output the result to the screen. No\n");
+				cout << format("         further parameters are required for this command.\n");
+				cout << format("     c = Read Configuration memory and output the result to the screen.\n");
+				cout << format("         No further parameters are required for this command.\n");
+				cout << format("Multiple types of read commands can be included in the same command line.\n");
+				cout << format("NOTE: For HCS and serial EEPROM devices, memory is considered region 'P'\n");
+				cout << format("\n");
+				cout << format("Syntax Examples -gfc:\\filepath\\myfile\n");
+				cout << format("                -gp100-200\n");
+				cout << format("                -gi -ge0-40 -gc\n");
 				break;
 
 			case 'h':
 			case 'H':
-				printf("If this switch is included, PK2CMD will delay before exiting.  If the value \n");
-				printf("is set to 'K', then PK2CMD will wait for a keypress before exiting. If the \n");
-				printf("value is set to a number from 1 to 9, then it will delay the given number\n");
-				printf("of seconds before exiting.\n");
-				printf("\n");
-				printf("The parameter for this command is the number of seconds (max = 9) to delay\n");
-				printf("before exiting.  Parameter K will cause it to wait for a keypress.\n");
-				printf("\n");
-				printf("Syntax Examples -h3\n");
-				printf("                -hk\n");
+				cout << format("If this switch is included, PK2CMD will delay before exiting.  If the value \n");
+				cout << format("is set to 'K', then PK2CMD will wait for a keypress before exiting. If the \n");
+				cout << format("value is set to a number from 1 to 9, then it will delay the given number\n");
+				cout << format("of seconds before exiting.\n");
+				cout << format("\n");
+				cout << format("The parameter for this command is the number of seconds (max = 9) to delay\n");
+				cout << format("before exiting.  Parameter K will cause it to wait for a keypress.\n");
+				cout << format("\n");
+				cout << format("Syntax Examples -h3\n");
+				cout << format("                -hk\n");
 				break;
 
 			case 'i':
 			case 'I':
-				printf("Reads and displays the value in the Device ID location of the device,\n");
-				printf("as well as the silicon revision code.\n");
-				printf("\n");
-				printf("This will also display the device name that matches the returned Device ID,\n");
-				printf("and warn if the Device ID does not match the device specified using the -p\n");
-				printf("command.\n");
-				printf("\n");
-				printf("This command takes no parameters.\n");
-				printf("\n");
-				printf("Syntax Example -i\n");
+				cout << format("Reads and displays the value in the Device ID location of the device,\n");
+				cout << format("as well as the silicon revision code.\n");
+				cout << format("\n");
+				cout << format("This will also display the device name that matches the returned Device ID,\n");
+				cout << format("and warn if the Device ID does not match the device specified using the -p\n");
+				cout << format("command.\n");
+				cout << format("\n");
+				cout << format("This command takes no parameters.\n");
+				cout << format("\n");
+				cout << format("Syntax Example -i\n");
 				break;
 
 			case 'j':
 			case 'J':
-				printf("This switch will display a percentage completion for programming operations\n");
-				printf("instead of the rotating slash.  If the switch is followed by the optional\n");
-				printf("parameter 'n', then each percent update is printed on a newline.  This option\n");
-				printf("is intended for GUI interfaces needing a newline to update the display.\n");
-				printf("\n");
-				printf("The optional parameter for this command, N, will print percentage updates\n");
-				printf("on a new line.\n");
-				printf("\n");
-				printf("Syntax Examples -j\n");
-				printf("                -jn\n");
+				cout << format("This switch will display a percentage completion for programming operations\n");
+				cout << format("instead of the rotating slash.  If the switch is followed by the optional\n");
+				cout << format("parameter 'n', then each percent update is printed on a newline.  This option\n");
+				cout << format("is intended for GUI interfaces needing a newline to update the display.\n");
+				cout << format("\n");
+				cout << format("The optional parameter for this command, N, will print percentage updates\n");
+				cout << format("on a new line.\n");
+				cout << format("\n");
+				cout << format("Syntax Examples -j\n");
+				cout << format("                -jn\n");
 				break;
 
 			case 'l':
 			case 'L':
-				printf("Sets the ICSP clock (PGC) period to the given value, which must be a value\n");
-				printf("between 1 and 16.  The value specifies the clock period in microseconds.\n");
-				printf("The default value is 1, which gives a period of 1us and an ICSP clock rate\n");
-				printf("of 1 MHz.  A value of 2 gives a period of 2us and a clock rate of 500 kHz.\n");
-				printf("Slowing down the programming clock can help resolve programming issues with\n");
-				printf("heavily loaded PGx lines and long programming cables.  A value of 4 usually\n");
-				printf("resolves most such issues, but programming takes longer.\n");
-				printf("\n");
-				printf("The parameter for this command is a decimal value between 1 and 16 inclusive.\n");
-				printf("\n");
-				printf("Syntax Example -l4\n");
+				cout << format("Sets the ICSP clock (PGC) period to the given value, which must be a value\n");
+				cout << format("between 1 and 16.  The value specifies the clock period in microseconds.\n");
+				cout << format("The default value is 1, which gives a period of 1us and an ICSP clock rate\n");
+				cout << format("of 1 MHz.  A value of 2 gives a period of 2us and a clock rate of 500 kHz.\n");
+				cout << format("Slowing down the programming clock can help resolve programming issues with\n");
+				cout << format("heavily loaded PGx lines and long programming cables.  A value of 4 usually\n");
+				cout << format("resolves most such issues, but programming takes longer.\n");
+				cout << format("\n");
+				cout << format("The parameter for this command is a decimal value between 1 and 16 inclusive.\n");
+				cout << format("\n");
+				cout << format("Syntax Example -l4\n");
 				break;
 
 			case 'k':
 			case 'K':
-				printf("Displays the checksum of a loaded hexfile. This command must be\n");
-				printf("accompanied by the Hex File Selection command (-f).\n");
-				printf("\n");
-				printf("This command takes no parameters.\n");
-				printf("\n");
-				printf("Syntax Example -k\n");
+				cout << format("Displays the checksum of a loaded hexfile. This command must be\n");
+				cout << format("accompanied by the Hex File Selection command (-f).\n");
+				cout << format("\n");
+				cout << format("This command takes no parameters.\n");
+				cout << format("\n");
+				cout << format("Syntax Example -k\n");
 				break;
 
 			case 'm':
 			case 'M':
-				printf("Programs the device with the contents of the loaded hex file.\n");
-				printf("The entire device can be programmed, or just selected memory regions. If one\n");
-				printf("or more selected regions are to be programmed, the program command must be\n");
-				printf("immediately followed by a memory region parameter. Valid parameters are:\n");
-				printf("     P - program memory\n");
-				printf("     E - EEPROM\n");
-				printf("     I - ID Memory\n");
-				printf("     C - Configuration Memory\n");
-				printf("If no memory region parameter is entered, the entire device will be erased and\n");
-				printf("then programmed. Otherwise only the selected memory regions will be programmed\n");
-				printf("without being first erased. Multiple program commands may be entered on one \n");
-				printf("command line.\"Program Succeeded\" will be displayed if the operation is \n");
-				printf("successful, otherwise the first address of the first memory region where \n");
-				printf("programming failed will be displayed along with a description of the failure.\n");
-				printf("NOTE: For HCS and serial EEPROM devices, memory is considered region 'P'\n");
-				printf("\n");
-				printf("This command may be used without parameters or with a memory region.\n");
-				printf("\n");
-				printf("Syntax Examples -m\n");
-				printf("                -mP -mI -mE\n");
+				cout << format("Programs the device with the contents of the loaded hex file.\n");
+				cout << format("The entire device can be programmed, or just selected memory regions. If one\n");
+				cout << format("or more selected regions are to be programmed, the program command must be\n");
+				cout << format("immediately followed by a memory region parameter. Valid parameters are:\n");
+				cout << format("     P - program memory\n");
+				cout << format("     E - EEPROM\n");
+				cout << format("     I - ID Memory\n");
+				cout << format("     C - Configuration Memory\n");
+				cout << format("If no memory region parameter is entered, the entire device will be erased and\n");
+				cout << format("then programmed. Otherwise only the selected memory regions will be programmed\n");
+				cout << format("without being first erased. Multiple program commands may be entered on one \n");
+				cout << format("command line.\"Program Succeeded\" will be displayed if the operation is \n");
+				cout << format("successful, otherwise the first address of the first memory region where \n");
+				cout << format("programming failed will be displayed along with a description of the failure.\n");
+				cout << format("NOTE: For HCS and serial EEPROM devices, memory is considered region 'P'\n");
+				cout << format("\n");
+				cout << format("This command may be used without parameters or with a memory region.\n");
+				cout << format("\n");
+				cout << format("Syntax Examples -m\n");
+				cout << format("                -mP -mI -mE\n");
 				break;
 
 			case 'n':
 			case 'N':
-				printf("Assigns the given string to the PICkit 2 unit as the Unit ID.  The Unit ID is\n");
-				printf("useful in uniquely identifying a PICkit 2 unit.  When multiple PICkit 2 units\n");
-				printf("are connected to a PC, a specific PICkit 2 may be selected using the -S\n");
-				printf("option with the Unit ID. \n");
-				printf("\n");
-				printf("To assign a Unit ID to a PICkit 2, connect only that one unit to the PC and\n");
-				printf("use this option.  To remove a Unit ID, do not include a string after the -N\n");
-				printf("option.  A Unit ID may contain 14 characters maximum.  The Unit ID is stored\n");
-				printf("in non-volatile memory in the PICkit 2 unit itself, and remains assigned\n");
-				printf("changed by a user.\n");
-				printf("\n");
-				printf("Syntax Examples -nLab1B   (Set Unit ID = 'Lab1B')\n");
-				printf("                -n        (clear Unit ID)\n");
+				cout << format("Assigns the given string to the PICkit 2 unit as the Unit ID.  The Unit ID is\n");
+				cout << format("useful in uniquely identifying a PICkit 2 unit.  When multiple PICkit 2 units\n");
+				cout << format("are connected to a PC, a specific PICkit 2 may be selected using the -S\n");
+				cout << format("option with the Unit ID. \n");
+				cout << format("\n");
+				cout << format("To assign a Unit ID to a PICkit 2, connect only that one unit to the PC and\n");
+				cout << format("use this option.  To remove a Unit ID, do not include a string after the -N\n");
+				cout << format("option.  A Unit ID may contain 14 characters maximum.  The Unit ID is stored\n");
+				cout << format("in non-volatile memory in the PICkit 2 unit itself, and remains assigned\n");
+				cout << format("changed by a user.\n");
+				cout << format("\n");
+				cout << format("Syntax Examples -nLab1B   (Set Unit ID = 'Lab1B')\n");
+				cout << format("                -n        (clear Unit ID)\n");
 				break;
 
 			case 'p':
 			case 'P':
-				printf("There are three ways to use this option:\n");
-				printf("  1 : -P<part>\n");
-				printf("      Specify the part number of the device explicitly.  This is the\n");
-				printf("      recommended use.  Example: -pPIC16F887\n");
-				printf("  2 : -PF<id>\n");
-				printf("      Auto-Detect a target part connected to PICkit 2 within a given family.\n");
-                printf("      Use '-pf' for a list of auto-detectable families and their family ID\n");
-				printf("      number.  Not all part families support detection.  No programming \n");
-				printf("      operations are performed when -PF is used without an ID parameter.\n");
-				printf("      Use '-pf<id>' to auto-detect a part within a given family using\n");
-				printf("      the family ID from the listing.  Example: -pf2\n");
-				printf("  3 : -P\n");
-				printf("      Auto-Detect any part in all auto-detectable families when -p is\n");
-				printf("      is used with no parameters.  Example: -p\n");
-				printf("\n");
-				printf("The -V and -X options may NOT be used with any form of auto-detect.\n");
-				printf("During auto-detect, VDD is ALWAYS 3.0 Volts unless -W is used.  After a part\n");
-				printf("is detected, the device VDD default or -A voltage is used for remaining\n");
-                printf("operations.\n");
-				printf("\n");
-				printf("Auto-detecting can be slower than explicitly specifying the part name.\n");
-                printf("\n");
-				printf("WARNING: SOME DEVICE FAMILIES USE A VPP VOLTAGE OF 12 VOLTS ON THE MCLR\n");
-				printf("PIN.  THIS VOLTAGE MAY DAMAGE DEVICES FROM OTHER FAMILIES.  NEVER USE\n");
-				printf("AN AUTODETECT OPTION ON A TARGET WITHOUT A KNOWN GOOD PROGRAMMING\n");
-				printf("CONNECTION.  IT IS SAFER TO AUTO-DETECT WITHIN A GIVEN FAMILY (-PF) THAN\n");
-				printf("WITH ALL DETECTABLE FAMILIES.\n");
-				printf("\n");
-				printf("Auto-detecting in all families goes through a special sequence of searching\n");
-				printf("each family to prevent placing damaging voltages on parts.  However, if a\n");
-				printf("programming connection problem prevents a part from being found, it may be\n");
-				printf("exposed to damaging high voltages as other families are searched.\n");
-				printf("\n");
-				printf("PK2CMD -?P may be used to list all supported devices and their families.\n");
-				printf("PK2CMD -?P<str> may be used to list only devices matching the search string.\n");
+				cout << format("There are three ways to use this option:\n");
+				cout << format("  1 : -P<part>\n");
+				cout << format("      Specify the part number of the device explicitly.  This is the\n");
+				cout << format("      recommended use.  Example: -pPIC16F887\n");
+				cout << format("  2 : -PF<id>\n");
+				cout << format("      Auto-Detect a target part connected to PICkit 2 within a given family.\n");
+                cout << format("      Use '-pf' for a list of auto-detectable families and their family ID\n");
+				cout << format("      number.  Not all part families support detection.  No programming \n");
+				cout << format("      operations are performed when -PF is used without an ID parameter.\n");
+				cout << format("      Use '-pf<id>' to auto-detect a part within a given family using\n");
+				cout << format("      the family ID from the listing.  Example: -pf2\n");
+				cout << format("  3 : -P\n");
+				cout << format("      Auto-Detect any part in all auto-detectable families when -p is\n");
+				cout << format("      is used with no parameters.  Example: -p\n");
+				cout << format("\n");
+				cout << format("The -V and -X options may NOT be used with any form of auto-detect.\n");
+				cout << format("During auto-detect, VDD is ALWAYS 3.0 Volts unless -W is used.  After a part\n");
+				cout << format("is detected, the device VDD default or -A voltage is used for remaining\n");
+                cout << format("operations.\n");
+				cout << format("\n");
+				cout << format("Auto-detecting can be slower than explicitly specifying the part name.\n");
+                cout << format("\n");
+				cout << format("WARNING: SOME DEVICE FAMILIES USE A VPP VOLTAGE OF 12 VOLTS ON THE MCLR\n");
+				cout << format("PIN.  THIS VOLTAGE MAY DAMAGE DEVICES FROM OTHER FAMILIES.  NEVER USE\n");
+				cout << format("AN AUTODETECT OPTION ON A TARGET WITHOUT A KNOWN GOOD PROGRAMMING\n");
+				cout << format("CONNECTION.  IT IS SAFER TO AUTO-DETECT WITHIN A GIVEN FAMILY (-PF) THAN\n");
+				cout << format("WITH ALL DETECTABLE FAMILIES.\n");
+				cout << format("\n");
+				cout << format("Auto-detecting in all families goes through a special sequence of searching\n");
+				cout << format("each family to prevent placing damaging voltages on parts.  However, if a\n");
+				cout << format("programming connection problem prevents a part from being found, it may be\n");
+				cout << format("exposed to damaging high voltages as other families are searched.\n");
+				cout << format("\n");
+				cout << format("PK2CMD -?P may be used to list all supported devices and their families.\n");
+				cout << format("PK2CMD -?P<str> may be used to list only devices matching the search string.\n");
 				break;
 
 			case 'q':
 			case 'Q':
-				printf("Disables use of a Programming Executive (PE) for PIC24 or dsPIC33 devices.\n");
-				printf("Low-level ICSP is used instead (as in prior versions of PK2CMD).\n");
-				printf("\n");
-				printf("Using the PE results in much faster programming operations, and implements\n");
-				printf("the Device ID Corruption workaround for PIC24H/dsPIC33 devices.  However,\n");
-				printf("Blank Check, Programming, and Verify operations will not provide the address\n");
-				printf("and data for failing locations for PIC24H/dsPIC33 as the PE only returns a\n");
-				printf("Good/Bad response.  Disable the PE for address and data information.\n");
-				printf("\n");
-				printf("The Programming Executive (PE) for PIC24H and dsPIC33F parts may fail on\n");
-				printf("certain programming ports of certain 44-Pin devices. Known problems exist\n");
-				printf("with using the PGC3/PGD3 port on the following devices:\n");
-				printf("PIC24HJ16GP304, PIC24HJ32GP204\n");
-				printf("dsPIC33FJ16GP304, dsPIC33FJ32GP204, dsPIC33FJ16MC304, dsPIC33FJ32MC204\n");
-				printf("\n");
-				printf("Syntax Example -q\n");
+				cout << format("Disables use of a Programming Executive (PE) for PIC24 or dsPIC33 devices.\n");
+				cout << format("Low-level ICSP is used instead (as in prior versions of PK2CMD).\n");
+				cout << format("\n");
+				cout << format("Using the PE results in much faster programming operations, and implements\n");
+				cout << format("the Device ID Corruption workaround for PIC24H/dsPIC33 devices.  However,\n");
+				cout << format("Blank Check, Programming, and Verify operations will not provide the address\n");
+				cout << format("and data for failing locations for PIC24H/dsPIC33 as the PE only returns a\n");
+				cout << format("Good/Bad response.  Disable the PE for address and data information.\n");
+				cout << format("\n");
+				cout << format("The Programming Executive (PE) for PIC24H and dsPIC33F parts may fail on\n");
+				cout << format("certain programming ports of certain 44-Pin devices. Known problems exist\n");
+				cout << format("with using the PGC3/PGD3 port on the following devices:\n");
+				cout << format("PIC24HJ16GP304, PIC24HJ32GP204\n");
+				cout << format("dsPIC33FJ16GP304, dsPIC33FJ32GP204, dsPIC33FJ16MC304, dsPIC33FJ32MC204\n");
+				cout << format("\n");
+				cout << format("Syntax Example -q\n");
 				break;
 
 			case 'r':
 			case 'R':
-				printf("Releases (3-states) the PICkit 2 /MCLR pin after programming operations\n");
-				printf("complete.  If not specified, then /MCLR is asserted (driven low).\n");
-				printf("\n");
-				printf("There are no parameters for this command.\n");
-				printf("\n");
-				printf("Syntax Example -r\n");
+				cout << format("Releases (3-states) the PICkit 2 /MCLR pin after programming operations\n");
+				cout << format("complete.  If not specified, then /MCLR is asserted (driven low).\n");
+				cout << format("\n");
+				cout << format("There are no parameters for this command.\n");
+				cout << format("\n");
+				cout << format("Syntax Example -r\n");
 				break;
 
 			case 's':
 			case 'S':
-				printf("When more than one PICkit 2 unit is attached to a PC, this option allows\n");
-				printf("a specific unit to be selected using its Unit ID.  The Unit ID is assigned\n");
-				printf("with the -N option.\n");
-				printf("\n");
-				printf("When -S is used without an argument, all attached PICkit 2 units and their\n");
-				printf("Unit IDs will be listed.  Units that do not have a Unit ID assigned will\n");
-				printf("show a dash (-) in the Unit ID column.  When -S is used this way, all other\n");
-				printf("options will be ignored.\n");
-				printf("\n");
-				printf("A single character argument of '#' may also be used.  This will list all\n");
-				printf("PICkit 2 units with their Unit IDs and Firmware Versions.  NOTE that this\n");
-				printf("is NOT safe to use when another application is already accessing a PICkit 2\n");
-				printf("unit and may corrupt that USB connection. Also, a Unit ID of the single\n");
-				printf("character '#' is not valid, but may used with longer IDs for example '#1'\n");
-				printf("or '#two' are valid.\n");
-				printf("\n");
-				printf("To select a specific unit from among the attached PICkit 2 units to execute\n");
-				printf("a given set of command options, follow the -S option with the Unit ID string\n");
-				printf("of the intended PICkit 2 unit.\n");
-				printf("\n");
-				printf("This command may be used with or without a parameter.\n");
-				printf("\n");
-				printf("Syntax Example -s        (list connected PICkit 2 units - SAFE)\n");
-				printf("               -s#       (list connected units with FW versions - UNSAFE)\n");
-				printf("               -sLab1B   (use the PICkit 2 with Unit ID string 'Lab1B')\n");
-				printf("               -#3       (use the PICkit 2 with Unit ID string '#3')\n");
+				cout << format("When more than one PICkit 2 unit is attached to a PC, this option allows\n");
+				cout << format("a specific unit to be selected using its Unit ID.  The Unit ID is assigned\n");
+				cout << format("with the -N option.\n");
+				cout << format("\n");
+				cout << format("When -S is used without an argument, all attached PICkit 2 units and their\n");
+				cout << format("Unit IDs will be listed.  Units that do not have a Unit ID assigned will\n");
+				cout << format("show a dash (-) in the Unit ID column.  When -S is used this way, all other\n");
+				cout << format("options will be ignored.\n");
+				cout << format("\n");
+				cout << format("A single character argument of '#' may also be used.  This will list all\n");
+				cout << format("PICkit 2 units with their Unit IDs and Firmware Versions.  NOTE that this\n");
+				cout << format("is NOT safe to use when another application is already accessing a PICkit 2\n");
+				cout << format("unit and may corrupt that USB connection. Also, a Unit ID of the single\n");
+				cout << format("character '#' is not valid, but may used with longer IDs for example '#1'\n");
+				cout << format("or '#two' are valid.\n");
+				cout << format("\n");
+				cout << format("To select a specific unit from among the attached PICkit 2 units to execute\n");
+				cout << format("a given set of command options, follow the -S option with the Unit ID string\n");
+				cout << format("of the intended PICkit 2 unit.\n");
+				cout << format("\n");
+				cout << format("This command may be used with or without a parameter.\n");
+				cout << format("\n");
+				cout << format("Syntax Example -s        (list connected PICkit 2 units - SAFE)\n");
+				cout << format("               -s#       (list connected units with FW versions - UNSAFE)\n");
+				cout << format("               -sLab1B   (use the PICkit 2 with Unit ID string 'Lab1B')\n");
+				cout << format("               -#3       (use the PICkit 2 with Unit ID string '#3')\n");
 				break;
 
 			case 't':
 			case 'T':
-				printf("Enables the Vdd output pin after programming operations are complete.\n");
-				printf("If not specified, then Vdd is turned off.  Use -a<> to set the voltage.\n");
-				printf("\n");
-				printf("There are no parameters for this command.\n");
-				printf("\n");
-				printf("Syntax Example -t\n");
+				cout << format("Enables the Vdd output pin after programming operations are complete.\n");
+				cout << format("If not specified, then Vdd is turned off.  Use -a<> to set the voltage.\n");
+				cout << format("\n");
+				cout << format("There are no parameters for this command.\n");
+				cout << format("\n");
+				cout << format("Syntax Example -t\n");
 				break;
 
 			case 'u':
 			case 'U':
-				printf("Specifies a new OSCCAL value in hex. Used with a Program command, the device\n");
-				printf("will be programmed with this new value. No error checking is done on the value.\n");
-				printf("\n");
-				printf("Syntax Example /uC80 or /u0x347C\n");
+				cout << format("Specifies a new OSCCAL value in hex. Used with a Program command, the device\n");
+				cout << format("will be programmed with this new value. No error checking is done on the value.\n");
+				cout << format("\n");
+				cout << format("Syntax Example /uC80 or /u0x347C\n");
 				break;
 
 			case 'v':
 			case 'V':
-				printf("Specifies the Vpp value, in volts, that the device will be programmed with.\n");
-				printf("If not entered, the default value for the device is used.  Normally this\n");
-				printf("value should not be specified.\n");
-				printf("\n");
-				printf("The parameter for this command is the floating point value of the desired\n");
-				printf("Vpp voltage.\n");
-				printf("\n");
-				printf("Syntax Example -v13.00\n");
+				cout << format("Specifies the Vpp value, in volts, that the device will be programmed with.\n");
+				cout << format("If not entered, the default value for the device is used.  Normally this\n");
+				cout << format("value should not be specified.\n");
+				cout << format("\n");
+				cout << format("The parameter for this command is the floating point value of the desired\n");
+				cout << format("Vpp voltage.\n");
+				cout << format("\n");
+				cout << format("Syntax Example -v13.00\n");
 				break;
 
 			case 'w':
 			case 'W':
-				printf("If this switch is included, the target circuit will not be powered by the \n");
-				printf("programmer and should be powered by an external power source. If this switch\n");
-				printf("is not included, the target circuit will be powered by the programmer. The\n");
-				printf("PICkit 2 is limited to an external power source voltage range of 2.5 Volts\n");
-				printf("to 5.0 Volts.\n");
-				printf("\n");
-				printf("There are no parameters for this command.\n");
-				printf("\n");
-				printf("Syntax Example -w\n");
+				cout << format("If this switch is included, the target circuit will not be powered by the \n");
+				cout << format("programmer and should be powered by an external power source. If this switch\n");
+				cout << format("is not included, the target circuit will be powered by the programmer. The\n");
+				cout << format("PICkit 2 is limited to an external power source voltage range of 2.5 Volts\n");
+				cout << format("to 5.0 Volts.\n");
+				cout << format("\n");
+				cout << format("There are no parameters for this command.\n");
+				cout << format("\n");
+				cout << format("Syntax Example -w\n");
 				break;
 
 			case 'x':
 			case 'X':
-				printf("If this switch is included, PICkit 2 will attempt to program the device \n");
-				printf("using the VPP first program entry method.  Not all families and devices\n");
-				printf("support this feature.\n");
-				printf("\n");
-				printf("There are no parameters for this command.\n");
-				printf("\n");
-				printf("Syntax Example -x\n");
+				cout << format("If this switch is included, PICkit 2 will attempt to program the device \n");
+				cout << format("using the VPP first program entry method.  Not all families and devices\n");
+				cout << format("support this feature.\n");
+				cout << format("\n");
+				cout << format("There are no parameters for this command.\n");
+				cout << format("\n");
+				cout << format("Syntax Example -x\n");
 
 			case 'y':
 			case 'Y':
-				printf("Verifies the device against the selected hex file on the programmer.\n");
-				printf("The entire device can be verified, or just selected memory regions. If one\n");
-				printf("or more selected regions are to be verified, the verify command must be\n");
-				printf("immediately followed by a memory region parameter. Valid parameters are:\n");
-				printf("     P - program memory\n");
-				printf("     E - EEPROM\n");
-				printf("     I - ID Memory\n");
-				printf("     C - Configuration Memory\n");
-				printf("If no memory region parameter is entered, the entire device will be verified,\n");
-				printf("otherwise only the selected memory regions will be verified. Multiple verify\n");
-				printf("commands may be entered on one command line. \"Verify Succeeded\" will be\n");
-				printf("displayed if the operation is successful, otherwise the first address of the\n");
-				printf("first memory region where verification failed will be displayed along with a\n");
-				printf("description of the failure.\n");
-				printf("NOTE: For HCS and serial EEPROM devices, memory is considered region 'P'\n");
-				printf("\n");
-				printf("This command may be used without parameters or with a memory region.\n");
-				printf("\n");
-				printf("Syntax Examples -y\n");
-				printf("                -yP -yI -yE\n");
+				cout << format("Verifies the device against the selected hex file on the programmer.\n");
+				cout << format("The entire device can be verified, or just selected memory regions. If one\n");
+				cout << format("or more selected regions are to be verified, the verify command must be\n");
+				cout << format("immediately followed by a memory region parameter. Valid parameters are:\n");
+				cout << format("     P - program memory\n");
+				cout << format("     E - EEPROM\n");
+				cout << format("     I - ID Memory\n");
+				cout << format("     C - Configuration Memory\n");
+				cout << format("If no memory region parameter is entered, the entire device will be verified,\n");
+				cout << format("otherwise only the selected memory regions will be verified. Multiple verify\n");
+				cout << format("commands may be entered on one command line. \"Verify Succeeded\" will be\n");
+				cout << format("displayed if the operation is successful, otherwise the first address of the\n");
+				cout << format("first memory region where verification failed will be displayed along with a\n");
+				cout << format("description of the failure.\n");
+				cout << format("NOTE: For HCS and serial EEPROM devices, memory is considered region 'P'\n");
+				cout << format("\n");
+				cout << format("This command may be used without parameters or with a memory region.\n");
+				cout << format("\n");
+				cout << format("Syntax Examples -y\n");
+				cout << format("                -yP -yI -yE\n");
 				break;
 
 			case 'z':
 			case 'Z':
-				printf("If this switch is included, then a complete device programming operation (-m)\n");
-				printf("will preserve and not overwrite the existing EEPROM data memory on the device\n");
-				printf("\n");
-				printf("There are no parameters for this command.\n");
-				printf("\n");
-				printf("Syntax Example -z\n");
+				cout << format("If this switch is included, then a complete device programming operation (-m)\n");
+				cout << format("will preserve and not overwrite the existing EEPROM data memory on the device\n");
+				cout << format("\n");
+				cout << format("There are no parameters for this command.\n");
+				cout << format("\n");
+				cout << format("Syntax Example -z\n");
 				break;
 
 			default:
@@ -2684,145 +2691,145 @@ bool Ccmd_app::checkHelp1(TextVec& args)
 
 void Ccmd_app::displayHelp(void)
 {
-	printf("                        PICkit 2 COMMAND LINE HELP\n");
-	printf("Options              Description                              Default\n");
-	printf("----------------------------------------------------------------------------\n");
-    printf("A<value>             Set Vdd voltage                          Device Specific\n");
-	printf("B<path>              Specify the path to " DEVICE_FILE_NAME "    Searches PATH\n");
-	printf("                                                              and calling dir\n");
-    printf("C                    Blank Check Device                       No Blank Check\n");
-    printf("D<file>              OS Download                              None\n");
-    printf("E                    Erase Flash Device                       Do Not Erase\n");
-    printf("F<file>              Hex File Selection                       None\n");
-    printf("G<Type><range/path>  Read functions                           None\n");
-    printf("                     Type F: = read into hex file,\n");
-    printf("                             path = full file path,\n");
-    printf("                             range is not used\n");
-    printf("                     Types P,E,I,C: = ouput read of Program,\n");
-    printf("                             EEPROM, ID and/or Configuration\n");
-    printf("                             Memory to the screen. P and E\n");
-    printf("                             must be followed by an address\n");
-    printf("                             range in the form of x-y where\n");
-    printf("                             x is the start address and y is\n");
-    printf("                             the end address both in hex,\n");
-    printf("                             path is not used\n");
-    printf("                             (Serial EEPROM memory is 'P')\n");
-    printf("H<value>             Delay before Exit                        Exit immediately\n");
-    printf("                         K = Wait on keypress before exit\n");
-    printf("                         1 to 9 = Wait <value> seconds\n");
-    printf("                                  before exit\n");
-    printf("I                    Display Device ID & silicon revision     Do Not Display\n");
-	printf("J<newlines>          Display operation percent complete       Rotating slash\n");
-	printf("                         N = Each update on newline\n");
-    printf("K                    Display Hex File Checksum                Do Not Display\n");
-    printf("L<rate>              Set programming speed                    Fastest\n");
-    printf("                     <rate> is a value of 1-16, with 1 being\n");
-	printf("                     the fastest.\n");
-    printf("M<memory region>     Program Device                           Do Not Program\n");
-    printf("                     memory regions:\n");
-    printf("                         P = Program memory\n");
-    printf("                         E = EEPROM\n");
-    printf("                         I = ID memory\n");
-    printf("                         C = Configuration memory\n");
-    printf("                         If no region is entered, the entire\n");
-    printf("                         device will be erased & programmed.\n");
-    printf("                         If a region is entered, no erase\n");
-    printf("                         is performed and only the given\n");
-    printf("                         region is programmed.\n");
-    printf("                         All programmed regions are verified.\n");
-    printf("			            (serial EEPROM memory is 'P')\n");
-    printf("N<string>            Assign Unit ID string to first found     None\n");
-    printf("                     PICkit 2 unit.  String is limited to 14\n");
-    printf("                     characters maximum.  May not be used\n");
-    printf("                     with other options.\n");
-    printf("                     Example: -NLab1B\n");
-    printf("P<part>              Part Selection. Example: -PPIC16f887     (Required)\n");
-	printf("P                    Auto-Detect in all detectable families\n");
-	printf("PF                   List auto-detectable part families\n");
-	printf("PF<id>               Auto-Detect only within the given part\n");
-	printf("                     family, using the ID listed with -PF\n");
-	printf("                     Example: -PF2\n");
-	printf("Q                    Disable PE for PIC24/dsPIC33 devices     Use PE\n");
-    printf("R                    Release /MCLR after operations           Assert /MCLR\n");
-    printf("S<string/#>          Use the PICkit 2 with the given Unit ID  First found unit\n");
-    printf("                     string.  Useful when multiple PICkit 2\n");
-    printf("                     units are connected.\n");
-    printf("                     Example: -SLab1B\n");
-    printf("                     If no <string> is entered, then the\n");
-    printf("                     Unit IDs of all connected units will be\n");
-    printf("                     displayed.  In this case, all other \n");
-    printf("                     options are ignored. -S# will list units\n");
-	printf("                     with their firmware versions.\n");
-	printf("                     See help -s? for more info.\n");
-    printf("T                    Power Target after operations            Vdd off\n");
-    printf("U<value>             Program OSCCAL memory, where:            Do Not Program\n");
-    printf("                      <value> is a hexadecimal number\n");
-    printf("                      representing the OSCCAL value to be\n");
-    printf("                      programmed. This may only be used in\n");
-    printf("                      conjunction with a programming \n");
-    printf("                      operation.\n");
-    printf("V<value>             Vpp override                             Device Specific\n");
-    printf("W                    Externally power target                  Power from Pk2\n");
-	printf("X                    Use VPP first Program Entry Method       VDD first\n");
-    printf("Y<memory region>     Verify Device                            Do Not Verify\n");
-    printf("                         P = Program memory\n");
-    printf("                         E = EEPROM\n");
-    printf("                         I = ID memory\n");
-    printf("                         C = Configuration memory\n");
-    printf("                         If no region is entered, the entire\n");
-    printf("                         device will be verified.\n");
-    printf("                         (Serial EEPROM memory is 'P')\n");
-    printf("Z                    Preserve EEData on Program               Do Not Preserve\n");
-    printf("?                    Help Screen                              Not Shown\n");
-    printf("\n");
-    printf("     Each option must be immediately preceeded by a switch, Which can\n");
-    printf("     be either a dash <-> or a slash </> and options must be separated\n");
-    printf("     by a single space.\n");
-    printf("\n");
-    printf("     Example:   PK2CMD /PPIC16F887 /Fc:\\mycode /M\n");
-    printf("                               or\n");
-    printf("                PK2CMD -PPIC16F887 -Fc:\\mycode -M\n");
-    printf("\n");
-    printf("     Any option immediately followed by a question mark will invoke\n");
-    printf("     a more detailed description of how to use that option.\n");
-    printf("\n");
-    printf("     Commands and their parameters are not case sensitive. Commands will\n");
-    printf("     be processed according to command order of precedence, not the order\n");
-    printf("     in which they appear on the command line. \n");
-    printf("	Precedence:\n");
-    printf("                -?      (first)\n");
-	printf("                -B\n");
-	printf("                -S\n");
-    printf("                -D\n");
-	printf("                -N\n");
-    printf("                -P\n");
-    printf("                -A -F -J -L -Q -V -W -X -Z\n");
-    printf("                -C\n");
-    printf("                -U\n");
-    printf("                -E\n");
-    printf("                -M\n");
-    printf("                -Y\n");
-    printf("                -G\n");
-    printf("                -I -K\n");
-    printf("                -R -T\n");
-    printf("                -H      (last)\n");
-    printf("		\n");
-    printf("     The program will return an exit code upon completion which will\n");
-    printf("     indicate either successful completion, or describe the reason for\n");
-    printf("     failure. To view the list of exit codes and their descriptions,\n");
-    printf("     type -?E on the command line.\n");
-	printf("\n");
-	printf("     type -?V on the command line for version information.\n");
-	printf("\n");
-	printf("     type -?L on the command line for license information.\n");
-	printf("\n");
-	printf("     type -?P on the command line for a listing of supported devices.\n");
-	printf("     type -?P<string> to search for and display a list of supported devices\n");
-	printf("                      beginning with <string>.\n");
-	printf("\n");
-	printf("     Special thanks to the following individuals for their critical\n");
-	printf("     contributions to the development of this software:\n");
-	printf("		Jeff Post, Xiaofan Chen, and Shigenobu Kimura\n");
+	cout << format("                        PICkit 2 COMMAND LINE HELP\n");
+	cout << format("Options              Description                              Default\n");
+	cout << format("----------------------------------------------------------------------------\n");
+    cout << format("A<value>             Set Vdd voltage                          Device Specific\n");
+	cout << format("B<path>              Specify the path to " DEVICE_FILE_NAME "    Searches PATH\n");
+	cout << format("                                                              and calling dir\n");
+    cout << format("C                    Blank Check Device                       No Blank Check\n");
+    cout << format("D<file>              OS Download                              None\n");
+    cout << format("E                    Erase Flash Device                       Do Not Erase\n");
+    cout << format("F<file>              Hex File Selection                       None\n");
+    cout << format("G<Type><range/path>  Read functions                           None\n");
+    cout << format("                     Type F: = read into hex file,\n");
+    cout << format("                             path = full file path,\n");
+    cout << format("                             range is not used\n");
+    cout << format("                     Types P,E,I,C: = ouput read of Program,\n");
+    cout << format("                             EEPROM, ID and/or Configuration\n");
+    cout << format("                             Memory to the screen. P and E\n");
+    cout << format("                             must be followed by an address\n");
+    cout << format("                             range in the form of x-y where\n");
+    cout << format("                             x is the start address and y is\n");
+    cout << format("                             the end address both in hex,\n");
+    cout << format("                             path is not used\n");
+    cout << format("                             (Serial EEPROM memory is 'P')\n");
+    cout << format("H<value>             Delay before Exit                        Exit immediately\n");
+    cout << format("                         K = Wait on keypress before exit\n");
+    cout << format("                         1 to 9 = Wait <value> seconds\n");
+    cout << format("                                  before exit\n");
+    cout << format("I                    Display Device ID & silicon revision     Do Not Display\n");
+	cout << format("J<newlines>          Display operation percent complete       Rotating slash\n");
+	cout << format("                         N = Each update on newline\n");
+    cout << format("K                    Display Hex File Checksum                Do Not Display\n");
+    cout << format("L<rate>              Set programming speed                    Fastest\n");
+    cout << format("                     <rate> is a value of 1-16, with 1 being\n");
+	cout << format("                     the fastest.\n");
+    cout << format("M<memory region>     Program Device                           Do Not Program\n");
+    cout << format("                     memory regions:\n");
+    cout << format("                         P = Program memory\n");
+    cout << format("                         E = EEPROM\n");
+    cout << format("                         I = ID memory\n");
+    cout << format("                         C = Configuration memory\n");
+    cout << format("                         If no region is entered, the entire\n");
+    cout << format("                         device will be erased & programmed.\n");
+    cout << format("                         If a region is entered, no erase\n");
+    cout << format("                         is performed and only the given\n");
+    cout << format("                         region is programmed.\n");
+    cout << format("                         All programmed regions are verified.\n");
+    cout << format("			            (serial EEPROM memory is 'P')\n");
+    cout << format("N<string>            Assign Unit ID string to first found     None\n");
+    cout << format("                     PICkit 2 unit.  String is limited to 14\n");
+    cout << format("                     characters maximum.  May not be used\n");
+    cout << format("                     with other options.\n");
+    cout << format("                     Example: -NLab1B\n");
+    cout << format("P<part>              Part Selection. Example: -PPIC16f887     (Required)\n");
+	cout << format("P                    Auto-Detect in all detectable families\n");
+	cout << format("PF                   List auto-detectable part families\n");
+	cout << format("PF<id>               Auto-Detect only within the given part\n");
+	cout << format("                     family, using the ID listed with -PF\n");
+	cout << format("                     Example: -PF2\n");
+	cout << format("Q                    Disable PE for PIC24/dsPIC33 devices     Use PE\n");
+    cout << format("R                    Release /MCLR after operations           Assert /MCLR\n");
+    cout << format("S<string/#>          Use the PICkit 2 with the given Unit ID  First found unit\n");
+    cout << format("                     string.  Useful when multiple PICkit 2\n");
+    cout << format("                     units are connected.\n");
+    cout << format("                     Example: -SLab1B\n");
+    cout << format("                     If no <string> is entered, then the\n");
+    cout << format("                     Unit IDs of all connected units will be\n");
+    cout << format("                     displayed.  In this case, all other \n");
+    cout << format("                     options are ignored. -S# will list units\n");
+	cout << format("                     with their firmware versions.\n");
+	cout << format("                     See help -s? for more info.\n");
+    cout << format("T                    Power Target after operations            Vdd off\n");
+    cout << format("U<value>             Program OSCCAL memory, where:            Do Not Program\n");
+    cout << format("                      <value> is a hexadecimal number\n");
+    cout << format("                      representing the OSCCAL value to be\n");
+    cout << format("                      programmed. This may only be used in\n");
+    cout << format("                      conjunction with a programming \n");
+    cout << format("                      operation.\n");
+    cout << format("V<value>             Vpp override                             Device Specific\n");
+    cout << format("W                    Externally power target                  Power from Pk2\n");
+	cout << format("X                    Use VPP first Program Entry Method       VDD first\n");
+    cout << format("Y<memory region>     Verify Device                            Do Not Verify\n");
+    cout << format("                         P = Program memory\n");
+    cout << format("                         E = EEPROM\n");
+    cout << format("                         I = ID memory\n");
+    cout << format("                         C = Configuration memory\n");
+    cout << format("                         If no region is entered, the entire\n");
+    cout << format("                         device will be verified.\n");
+    cout << format("                         (Serial EEPROM memory is 'P')\n");
+    cout << format("Z                    Preserve EEData on Program               Do Not Preserve\n");
+    cout << format("?                    Help Screen                              Not Shown\n");
+    cout << format("\n");
+    cout << format("     Each option must be immediately preceeded by a switch, Which can\n");
+    cout << format("     be either a dash <-> or a slash </> and options must be separated\n");
+    cout << format("     by a single space.\n");
+    cout << format("\n");
+    cout << format("     Example:   PK2CMD /PPIC16F887 /Fc:\\mycode /M\n");
+    cout << format("                               or\n");
+    cout << format("                PK2CMD -PPIC16F887 -Fc:\\mycode -M\n");
+    cout << format("\n");
+    cout << format("     Any option immediately followed by a question mark will invoke\n");
+    cout << format("     a more detailed description of how to use that option.\n");
+    cout << format("\n");
+    cout << format("     Commands and their parameters are not case sensitive. Commands will\n");
+    cout << format("     be processed according to command order of precedence, not the order\n");
+    cout << format("     in which they appear on the command line. \n");
+    cout << format("	Precedence:\n");
+    cout << format("                -?      (first)\n");
+	cout << format("                -B\n");
+	cout << format("                -S\n");
+    cout << format("                -D\n");
+	cout << format("                -N\n");
+    cout << format("                -P\n");
+    cout << format("                -A -F -J -L -Q -V -W -X -Z\n");
+    cout << format("                -C\n");
+    cout << format("                -U\n");
+    cout << format("                -E\n");
+    cout << format("                -M\n");
+    cout << format("                -Y\n");
+    cout << format("                -G\n");
+    cout << format("                -I -K\n");
+    cout << format("                -R -T\n");
+    cout << format("                -H      (last)\n");
+    cout << format("		\n");
+    cout << format("     The program will return an exit code upon completion which will\n");
+    cout << format("     indicate either successful completion, or describe the reason for\n");
+    cout << format("     failure. To view the list of exit codes and their descriptions,\n");
+    cout << format("     type -?E on the command line.\n");
+	cout << format("\n");
+	cout << format("     type -?V on the command line for version information.\n");
+	cout << format("\n");
+	cout << format("     type -?L on the command line for license information.\n");
+	cout << format("\n");
+	cout << format("     type -?P on the command line for a listing of supported devices.\n");
+	cout << format("     type -?P<string> to search for and display a list of supported devices\n");
+	cout << format("                      beginning with <string>.\n");
+	cout << format("\n");
+	cout << format("     Special thanks to the following individuals for their critical\n");
+	cout << format("     contributions to the development of this software:\n");
+	cout << format("		Jeff Post, Xiaofan Chen, and Shigenobu Kimura\n");
 }
 
 bool Ccmd_app::checkHelp2(TextVec& args, bool loadDeviceFileFailed)
@@ -2901,7 +2908,7 @@ bool Ccmd_app::checkHelp2(TextVec& args, bool loadDeviceFileFailed)
 				break;
 
 			default:
-				printf("Invalid command, or no Help available to for specified command.\n");
+				cout << format("Invalid command, or no Help available to for specified command.\n");
 
 		}
 	}
@@ -2911,199 +2918,199 @@ bool Ccmd_app::checkHelp2(TextVec& args, bool loadDeviceFileFailed)
 
 void Ccmd_app::displayLicense(void)
 {
-	printf("IMPORTANT: \n");
-	printf("YOU MUST ACCEPT THE TERMS AND CONDITIONS OF THIS LICENSE AGREEMENT\n");
-	printf("TO RECEIVE A LICENSE FOR THE ACCOMPANYING SOFTWARE.  TO ACCEPT THE\n");
-    printf("TERMS OF THIS LICENSE, OPEN THIS PACKAGE AND PROCEED WITH THE\n");
-	printf("DOWNLOAD OR USE OF THE SOFTWARE.  IF YOU DO NOT ACCEPT THESE LICENSE\n");
-	printf("TERMS, DO NOT OPEN THIS PACKAGE, DOWNLOAD, OR USE THIS SOFTWARE.\n");
-	printf("\n");
-	printf("PICkit(tm) 2 PK2CMD SOFTWARE LICENSE \n");
-	printf("\n");
-	printf("This License Agreement (Agreement) is a contract between You (as\n");
-	printf("an individual or as a representative of your employer) and\n");
-	printf("Microchip Technology Incorporated (\"Company\") for the PICkit(tm) 2\n");
-	printf("PK2CMD software (including source code) accompanying this Agreement\n");
-	printf("(the \"Software\").  In consideration for access to the Software, You\n");
-	printf("agree to be bound by this Agreement. \n");
-	printf("\n");
-	printf("1.  LICENSE GRANT. Subject to all of the terms and conditions of\n");
-	printf("this Agreement, Company grants You a non-exclusive, non-\n");
-	printf("sublicensable, non-transferable license to use the Software with\n");
-	printf("Company products, modify the Software for use with Company products,\n");
-	printf("and market, sell or otherwise distribute: \n");
-	printf("\n");
-	printf("(a) Your end application that integrates Software and Company\n");
-	printf("    products (\"Licensee Product\"); or \n");
-	printf("\n");
-	printf("(b) Your modifications to the Software provided that the modified\n");
-	printf("    Software has the following copyright and disclaimer notice\n");
-	printf("    prominently posted in a location where end users will see it\n");
-	printf("    (e.g., installation program, program headers, About Box, etc.):\n");
-	printf("\n");
-	printf("\"Copyright (c) 2005-2009 Microchip Technology Inc. All rights\n");
-	printf("reserved. This version of the PICkit(tm) 2 PK2CMD Software has been\n");
-	printf("modified by [INSERT YOUR NAME, DATE OF SOFTWARE MODIFICATION HERE].\n");
-	printf("You may use, copy, modify and distribute the Software for use with\n");
-	printf("Microchip products only.  If you distribute the Software or its\n");
-	printf("derivatives, the Software must have this copyright and disclaimer\n");
-	printf("notice prominently posted in a location where end users will see it\n");
-	printf("(e.g., installation program, program headers, About Box, etc.).  To\n");
-	printf("the maximum extent permitted by law, this Software is distributed\n");
-	printf("\"AS IS\" and WITHOUT ANY WARRANTY INCLUDING BUT NOT LIMITED TO ANY\n");
-	printf("IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR PARTICULAR PURPOSE,\n");
-	printf("or NON-INFRINGEMENT. IN NO EVENT WILL MICROCHIP OR ITS LICENSORS BE\n");
-	printf("LIABLE FOR ANY INCIDENTAL, SPECIAL, INDIRECT OR CONSEQUENTIAL\n");
-	printf("DAMAGESOF ANY KIND ARISING FROM OR RELATED TO THE USE, MODIFICATION\n");
-	printf("OR DISTRIBUTION OF THIS SOFTWARE OR ITS DERIVATIVES.\"\n");
-	printf("\n");
-	printf("You may not copy or reproduce all or any portion of Software, except\n");
-	printf("to the extent that such activity is specifically allowed by this\n");
-	printf("Agreement or expressly permitted by applicable law notwithstanding\n");
-	printf("the foregoing limitations.\n");
-	printf("\n");
-	printf("All copies of the Software created by You or for You, including\n");
-	printf("derivatives, must include the copyright, trademark and other\n");
-	printf("proprietary notices as they appear on the original or, in the event\n");
-	printf("You modified the Software, the notice listed above. You may not\n");
-	printf("remove or alter any identifying screen that is produced by the\n");
-	printf("Software.\n");
-	printf("\n");
-	printf("2.  OWNERSHIP AND TITLE. Software is licensed pursuant to the\n");
-	printf("    Agreement, not sold.  All right, title and interest, including\n");
-	printf("    intellectual property rights, in and to Software, derivatives\n");
-	printf("    thereof, implementation of the Software in microcontrollers,\n");
-	printf("    and hardware and software implementations of Software or\n");
-	printf("    derivatives shall remain in Company. You will not obtain\n");
-	printf("    ownership rights to derivatives of Software, and by accepting\n");
-	printf("    the terms of this Agreement assign any such rights to Company\n");
-	printf("    that You do receive.  Except as specifically stated in the\n");
-	printf("    Agreement, you are granted no other rights, express or implied,\n");
-	printf("    to the Software, derivatives thereof, or other Company\n");
-	printf("    intellectual property such as trade secrets, patents, \n");
-	printf("    copyrights, and trademarks.\n");
-	printf("\n");
-	printf("3.  CONFIDENTIALITY. You agree not to disclose Software to any\n");
-	printf("    third party, except as permitted by this Agreement.  To the\n");
-	printf("    extent that Software becomes part of the public domain, is\n");
-	printf("    independently developed, or obtained free from any obligation\n");
-	printf("    of confidentiality then the obligation of confidentiality\n");
-	printf("    under this Agreement shall not apply.\n");
- 	printf("\n");
-	printf("4.  COPYRIGHT. The Software is protected by U.S. copyright laws\n");
-	printf("    and international copyright treaties, as well as other\n");
-	printf("    intellectual property laws and treaties.\n");
-	printf("\n");
-	printf("5.  TERMINATION OF AGREEMENT. Without prejudice to any other\n");
-	printf("    rights, Company may terminate this Agreement if You fail to\n");
-	printf("    comply with the terms and conditions of this Agreement.\n");
-	printf("    Upon termination, You shall immediately: (a) stop using and\n");
-	printf("    distributing the Software and derivatives thereof; (b) destroy\n");
-	printf("    all copies of the Software and derivatives in your possession;\n");
-	printf("    and (c) remove Software from any of Your tangible media and\n");
-	printf("    from systems on which the Software exists.  Termination of\n");
-	printf("    this License shall not affect the right of any end user or\n");
-	printf("    consumer to use Licensee Product or modified Software;\n");
-	printf("    provided that such product or modified Software was purchased\n");
-	printf("    or distributed prior to the termination of this License.\n");
-	printf("\n");
-	printf("6.  DANGEROUS APPLICATIONS. You acknowledge that Software has not\n");
-	printf("    been designed to be fault tolerant.  You warrant that You will\n");
-	printf("    not use Software or derivatives in a dangerous, hazardous, or\n");
-	printf("    life supporting application where the failure of such\n");
-	printf("    application could lead directly to death, personal injury, or\n");
-	printf("    environmental damage.\n");
-	printf("\n");
-	printf("7.  INDEMNITY. You will indemnify and hold Company and its\n");
-	printf("    licensor(s), its related companies and its suppliers, harmless\n");
-	printf("    for, from and against, any claims, costs (including attorney's\n");
-	printf("    fees), damages or liabilities, including without limitation\n");
-	printf("    product liability claims, arising out of: (a) Your use,\n");
-	printf("    modification and distribution of the Software and its\n");
-	printf("    derivatives; or (b) violation of this Agreement. COMPANY AND\n");
-	printf("    ITS LICENSOR(S) ASSUME NO RESPONSIBILITY FOR, NOR INDEMNIFY\n");
-	printf("    YOU AGAINST, ANY PATENT, COPYRIGHT OR OTHER INTELLECTUAL\n");
-	printf("    PROPERTY CLAIMS BROUGHT AGAINST YOU RELATING TO THE SOFTWARE.\n");
-	printf("\n");
-	printf("8.  NO WARRANTY. TO THE MAXIMUM EXTENT PERMITTED BY LAW, COMPANY\n");
-	printf("    AND ITS LICENSOR PROVIDE SOFTWARE \"AS IS\" AND EXPRESSLY\n");
-	printf("    DISCLAIM ANY WARRANTY OF ANY KIND, WHETHER EXPRESS OR IMPLIED,\n");
-	printf("    INCLUDING BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF\n");
-	printf("    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR\n");
-	printf("    NON-INFRINGEMENT. YOU ASSUME THE ENTIRE RISK ARISING OUT OF\n");
-	printf("    USE OR PERFORMANCE OF SOFTWARE, AS WELL AS ANY DERIVATIVES OF\n");
-	printf("    THE SOFTWARE MADE FOR YOU OR ON YOUR BEHALF.  COMPANY AND ITS\n");
-	printf("    LICENSOR(S) ASSUME NO RESPONSIBILITY FOR THE ACCURACY OR\n");
-	printf("    ERRORS OR OMISSIONS OF SOFTWARE AND DO NOT WARRANT THE\n");
-	printf("    FOLLOWING: (A) THE FUNCTIONS CONTAINED IN SOFTWARE WILL MEET\n");
-	printf("    YOUR REQUIREMENTS; (B) THE OPERATION OF SOFTWARE WILL BE\n");
-	printf("    UNINTERRUPTED OR ERROR-FREE; OR (C) ANY DEFECTS IN SOFTWARE\n");
-	printf("    WILL BE CORRECTED. \n");
-	printf("\n");
-	printf("9.  LIMITATION OF LIABILITY. COMPANY AND ITS LICENSOR TOTAL\n");
-	printf("    AGGREGATE LIABILITY IN CONTRACT, WARRANTY, TORT (INCLUDING\n");
-	printf("    NEGLIGENCE OR BREACH OF STATUTORY DUTY), STRICT LIABILITY,\n");
-	printf("    INDEMNITY, CONTRIBUTION, OR OTHERWISE, SHALL NOT EXCEED THE\n");
-	printf("    LICENSE FEE YOU PAID FOR THE SOFTWARE. IN NO EVENT SHALL\n");
-	printf("    COMPANY AND ITS LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,\n");
-	printf("    INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,\n");
-	printf("    HARM TO YOUR EQUIPMENT, COST OF PROCUREMENT OF SUBSTITUTE\n");
-	printf("    GOODS, TECHNOLOGY OR SERVICES, ANY CLAIMS BY THIRD PARTIES\n");
-	printf("    (INCLUDING BUT NOT LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS\n");
-	printf("    FOR INDEMNITY OR CONTRIBUTION, OR OTHER SIMILAR COSTS. If any\n");
-	printf("    remedy is determined to have failed of its essential purpose,\n");
-	printf("    all limitations of liability and exclusion of damages set forth\n");
-	printf("    in the limited warranty shall remain in effect.\n");
-	printf("\n");
-	printf("10. SURVIVAL.  Sections 2-15 shall survive termination of this\n");
-	printf("     Agreement. \n");
-	printf("\n");
-	printf("11. CHOICE OF LAW; VENUE; LIMITATIONS ON CLAIMS. You agree that\n");
-	printf("    this Agreement and any conflicts regarding Software, shall be\n");
-	printf("    construed, interpreted and governed by the laws, and subject\n");
-	printf("    to the exclusive jurisdiction of the state or territory in the\n");
-	printf("    Company Terms and Conditions of Sale (\"T&Cs\").  In the event\n");
-	printf("    that the T&Cs do not apply or the choice of law or\n");
-	printf("    jurisdiction are not indicated therein, then this Agreement\n");
-	printf("    shall be construed, interpreted and governed by the laws, and\n");
-	printf("    subject to the exclusive jurisdiction of the State of Arizona,\n");
-	printf("    U.S.A. without regard to any conflict of laws principles. You\n");
-	printf("    agree that regardless of any law to the contrary, any cause of\n");
-	printf("    action related to or arising out of this Agreement or Software\n");
-	printf("    must be filed within one year after such cause of action\n");
-	printf("    arose, or be considered waived.\n");
-	printf("\n");
-	printf("12. EXPORT COMPLIANCE. You will not export or re-export Software,\n");
-	printf("    technical data, direct products thereof or any other items\n");
-	printf("    which would violate any applicable export control laws and\n");
-	printf("    regulations including, but not limited to, those of the United\n");
-	printf("    States and the United Kingdom.  You agree that it is Your\n");
-	printf("    responsibility to obtain copies of and to familiarize yourself\n");
-	printf("    fully with these laws and regulations to avoid violation.\n");
-	printf("\n");
-	printf("13. ASSIGNMENT. Neither this agreement nor any rights, licenses\n");
-	printf("    or obligations hereunder, may be assigned by You without the\n");
-	printf("    Company's prior written approval.\n");
-	printf("\n");
-	printf("14. ENTIRE AGREEMENT: MODIFICATIONS AND WAIVER. This Agreement\n");
-	printf("    constitutes the entire agreement of the parties with respect\n");
-	printf("    to the subject matter of this Agreement, and merges and\n");
-	printf("    supersedes all communications relating to this subject matter,\n");
-	printf("    whether written or oral. Except as expressly set forth in this\n");
-	printf("    Agreement, no modification of this Agreement will be effective\n");
-	printf("    unless made in writing signed by Company.  No failure or delay\n");
-	printf("    by Company or its licensor(s) to assert any rights or remedies\n");
-	printf("    arising from a breach of this Agreement shall be construed as a\n");
-	printf("    waiver or a continuing waiver of such rights and remedies, nor\n");
-	printf("    shall failure or delay to assert a breach be deemed to waive that\n");
-	printf("    or any other breach. If any part of this Agreement is found by a\n");
-	printf("    court of competent jurisdiction to be invalid, unlawful or\n");
-	printf("    unenforceable then such part shall be severed from the remainder\n");
-	printf("    of this Agreement and replaced with a valid provision that comes\n");
-	printf("    closest to the intention underlying the invalid provision.\n");
-	printf("\n");
-	printf("Copyright (c) 2005-2009, Microchip Technology Inc. All rights\n");
-	printf("reserved. \n");
+	cout << format("IMPORTANT: \n");
+	cout << format("YOU MUST ACCEPT THE TERMS AND CONDITIONS OF THIS LICENSE AGREEMENT\n");
+	cout << format("TO RECEIVE A LICENSE FOR THE ACCOMPANYING SOFTWARE.  TO ACCEPT THE\n");
+    cout << format("TERMS OF THIS LICENSE, OPEN THIS PACKAGE AND PROCEED WITH THE\n");
+	cout << format("DOWNLOAD OR USE OF THE SOFTWARE.  IF YOU DO NOT ACCEPT THESE LICENSE\n");
+	cout << format("TERMS, DO NOT OPEN THIS PACKAGE, DOWNLOAD, OR USE THIS SOFTWARE.\n");
+	cout << format("\n");
+	cout << format("PICkit(tm) 2 PK2CMD SOFTWARE LICENSE \n");
+	cout << format("\n");
+	cout << format("This License Agreement (Agreement) is a contract between You (as\n");
+	cout << format("an individual or as a representative of your employer) and\n");
+	cout << format("Microchip Technology Incorporated (\"Company\") for the PICkit(tm) 2\n");
+	cout << format("PK2CMD software (including source code) accompanying this Agreement\n");
+	cout << format("(the \"Software\").  In consideration for access to the Software, You\n");
+	cout << format("agree to be bound by this Agreement. \n");
+	cout << format("\n");
+	cout << format("1.  LICENSE GRANT. Subject to all of the terms and conditions of\n");
+	cout << format("this Agreement, Company grants You a non-exclusive, non-\n");
+	cout << format("sublicensable, non-transferable license to use the Software with\n");
+	cout << format("Company products, modify the Software for use with Company products,\n");
+	cout << format("and market, sell or otherwise distribute: \n");
+	cout << format("\n");
+	cout << format("(a) Your end application that integrates Software and Company\n");
+	cout << format("    products (\"Licensee Product\"); or \n");
+	cout << format("\n");
+	cout << format("(b) Your modifications to the Software provided that the modified\n");
+	cout << format("    Software has the following copyright and disclaimer notice\n");
+	cout << format("    prominently posted in a location where end users will see it\n");
+	cout << format("    (e.g., installation program, program headers, About Box, etc.):\n");
+	cout << format("\n");
+	cout << format("\"Copyright (c) 2005-2009 Microchip Technology Inc. All rights\n");
+	cout << format("reserved. This version of the PICkit(tm) 2 PK2CMD Software has been\n");
+	cout << format("modified by [INSERT YOUR NAME, DATE OF SOFTWARE MODIFICATION HERE].\n");
+	cout << format("You may use, copy, modify and distribute the Software for use with\n");
+	cout << format("Microchip products only.  If you distribute the Software or its\n");
+	cout << format("derivatives, the Software must have this copyright and disclaimer\n");
+	cout << format("notice prominently posted in a location where end users will see it\n");
+	cout << format("(e.g., installation program, program headers, About Box, etc.).  To\n");
+	cout << format("the maximum extent permitted by law, this Software is distributed\n");
+	cout << format("\"AS IS\" and WITHOUT ANY WARRANTY INCLUDING BUT NOT LIMITED TO ANY\n");
+	cout << format("IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR PARTICULAR PURPOSE,\n");
+	cout << format("or NON-INFRINGEMENT. IN NO EVENT WILL MICROCHIP OR ITS LICENSORS BE\n");
+	cout << format("LIABLE FOR ANY INCIDENTAL, SPECIAL, INDIRECT OR CONSEQUENTIAL\n");
+	cout << format("DAMAGESOF ANY KIND ARISING FROM OR RELATED TO THE USE, MODIFICATION\n");
+	cout << format("OR DISTRIBUTION OF THIS SOFTWARE OR ITS DERIVATIVES.\"\n");
+	cout << format("\n");
+	cout << format("You may not copy or reproduce all or any portion of Software, except\n");
+	cout << format("to the extent that such activity is specifically allowed by this\n");
+	cout << format("Agreement or expressly permitted by applicable law notwithstanding\n");
+	cout << format("the foregoing limitations.\n");
+	cout << format("\n");
+	cout << format("All copies of the Software created by You or for You, including\n");
+	cout << format("derivatives, must include the copyright, trademark and other\n");
+	cout << format("proprietary notices as they appear on the original or, in the event\n");
+	cout << format("You modified the Software, the notice listed above. You may not\n");
+	cout << format("remove or alter any identifying screen that is produced by the\n");
+	cout << format("Software.\n");
+	cout << format("\n");
+	cout << format("2.  OWNERSHIP AND TITLE. Software is licensed pursuant to the\n");
+	cout << format("    Agreement, not sold.  All right, title and interest, including\n");
+	cout << format("    intellectual property rights, in and to Software, derivatives\n");
+	cout << format("    thereof, implementation of the Software in microcontrollers,\n");
+	cout << format("    and hardware and software implementations of Software or\n");
+	cout << format("    derivatives shall remain in Company. You will not obtain\n");
+	cout << format("    ownership rights to derivatives of Software, and by accepting\n");
+	cout << format("    the terms of this Agreement assign any such rights to Company\n");
+	cout << format("    that You do receive.  Except as specifically stated in the\n");
+	cout << format("    Agreement, you are granted no other rights, express or implied,\n");
+	cout << format("    to the Software, derivatives thereof, or other Company\n");
+	cout << format("    intellectual property such as trade secrets, patents, \n");
+	cout << format("    copyrights, and trademarks.\n");
+	cout << format("\n");
+	cout << format("3.  CONFIDENTIALITY. You agree not to disclose Software to any\n");
+	cout << format("    third party, except as permitted by this Agreement.  To the\n");
+	cout << format("    extent that Software becomes part of the public domain, is\n");
+	cout << format("    independently developed, or obtained free from any obligation\n");
+	cout << format("    of confidentiality then the obligation of confidentiality\n");
+	cout << format("    under this Agreement shall not apply.\n");
+ 	cout << format("\n");
+	cout << format("4.  COPYRIGHT. The Software is protected by U.S. copyright laws\n");
+	cout << format("    and international copyright treaties, as well as other\n");
+	cout << format("    intellectual property laws and treaties.\n");
+	cout << format("\n");
+	cout << format("5.  TERMINATION OF AGREEMENT. Without prejudice to any other\n");
+	cout << format("    rights, Company may terminate this Agreement if You fail to\n");
+	cout << format("    comply with the terms and conditions of this Agreement.\n");
+	cout << format("    Upon termination, You shall immediately: (a) stop using and\n");
+	cout << format("    distributing the Software and derivatives thereof; (b) destroy\n");
+	cout << format("    all copies of the Software and derivatives in your possession;\n");
+	cout << format("    and (c) remove Software from any of Your tangible media and\n");
+	cout << format("    from systems on which the Software exists.  Termination of\n");
+	cout << format("    this License shall not affect the right of any end user or\n");
+	cout << format("    consumer to use Licensee Product or modified Software;\n");
+	cout << format("    provided that such product or modified Software was purchased\n");
+	cout << format("    or distributed prior to the termination of this License.\n");
+	cout << format("\n");
+	cout << format("6.  DANGEROUS APPLICATIONS. You acknowledge that Software has not\n");
+	cout << format("    been designed to be fault tolerant.  You warrant that You will\n");
+	cout << format("    not use Software or derivatives in a dangerous, hazardous, or\n");
+	cout << format("    life supporting application where the failure of such\n");
+	cout << format("    application could lead directly to death, personal injury, or\n");
+	cout << format("    environmental damage.\n");
+	cout << format("\n");
+	cout << format("7.  INDEMNITY. You will indemnify and hold Company and its\n");
+	cout << format("    licensor(s), its related companies and its suppliers, harmless\n");
+	cout << format("    for, from and against, any claims, costs (including attorney's\n");
+	cout << format("    fees), damages or liabilities, including without limitation\n");
+	cout << format("    product liability claims, arising out of: (a) Your use,\n");
+	cout << format("    modification and distribution of the Software and its\n");
+	cout << format("    derivatives; or (b) violation of this Agreement. COMPANY AND\n");
+	cout << format("    ITS LICENSOR(S) ASSUME NO RESPONSIBILITY FOR, NOR INDEMNIFY\n");
+	cout << format("    YOU AGAINST, ANY PATENT, COPYRIGHT OR OTHER INTELLECTUAL\n");
+	cout << format("    PROPERTY CLAIMS BROUGHT AGAINST YOU RELATING TO THE SOFTWARE.\n");
+	cout << format("\n");
+	cout << format("8.  NO WARRANTY. TO THE MAXIMUM EXTENT PERMITTED BY LAW, COMPANY\n");
+	cout << format("    AND ITS LICENSOR PROVIDE SOFTWARE \"AS IS\" AND EXPRESSLY\n");
+	cout << format("    DISCLAIM ANY WARRANTY OF ANY KIND, WHETHER EXPRESS OR IMPLIED,\n");
+	cout << format("    INCLUDING BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF\n");
+	cout << format("    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR\n");
+	cout << format("    NON-INFRINGEMENT. YOU ASSUME THE ENTIRE RISK ARISING OUT OF\n");
+	cout << format("    USE OR PERFORMANCE OF SOFTWARE, AS WELL AS ANY DERIVATIVES OF\n");
+	cout << format("    THE SOFTWARE MADE FOR YOU OR ON YOUR BEHALF.  COMPANY AND ITS\n");
+	cout << format("    LICENSOR(S) ASSUME NO RESPONSIBILITY FOR THE ACCURACY OR\n");
+	cout << format("    ERRORS OR OMISSIONS OF SOFTWARE AND DO NOT WARRANT THE\n");
+	cout << format("    FOLLOWING: (A) THE FUNCTIONS CONTAINED IN SOFTWARE WILL MEET\n");
+	cout << format("    YOUR REQUIREMENTS; (B) THE OPERATION OF SOFTWARE WILL BE\n");
+	cout << format("    UNINTERRUPTED OR ERROR-FREE; OR (C) ANY DEFECTS IN SOFTWARE\n");
+	cout << format("    WILL BE CORRECTED. \n");
+	cout << format("\n");
+	cout << format("9.  LIMITATION OF LIABILITY. COMPANY AND ITS LICENSOR TOTAL\n");
+	cout << format("    AGGREGATE LIABILITY IN CONTRACT, WARRANTY, TORT (INCLUDING\n");
+	cout << format("    NEGLIGENCE OR BREACH OF STATUTORY DUTY), STRICT LIABILITY,\n");
+	cout << format("    INDEMNITY, CONTRIBUTION, OR OTHERWISE, SHALL NOT EXCEED THE\n");
+	cout << format("    LICENSE FEE YOU PAID FOR THE SOFTWARE. IN NO EVENT SHALL\n");
+	cout << format("    COMPANY AND ITS LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,\n");
+	cout << format("    INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,\n");
+	cout << format("    HARM TO YOUR EQUIPMENT, COST OF PROCUREMENT OF SUBSTITUTE\n");
+	cout << format("    GOODS, TECHNOLOGY OR SERVICES, ANY CLAIMS BY THIRD PARTIES\n");
+	cout << format("    (INCLUDING BUT NOT LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS\n");
+	cout << format("    FOR INDEMNITY OR CONTRIBUTION, OR OTHER SIMILAR COSTS. If any\n");
+	cout << format("    remedy is determined to have failed of its essential purpose,\n");
+	cout << format("    all limitations of liability and exclusion of damages set forth\n");
+	cout << format("    in the limited warranty shall remain in effect.\n");
+	cout << format("\n");
+	cout << format("10. SURVIVAL.  Sections 2-15 shall survive termination of this\n");
+	cout << format("     Agreement. \n");
+	cout << format("\n");
+	cout << format("11. CHOICE OF LAW; VENUE; LIMITATIONS ON CLAIMS. You agree that\n");
+	cout << format("    this Agreement and any conflicts regarding Software, shall be\n");
+	cout << format("    construed, interpreted and governed by the laws, and subject\n");
+	cout << format("    to the exclusive jurisdiction of the state or territory in the\n");
+	cout << format("    Company Terms and Conditions of Sale (\"T&Cs\").  In the event\n");
+	cout << format("    that the T&Cs do not apply or the choice of law or\n");
+	cout << format("    jurisdiction are not indicated therein, then this Agreement\n");
+	cout << format("    shall be construed, interpreted and governed by the laws, and\n");
+	cout << format("    subject to the exclusive jurisdiction of the State of Arizona,\n");
+	cout << format("    U.S.A. without regard to any conflict of laws principles. You\n");
+	cout << format("    agree that regardless of any law to the contrary, any cause of\n");
+	cout << format("    action related to or arising out of this Agreement or Software\n");
+	cout << format("    must be filed within one year after such cause of action\n");
+	cout << format("    arose, or be considered waived.\n");
+	cout << format("\n");
+	cout << format("12. EXPORT COMPLIANCE. You will not export or re-export Software,\n");
+	cout << format("    technical data, direct products thereof or any other items\n");
+	cout << format("    which would violate any applicable export control laws and\n");
+	cout << format("    regulations including, but not limited to, those of the United\n");
+	cout << format("    States and the United Kingdom.  You agree that it is Your\n");
+	cout << format("    responsibility to obtain copies of and to familiarize yourself\n");
+	cout << format("    fully with these laws and regulations to avoid violation.\n");
+	cout << format("\n");
+	cout << format("13. ASSIGNMENT. Neither this agreement nor any rights, licenses\n");
+	cout << format("    or obligations hereunder, may be assigned by You without the\n");
+	cout << format("    Company's prior written approval.\n");
+	cout << format("\n");
+	cout << format("14. ENTIRE AGREEMENT: MODIFICATIONS AND WAIVER. This Agreement\n");
+	cout << format("    constitutes the entire agreement of the parties with respect\n");
+	cout << format("    to the subject matter of this Agreement, and merges and\n");
+	cout << format("    supersedes all communications relating to this subject matter,\n");
+	cout << format("    whether written or oral. Except as expressly set forth in this\n");
+	cout << format("    Agreement, no modification of this Agreement will be effective\n");
+	cout << format("    unless made in writing signed by Company.  No failure or delay\n");
+	cout << format("    by Company or its licensor(s) to assert any rights or remedies\n");
+	cout << format("    arising from a breach of this Agreement shall be construed as a\n");
+	cout << format("    waiver or a continuing waiver of such rights and remedies, nor\n");
+	cout << format("    shall failure or delay to assert a breach be deemed to waive that\n");
+	cout << format("    or any other breach. If any part of this Agreement is found by a\n");
+	cout << format("    court of competent jurisdiction to be invalid, unlawful or\n");
+	cout << format("    unenforceable then such part shall be severed from the remainder\n");
+	cout << format("    of this Agreement and replaced with a valid provision that comes\n");
+	cout << format("    closest to the intention underlying the invalid provision.\n");
+	cout << format("\n");
+	cout << format("Copyright (c) 2005-2009, Microchip Technology Inc. All rights\n");
+	cout << format("reserved. \n");
 
 }
 
@@ -3119,9 +3126,9 @@ void Ccmd_app::displayPartList(TextVec& args, _TCHAR* argSearch)
 
 	// display sorted parts by family, in family display order
 	if (argSearch[0] == 0)
-		printf("Number of devices = %i\n\n", PicFuncs.DevFile.Info.NumberParts - 1); // don't count "unsupported" device
+		cout << format("Number of devices = %i\n\n", PicFuncs.DevFile.Info.NumberParts - 1); // don't count "unsupported" device
 	else
-		printf("List of devices starting with '%s':\n\n", argSearch);
+		cout << format("List of devices starting with '%s':\n\n", argSearch);
 	printf ("Device Name                  Device Family\n");
 	printf ("-----------                  -------------\n");
 	for (int index = 0; index < PicFuncs.DevFile.Info.NumberFamilies ; index++)
@@ -3145,7 +3152,7 @@ void Ccmd_app::displayPartList(TextVec& args, _TCHAR* argSearch)
 				{ // list all parts
 					for (partIdx = 0; partIdx < partNum; partIdx++)
 					{
-						printf("%-28s %s\n", partlist_array[partIdx], PicFuncs.DevFile.Families[order].FamilyName);
+						cout << format("%-28s %s\n", partlist_array[partIdx], PicFuncs.DevFile.Families[order].FamilyName);
 					}
 				}
 				else
@@ -3154,17 +3161,17 @@ void Ccmd_app::displayPartList(TextVec& args, _TCHAR* argSearch)
 					for (partIdx = 0; partIdx < partNum; partIdx++)
 					{
 						if (TXT_COMPARE(partlist_array[partIdx], argSearch, l) == 0)
-							printf("%-28s %s\n", partlist_array[partIdx], PicFuncs.DevFile.Families[order].FamilyName);
+							cout << format("%-28s %s\n", partlist_array[partIdx], PicFuncs.DevFile.Families[order].FamilyName);
 					}
 				}
 			}
 		}
 	}
 
-	printf("\nNOTE: If the name contains a space with additional info in parentheses, Ex:\n");
-	printf("        PIC16F636 (639)\n        93LC46A (C X8)\n");
-	printf("      then only the characters before the space are required for -P, Ex:\n");
-	printf("        -pPIC16F636\n        -p93LC46A\n");
+	cout << format("\nNOTE: If the name contains a space with additional info in parentheses, Ex:\n");
+	cout << format("        PIC16F636 (639)\n        93LC46A (C X8)\n");
+	cout << format("      then only the characters before the space are required for -P, Ex:\n");
+	cout << format("        -pPIC16F636\n        -p93LC46A\n");
 }
 
 int Ccmd_app::strnatcmpWrapper(const void *a, const void *b)
