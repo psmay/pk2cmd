@@ -29,7 +29,7 @@ extern "C"{
 	#include "strnatcmp.h"
 }
 
-
+#define NSIZE(v) (int)(v.size())
 
 Ccmd_app::Ccmd_app(void)
 {
@@ -159,7 +159,7 @@ bool Ccmd_app::Pk2OperationCheck(TextVec& args)
 	int i;
 	bool ret = false;
 
-	for (i = 1; i < args.size(); i++)
+	for (i = 1; i < NSIZE(args); i++)
 	{
 		if (checkSwitch(args[i]))
 		{
@@ -235,14 +235,14 @@ void Ccmd_app::processArgvForSpaces(TextVec& args)
 
 	nargs.clear();
 
-	for (i=0, j=0; i < args.size(); i++, j++)
+	for (i=0, j=0; i < NSIZE(args); i++, j++)
 	{
 		nargs.push_back( (char *) malloc(MAX_PATH) );
 		strcpy(nargs[j], args[i]);
 
 		if (checkSwitch(args[i]))
 		{
-			if ((i < (args.size() - 1)) && (strlen(args[i]) == 2)) // only append next string if first is just option
+			if ((i < (NSIZE(args) - 1)) && (strlen(args[i]) == 2)) // only append next string if first is just option
 			{
 				if (!checkSwitch(args[i + 1]))
 				{
@@ -272,7 +272,7 @@ void Ccmd_app::processArgs(TextVec& args)
 		return;
 
 	// look for part name first
-	for (i = 0; i < args.size(); i++)
+	for (i = 0; i < NSIZE(args); i++)
 	{
 		if (checkSwitch(args[i]))
 		{
@@ -280,7 +280,7 @@ void Ccmd_app::processArgs(TextVec& args)
 				break;
 		}
 	}
-	if (i == args.size())
+	if (i == NSIZE(args))
 	{ // no part specified
 		printf("-P is a required option\n\n");
 		ReturnCode = INVALID_CMDLINE_ARG;
@@ -445,7 +445,7 @@ bool Ccmd_app::bootloadArg(TextVec& args)
 	_TCHAR tempString[MAX_PATH] = "";
 	bool ret;
 
-	for (i = 1; i < args.size(); i++)
+	for (i = 1; i < NSIZE(args); i++)
 	{
 		// -D download OS
 		if ((checkSwitch(args[i])) && ((args[i][1] == 'D') || (args[i][1] == 'd')))
@@ -464,7 +464,7 @@ bool Ccmd_app::bootloadArg(TextVec& args)
 			_tcsncpy_s(tempString, XRIGHT(args[i],2), TXT_LENGTH(args[i])-2);
 			args[i] = (char *) "";
 			j = 1;
-			while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
+			while (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
 			{ // check for path with space(s) in it
 				TXT_PUSH_UNSAFE(tempString, " ");
 				TXT_PUSH_UNSAFE(tempString, args[i+j]);
@@ -514,7 +514,7 @@ bool Ccmd_app::unitIDArg(TextVec& args)
 	_TCHAR readString[MAX_PATH] = "";
 	bool ret;
 
-	for (i = 1; i < args.size(); i++)
+	for (i = 1; i < NSIZE(args); i++)
 	{
 		// -N set Unit ID
 		if ((checkSwitch(args[i])) && ((args[i][1] == 'N') || (args[i][1] == 'n')))
@@ -522,7 +522,7 @@ bool Ccmd_app::unitIDArg(TextVec& args)
 			_tcsncpy_s(writeString, XRIGHT(args[i],2), TXT_LENGTH(args[i])-2);
 			args[i] = (char *) "";
 			j = 1;
-			while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
+			while (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
 			{ // check for name with space(s) in it
 				TXT_PUSH_UNSAFE(writeString, " ");
 				TXT_PUSH_UNSAFE(writeString, args[i+j]);
@@ -569,7 +569,7 @@ bool Ccmd_app::selectUnitArg(TextVec& args)
 	_TCHAR readString[MAX_PATH] = "";
 	_TCHAR *pUnitID = 0;
 
-	for (i = 1; i < args.size(); i++)
+	for (i = 1; i < NSIZE(args); i++)
 	{
 		// -S use Unit ID
 		if ((checkSwitch(args[i])) && ((args[i][1] == 'S') || (args[i][1] == 's')))
@@ -729,7 +729,7 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 		PicFuncs.GetDefaultVpp();
 	}
 
-	for (i = 1; i < args.size(); i++)
+	for (i = 1; i < NSIZE(args); i++)
 	{
 		if (checkSwitch(args[i]))
 		{
@@ -767,7 +767,7 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 						_tcsncpy_s(tempString, XRIGHT(args[i],2), TXT_LENGTH(args[i])-2);
 						args[i] = (char *) "";
 						j = 1;
-						while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
+						while (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
 						{ // check for path with space(s) in it
 							TXT_PUSH_UNSAFE(tempString, " ");
 							TXT_PUSH_UNSAFE(tempString, args[i+j]);
@@ -902,7 +902,7 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 
 				case 'Z':
 				case 'z':
-					for (j = 1; j < args.size(); j++)
+					for (j = 1; j < NSIZE(args); j++)
 					{
 						if ((checkSwitch(args[j])) && ((args[j][1] == 'M') || (args[j][1] == 'm')))
 						{
@@ -943,7 +943,7 @@ bool Ccmd_app::checkArgsForBlankCheck(TextVec& args)
 	bool blankCheck = false;
 	bool contradication = false;
 
-	for (int i = 1; i < args.size(); i++)
+	for (int i = 1; i < NSIZE(args); i++)
 	{
 		if (checkSwitch(args[i]))
 		{
@@ -1012,7 +1012,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 	// Prep PICkit 2 (set Vdd, vpp, download scripts)
 	PicFuncs.PrepPICkit2();
 
-	for (i = 1; i < args.size(); i++)
+	for (i = 1; i < NSIZE(args); i++)
 	{
 		// -C Blank Check
 		if ((checkSwitch(args[i])) && ((args[i][1] == 'C') || (args[i][1] == 'c')) && ret)
@@ -1042,14 +1042,14 @@ bool Ccmd_app::priority2Args(TextVec& args)
 		}
 	}
 
-	for (i = 1; i < args.size(); i++)
+	for (i = 1; i < NSIZE(args); i++)
 	{
 		// -U Overwrite Cal
 		if ((checkSwitch(args[i])) && ((args[i][1] == 'U') || (args[i][1] == 'u')) && ret)
 		{
 			if (PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].OSSCALSave)
 			{
-				for (j = 1; j < args.size(); j++)
+				for (j = 1; j < NSIZE(args); j++)
 				{
 					if ((checkSwitch(args[j])) && ((args[j][1] == 'M') || (args[j][1] == 'm')))
 					{
@@ -1081,7 +1081,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 		}
 	}
 
-	for (i = 1; i < args.size(); i++)
+	for (i = 1; i < NSIZE(args); i++)
 	{
 		// -E Erase
 		if ((checkSwitch(args[i])) && ((args[i][1] == 'E') || (args[i][1] == 'e')) && ret)
@@ -1117,7 +1117,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 		}
 	}
 
-	for (i = 1; i < args.size(); i++)
+	for (i = 1; i < NSIZE(args); i++)
 	{
 		// -M Program 
 		if ((checkSwitch(args[i])) && ((args[i][1] == 'M') || (args[i][1] == 'm')) && ret)
@@ -1266,7 +1266,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 								_tcsncpy_s(tempString, XRIGHT(args[i],3), TXT_LENGTH(args[i])-3);
 								args[i] = (char *) "";
 								int k = 1;
-								if (((i+k) < args.size()) && (!checkSwitch(args[i+k])))
+								if (((i+k) < NSIZE(args)) && (!checkSwitch(args[i+k])))
 								{ // check for space after v
 									TXT_PUSH_UNSAFE(tempString, args[i+k]);
 									args[i + k++] = (char *) "";
@@ -1324,7 +1324,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 		}
 	}
 
-	for (i = 1; i < args.size(); i++)
+	for (i = 1; i < NSIZE(args); i++)
 	{
 		// -Y Verify
 		if ((checkSwitch(args[i])) && ((args[i][1] == 'Y') || (args[i][1] == 'y')) && ret)
@@ -1432,7 +1432,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 		}
 	}
 
-	for (i = 1; i < args.size(); i++)
+	for (i = 1; i < NSIZE(args); i++)
 	{
 		// -G Read 
 		if ((checkSwitch(args[i])) && ((args[i][1] == 'G') || (args[i][1] == 'g')) && ret)
@@ -1460,7 +1460,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 								_tcsncpy_s(tempString, XRIGHT(args[i],3), TXT_LENGTH(args[i])-3);
 								args[i] = (char *) "";
 								j = 1;
-								while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
+								while (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
 								{ // check for path with space(s) in it
 									if (TXT_LENGTH(tempString) != 0) // don't add space if it's between "F" and start of filename
 										TXT_PUSH_UNSAFE(tempString, " ");
@@ -1512,7 +1512,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 						_tcsncpy_s(tempString, XRIGHT(args[i],3), TXT_LENGTH(args[i])-3);
 						args[i] = (char *) "";
 						j = 1;
-						if (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
+						if (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
 						{ // check for space after p
 							TXT_PUSH_UNSAFE(tempString, args[i+j]);
 							args[i + j++] = (char *) "";
@@ -1541,7 +1541,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 							_tcsncpy_s(tempString, XRIGHT(args[i],3), TXT_LENGTH(args[i])-3);
 							args[i] = (char *) "";
 							j = 1;
-							if (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
+							if (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
 							{ // check for space after p
 								TXT_PUSH_UNSAFE(tempString, args[i+j]);
 								args[i + j++] = (char *) "";
@@ -1652,7 +1652,7 @@ bool Ccmd_app::priority3Args(TextVec& args)
 	int i, j;
 	bool ret = true;
 
-	for (i = 1; i < args.size(); i++)
+	for (i = 1; i < NSIZE(args); i++)
 	{
 		if (checkSwitch(args[i]))
 		{
@@ -1740,7 +1740,7 @@ bool Ccmd_app::priority4Args(TextVec& args)
 			PicFuncs.VddOff();      // ensure VDD off if no -T
 	}
 
-	for (i = 1; i < args.size(); i++)
+	for (i = 1; i < NSIZE(args); i++)
 	{
 		if (checkSwitch(args[i]))
 		{
@@ -1785,7 +1785,7 @@ bool Ccmd_app::delayArg(TextVec& args)
 	bool ret = true;
 	struct termios	tios;
 
-	for (i = 1; i < args.size(); i++)
+	for (i = 1; i < NSIZE(args); i++)
 	{
 		if (checkSwitch(args[i]))
 		{
@@ -2116,7 +2116,7 @@ bool Ccmd_app::checkDevFilePathOptionB(TextVec& args, _TCHAR* path_string)
 
 	int i;
 	// look for 'B' option. 
-	for (i = 0; i < args.size(); i++)
+	for (i = 0; i < NSIZE(args); i++)
 	{
 		if (checkSwitch(args[i]))
 		{
@@ -2124,7 +2124,7 @@ bool Ccmd_app::checkDevFilePathOptionB(TextVec& args, _TCHAR* path_string)
 				break;
 		}
 	}
-	if (i == args.size())
+	if (i == NSIZE(args))
 		return false; // -b not found
 	if (args[i][2] == 0)
 	{
@@ -2137,7 +2137,7 @@ bool Ccmd_app::checkDevFilePathOptionB(TextVec& args, _TCHAR* path_string)
 	_tcsncpy_s(path_temp, XRIGHT(args[i],2), TXT_LENGTH(args[i])-2);
 	args[i] = (char *) "";
 	int j = 1;
-	while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
+	while (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
 	{ // check for path with space(s) in it
 		TXT_PUSH_UNSAFE(path_temp, " ");
 		TXT_PUSH_UNSAFE(path_temp, args[i+j]);
@@ -2156,20 +2156,20 @@ bool Ccmd_app::checkHelp1(TextVec& args)
 	int i;
 
 	// if no arguments, display main help screen
-	if (args.size() == 1)
+	if (NSIZE(args) == 1)
 	{
 		displayHelp();
 		return true;
 	}
 
 	// look for '?' in all arguments.  Display help for first found
-	for (i = 0; i < args.size(); i++)
+	for (i = 0; i < NSIZE(args); i++)
 	{
 		if (TXT_SEEK_TCHAR(args[i], '?'))
 			break;
 	}
 	
-	if (i == args.size()) // none found
+	if (i == NSIZE(args)) // none found
 		return false;
 
 	if (checkSwitch(args[i]))
@@ -2780,13 +2780,13 @@ bool Ccmd_app::checkHelp2(TextVec& args, bool loadDeviceFileFailed)
 	int i;
 
 	// look for '?' in all arguments.  Display help for first found
-	for (i = 0; i < args.size(); i++)
+	for (i = 0; i < NSIZE(args); i++)
 	{
 		if (TXT_SEEK_TCHAR(args[i], '?'))
 			break;
 	}
 	
-	if (i == args.size()) // none found
+	if (i == NSIZE(args)) // none found
 		return false;
 
 	if (checkSwitch(args[i]))
@@ -2831,7 +2831,7 @@ bool Ccmd_app::checkHelp2(TextVec& args, bool loadDeviceFileFailed)
 							_tcsncpy_s(searchTerm, XRIGHT(args[i],3), TXT_LENGTH(args[i])-3);
 							args[i] = (char *) "";
 							int j = 1;
-							while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
+							while (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
 							{ // check for term with space(s) in it
 								TXT_PUSH_UNSAFE(searchTerm, args[i+j]);
 								args[i + j++] = (char *) "";
