@@ -60,5 +60,8 @@ extern int	fopen_s(FILE **fp, char *path, const char *spec);
 //#define	bool	unsigned char
 
 #define XRIGHT(str,skip) &str[skip]
+#define XRIGHTCOPY(dst, src, skip) _tcsncpy_s(dst, XRIGHT(src,skip), TXT_LENGTH(src)-skip);
+#define XCOPY28(dst, src) _tcsncpy_s(dst, src, 28)
+
 
 // TODO: reference additional headers your program requires here

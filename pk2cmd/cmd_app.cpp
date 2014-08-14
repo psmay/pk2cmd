@@ -31,6 +31,9 @@ extern "C"{
 	#include "strnatcmp.h"
 }
 
+#define DEVICE_FILE_NAME "PK2DeviceFile.dat"
+#define DEVICE_FILE_NAME_LENGTH 17
+
 #define NSIZE(v) (int)(v.size())
 
 Ccmd_app::Ccmd_app(void)
@@ -66,9 +69,9 @@ void Ccmd_app::PK2_CMD_Entry(TextVec& args)
 	if (checkDevFilePathOptionB(args, tempString))
 	{ // check for explicit path with -B
 		if (tempString[TXT_LENGTH(tempString)-1] != '/')
-			TXT_PUSH_UNSAFE(tempString, "/PK2DeviceFile.dat");
+			TXT_PUSH_UNSAFE(tempString, "/" DEVICE_FILE_NAME);
 		else
-			TXT_PUSH_UNSAFE(tempString, "PK2DeviceFile.dat");
+			TXT_PUSH_UNSAFE(tempString, DEVICE_FILE_NAME);
 	}
 	else if (ReturnCode == INVALID_CMDLINE_ARG)
 	{ // -B, but bad path
@@ -76,16 +79,16 @@ void Ccmd_app::PK2_CMD_Entry(TextVec& args)
 	}
 	else
 	{ // no -B, check PATH
-		_tsearchenv_s("PK2DeviceFile.dat", "PATH", tempString);
-		if (TXT_LENGTH(tempString) < 17)
+		_tsearchenv_s(DEVICE_FILE_NAME, "PATH", tempString);
+		if (TXT_LENGTH(tempString) < DEVICE_FILE_NAME_LENGTH)
 		{
-			_tcsncpy_s(tempString, "PK2DeviceFile.dat", 17);
+			_tcsncpy_s(tempString, DEVICE_FILE_NAME, DEVICE_FILE_NAME_LENGTH);
 		}
 	}
 
 	if (!PicFuncs.ReadDeviceFile(tempString))
 	{
-		printf("PK2DeviceFile.dat device file not found.\n");
+		printf(DEVICE_FILE_NAME " device file not found.\n");
 		ReturnCode = DEVICEFILE_ERROR;
 		loadDeviceFileFailed = true;
 	}
@@ -94,13 +97,13 @@ void Ccmd_app::PK2_CMD_Entry(TextVec& args)
 		char compatMinLevel = DevFileCompatLevelMin;
 		if (PicFuncs.DevFile.Info.Compatibility < compatMinLevel)
 		{
-			printf("PK2DeviceFile.dat device file is too old.\n");
+			printf(DEVICE_FILE_NAME " device file is too old.\n");
 			ReturnCode = DEVICEFILE_ERROR;
 			loadDeviceFileFailed = true;
 		}
 		if (PicFuncs.DevFile.Info.Compatibility > DevFileCompatLevel)
 		{
-			printf("PK2DeviceFile.dat device file requires an update of pk2cmd.\n");
+			printf(DEVICE_FILE_NAME " device file requires an update of pk2cmd.\n");
 			ReturnCode = DEVICEFILE_ERROR;
 			loadDeviceFileFailed = true;
 		}
@@ -297,7 +300,7 @@ void Ccmd_app::processArgs(TextVec& args)
 		ReturnCode = INVALID_CMDLINE_ARG;
 		return;
 	}
-	_tcsncpy_s(tempString, XRIGHT(*parg,2), 28);
+	XCOPY28(tempString, XRIGHT(*parg,2));
 	*parg = (char *) ""; // blank argument, we've already processed it.
 	string2Upper(tempString, MAX_PATH);
 
@@ -306,7 +309,7 @@ void Ccmd_app::processArgs(TextVec& args)
 	{ // no argument, full autodetect
 		if (detectAllFamilies(args))
 		{ // found a device
-			_tcsncpy_s(tempString, PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].PartName, 28);
+			XCOPY28(tempString, PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].PartName);
 			printf("Auto-Detect: Found part %s.\n\n", tempString);
 		}
 		else if (ReturnCode == INVALID_CMDLINE_ARG)
@@ -329,7 +332,7 @@ void Ccmd_app::processArgs(TextVec& args)
 	{ // auto detect family
 		if (detectSpecificFamily(XRIGHT(tempString,1), args))
 		{ // found a device
-			_tcsncpy_s(tempString, PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].PartName, 28);
+			XCOPY28(tempString, PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].PartName);
 			printf("Auto-Detect found part %s.\n\n", tempString);
 		}
 		else if (ReturnCode == INVALID_CMDLINE_ARG)
@@ -474,7 +477,7 @@ bool Ccmd_app::bootloadArg(TextVec& args)
 			PicFuncs.ClosePICkit2Device();
 			PicFuncs.DetectPICkit2Device(0, true);
 
-			_tcsncpy_s(tempString, XRIGHT(*parg,2), TXT_LENGTH(*parg)-2);
+			XRIGHTCOPY(tempString,*parg,2);
 			*parg = (char *) "";
 			j = 1;
 			while (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
@@ -534,7 +537,7 @@ bool Ccmd_app::unitIDArg(TextVec& args)
 		// -N set Unit ID
 		if ((checkSwitch(*parg)) && (((*parg)[1] == 'N') || ((*parg)[1] == 'n')))
 		{
-			_tcsncpy_s(writeString, XRIGHT(*parg,2), TXT_LENGTH(*parg)-2);
+			XRIGHTCOPY(writeString,*parg,2);
 			*parg = (char *) "";
 			j = 1;
 			while (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
@@ -596,7 +599,7 @@ bool Ccmd_app::selectUnitArg(TextVec& args)
 
 			if ((TXT_LENGTH(*parg) > 2) && !listFWVer)
 			{ // find specific unit
-				_tcsncpy_s(unitIDString, XRIGHT(*parg,2), TXT_LENGTH(*parg)-2);
+				XRIGHTCOPY(unitIDString,*parg,2);
 				*parg = (char *) "";
 				for (j = 0; j < 8; j++)
 				{
@@ -605,7 +608,7 @@ bool Ccmd_app::selectUnitArg(TextVec& args)
 						//ret = PicFuncs.UnitIDRead(readString);
 
 						pUnitID = PicFuncs.GetUnitID();
-						_tcsncpy_s(readString, pUnitID, TXT_LENGTH(pUnitID));
+						XRIGHTCOPY(readString, pUnitID, 0);
 						if (TXT_COMPARE(readString, "-", 1) != 0) // UnitID not blank
 						{
 							k = TXT_COMPARE(unitIDString, readString, TXT_LENGTH(unitIDString));
@@ -651,7 +654,7 @@ bool Ccmd_app::selectUnitArg(TextVec& args)
 						//}
 							
 						pUnitID = PicFuncs.GetUnitID();
-						_tcsncpy_s(readString, pUnitID, TXT_LENGTH(pUnitID));
+						XRIGHTCOPY(readString, pUnitID, 0);
 
 						//if (ret)
 						//{
@@ -783,7 +786,7 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					if (!preserveArgs) // skip if still looking for a part
 					{
 						// Hex File Selection
-						_tcsncpy_s(tempString, XRIGHT(*parg,2), TXT_LENGTH(*parg)-2);
+						XRIGHTCOPY(tempString,*parg,2);
 						*parg = (char *) "";
 						j = 1;
 						while (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
@@ -1292,7 +1295,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 							case 'v':
 							case 'V':
 								{
-								_tcsncpy_s(tempString, XRIGHT(*parg,3), TXT_LENGTH(*parg)-3);
+								XRIGHTCOPY(tempString,*parg,3);
 								*parg = (char *) "";
 								int k = 1;
 								if (((i+k) < NSIZE(args)) && (!checkSwitch(args[i+k])))
@@ -1490,7 +1493,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 					case 'F':
 							if (PicFuncs.ReadDevice(READ_MEM, true, true, true, true))
 							{
-								_tcsncpy_s(tempString, XRIGHT(*parg,3), TXT_LENGTH(*parg)-3);
+								XRIGHTCOPY(tempString,*parg,3);
 								*parg = (char *) "";
 								j = 1;
 								while (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
@@ -1542,7 +1545,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 					case 'p':
 					case 'P':
 						// Read Program mem range to screen
-						_tcsncpy_s(tempString, XRIGHT(*parg,3), TXT_LENGTH(*parg)-3);
+						XRIGHTCOPY(tempString,*parg,3);
 						*parg = (char *) "";
 						j = 1;
 						if (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
@@ -1571,7 +1574,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 						if (PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].EEMem > 0)
 						{
 							// Read EE mem range to screen
-							_tcsncpy_s(tempString, XRIGHT(*parg,3), TXT_LENGTH(*parg)-3);
+							XRIGHTCOPY(tempString,*parg,3);
 							*parg = (char *) "";
 							j = 1;
 							if (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
@@ -2177,7 +2180,7 @@ bool Ccmd_app::checkDevFilePathOptionB(TextVec& args, _TCHAR* path_string)
 	}
 
 	// Get path to device file:
-	_tcsncpy_s(path_temp, XRIGHT(*parg,2), TXT_LENGTH(*parg)-2);
+	XRIGHTCOPY(path_temp,*parg,2);
 	*parg = (char *) "";
 	int j = 1;
 	while (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
@@ -2248,7 +2251,7 @@ bool Ccmd_app::checkHelp1(TextVec& args)
 						printf ("15      FILE_OPEN_ERROR        -Returned if a file specified for reading to\n");
 						printf ("                                (-gf...) cannot be opened for writing.\n");
 						printf ("24      DEVICEFILE_ERROR       -The PK2CMD executable cannot find the device\n");
-						printf ("                                file PK2DeviceFile.dat or the device file\n");
+						printf ("                                file " DEVICE_FILE_NAME " or the device file\n");
 						printf ("                                may be corrupted.\n");
 						printf ("28      UPDGRADE_ERROR         -Returned when an OS firmware upgade (-d...)\n");
 						printf ("                                fails.\n");
@@ -2294,12 +2297,12 @@ bool Ccmd_app::checkHelp1(TextVec& args)
 
 			case 'b':
 			case 'B':
-				printf("Specifies the path to the device file PK2DeviceFile.dat.  By default, the\n");
+				printf("Specifies the path to the device file " DEVICE_FILE_NAME ".  By default, the\n");
 				printf("directory from which the executable is searched first, then the PATH\n");
 				printf("environment variable.  This option can be used to explicity specify the\n");
 				printf("path to the device file.\n\n");
 				printf("The parameter for this command is the complete file path to\n");
-				printf("PK2DeviceFile.dat, not including the filename.\n\n");
+				printf(DEVICE_FILE_NAME ", not including the filename.\n\n");
 				printf("Syntax Example -fc:\\pickit_2\\pk2cmd_dir\n");
 				break;
 
@@ -2685,7 +2688,7 @@ void Ccmd_app::displayHelp(void)
 	printf("Options              Description                              Default\n");
 	printf("----------------------------------------------------------------------------\n");
     printf("A<value>             Set Vdd voltage                          Device Specific\n");
-	printf("B<path>              Specify the path to PK2DeviceFile.dat    Searches PATH\n");
+	printf("B<path>              Specify the path to " DEVICE_FILE_NAME "    Searches PATH\n");
 	printf("                                                              and calling dir\n");
     printf("C                    Blank Check Device                       No Blank Check\n");
     printf("D<file>              OS Download                              None\n");
@@ -2879,7 +2882,7 @@ bool Ccmd_app::checkHelp2(TextVec& args, bool loadDeviceFileFailed)
 						{
 							_TCHAR searchTerm[MAX_PATH];
 							// get search term
-							_tcsncpy_s(searchTerm, XRIGHT(*parg,3), TXT_LENGTH(*parg)-3);
+							XRIGHTCOPY(searchTerm,*parg,3);
 							*parg = (char *) "";
 							int j = 1;
 							while (((i+j) < NSIZE(args)) && (!checkSwitch(args[i+j])))
