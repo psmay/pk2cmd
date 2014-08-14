@@ -29,6 +29,8 @@ extern "C"{
 	#include "strnatcmp.h"
 }
 
+#define XRIGHT(str,skip) &str[skip]
+
 Ccmd_app::Ccmd_app(void)
 {
 	preserveEEPROM = false;
@@ -81,7 +83,6 @@ void Ccmd_app::PK2_CMD_Entry(TextVec& args)
 	if (!PicFuncs.ReadDeviceFile(tempString))
 	{
 		printf("PK2DeviceFile.dat device file not found.\n");
-		fflush(stdout);
 		ReturnCode = DEVICEFILE_ERROR;
 		loadDeviceFileFailed = true;
 	}
@@ -91,14 +92,12 @@ void Ccmd_app::PK2_CMD_Entry(TextVec& args)
 		if (PicFuncs.DevFile.Info.Compatibility < compatMinLevel)
 		{
 			printf("PK2DeviceFile.dat device file is too old.\n");
-			fflush(stdout);
 			ReturnCode = DEVICEFILE_ERROR;
 			loadDeviceFileFailed = true;
 		}
 		if (PicFuncs.DevFile.Info.Compatibility > DevFileCompatLevel)
 		{
 			printf("PK2DeviceFile.dat device file requires an update of pk2cmd.\n");
-			fflush(stdout);
 			ReturnCode = DEVICEFILE_ERROR;
 			loadDeviceFileFailed = true;
 		}
@@ -136,13 +135,11 @@ void Ccmd_app::PK2_CMD_Entry(TextVec& args)
 		if ((STATUS_VDD_ERROR & status) > 0)
 		{
 			printf("VDD Error detected.  Check target for proper connectivity.\n");
-			fflush(stdout);
 			ReturnCode = VOLTAGE_ERROR;
 		}
 		else if ((STATUS_VPP_ERROR & status) > 0)
 		{
 			printf("VPP Error detected.  Check target for proper connectivity.\n");
-			fflush(stdout);
 			ReturnCode = VOLTAGE_ERROR;
 		}
 	}
@@ -153,7 +150,6 @@ void Ccmd_app::ResetAtExit(void)
 	if (resetOnExit)
 	{
 		printf("Resetting PICkit 2...\n");
-		fflush(stdout);
 		PicFuncs.ResetPICkit2(); // must re-enumerate with new UnitID in serial string
 	}
 }
@@ -287,11 +283,10 @@ void Ccmd_app::processArgs(TextVec& args)
 	if (i == args.size())
 	{ // no part specified
 		printf("-P is a required option\n\n");
-		fflush(stdout);
 		ReturnCode = INVALID_CMDLINE_ARG;
 		return;
 	}
-	_tcsncpy_s(tempString, &args[i][2], 28);
+	_tcsncpy_s(tempString, XRIGHT(args[i],2), 28);
 	args[i] = (char *) ""; // blank argument, we've already processed it.
 	string2Upper(tempString, MAX_PATH);
 
@@ -310,7 +305,6 @@ void Ccmd_app::processArgs(TextVec& args)
 		else
 		{
 			printf("Auto-Detect: No known part found.\n\n");
-			fflush(stdout);
 			ReturnCode = AUTODETECT_FAILED;
 			return;
 		}
@@ -342,7 +336,6 @@ void Ccmd_app::processArgs(TextVec& args)
 	if(!PicFuncs.FindDevice(tempString))
 	{
 		printf("Could not find device %s.\n\n", tempString);
-		fflush(stdout);
 		ReturnCode = INVALID_CMDLINE_ARG;
 		return;
 	}
@@ -352,7 +345,6 @@ void Ccmd_app::processArgs(TextVec& args)
 	if (!checkArgsForBlankCheck(args))
 	{
 		printf("-C Blank Check must be done independent of other programming commands.\n");
-		fflush(stdout);
 		ReturnCode = INVALID_CMDLINE_ARG;
 		return;
 	}
@@ -407,7 +399,6 @@ void Ccmd_app::printFamilies(void)
 			}
 		}
     }
-	fflush(stdout);
 }
 
 bool Ccmd_app::detectSpecificFamily(_TCHAR* idString, TextVec& args)
@@ -417,7 +408,6 @@ bool Ccmd_app::detectSpecificFamily(_TCHAR* idString, TextVec& args)
 	if (!getValue((unsigned int*)&familyID, idString))
 	{
 		printf("-PF Illegal family ID value.\n");
-		fflush(stdout);
 		ReturnCode = INVALID_CMDLINE_ARG;
 		return false;
 	}
@@ -439,14 +429,12 @@ bool Ccmd_app::detectSpecificFamily(_TCHAR* idString, TextVec& args)
 						return true;
 					}
 					printf("Auto-Detect: No known %s part found.\n\n", PicFuncs.DevFile.Families[order].FamilyName);
-					fflush(stdout);
 					return false;
 				}
 			}
 		}
     }
 	printf("-PF Illegal family ID value.\n");
-	fflush(stdout);
 	ReturnCode = INVALID_CMDLINE_ARG;
 	return false;
 }
@@ -466,7 +454,6 @@ bool Ccmd_app::bootloadArg(TextVec& args)
 			if ((pk2UnitIndex > 0) || (PicFuncs.DetectPICkit2Device(1, false)))
 			{
 				printf("\nTo update the PICkit 2 OS, it must be the only unit connected.\n");
-				fflush(stdout);
 				ReturnCode = OPFAILURE;
 				return true;
 			}
@@ -474,7 +461,7 @@ bool Ccmd_app::bootloadArg(TextVec& args)
 			PicFuncs.ClosePICkit2Device();
 			PicFuncs.DetectPICkit2Device(0, true);
 
-			_tcsncpy_s(tempString, &args[i][2], TXT_LENGTH(args[i])-2);
+			_tcsncpy_s(tempString, XRIGHT(args[i],2), TXT_LENGTH(args[i])-2);
 			args[i] = (char *) "";
 			j = 1;
 			while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
@@ -487,7 +474,6 @@ bool Ccmd_app::bootloadArg(TextVec& args)
 			if (!ret)
 			{
 				printf("Error opening hex file.\n");
-				fflush(stdout);
 				ReturnCode = OPFAILURE;
 				return true; // download command found
 			}
@@ -495,7 +481,6 @@ bool Ccmd_app::bootloadArg(TextVec& args)
 			if (!ret)
 			{
 				printf("Error validating OS download.\n");
-				fflush(stdout);
 				ReturnCode = OPFAILURE;
 				return true; // download command found
 			}
@@ -503,23 +488,19 @@ bool Ccmd_app::bootloadArg(TextVec& args)
 			if (!ret)
 			{
 				printf("Error with OS download.\n");
-				fflush(stdout);
 				ReturnCode = OPFAILURE;
 				return true; // download command found
 			}
 			printf("Resetting PICkit 2...\n");
-			fflush(stdout);
 			PicFuncs.BL_Reset();
 			Sleep(5000);
 			if (!PicFuncs.DetectPICkit2Device(pk2UnitIndex, true))
 			{
 				printf("PICkit 2 failed to reset.\n");
-				fflush(stdout);
 				ReturnCode = OPFAILURE;
 				return true; // download command found
 			}
 			printf("OS Update Successful.\n");
-			fflush(stdout);
 			return true;
 		}
 	}
@@ -538,7 +519,7 @@ bool Ccmd_app::unitIDArg(TextVec& args)
 		// -N set Unit ID
 		if ((checkSwitch(args[i])) && ((args[i][1] == 'N') || (args[i][1] == 'n')))
 		{
-			_tcsncpy_s(writeString, &args[i][2], TXT_LENGTH(args[i])-2);
+			_tcsncpy_s(writeString, XRIGHT(args[i],2), TXT_LENGTH(args[i])-2);
 			args[i] = (char *) "";
 			j = 1;
 			while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
@@ -551,7 +532,6 @@ bool Ccmd_app::unitIDArg(TextVec& args)
 			if (!ret)
 			{
 				printf("Error writing Unit ID.\n");
-				fflush(stdout);
 				ReturnCode = OPFAILURE;
 				return true; // unit id command found
 			}
@@ -559,7 +539,6 @@ bool Ccmd_app::unitIDArg(TextVec& args)
 			if ((TXT_LENGTH(writeString) == 0) && !ret)
 			{
 				printf("Unit ID successfully cleared...\n");
-				fflush(stdout);
 				resetOnExit = true;
 				return true;
 			}
@@ -568,7 +547,6 @@ bool Ccmd_app::unitIDArg(TextVec& args)
 				if ((writeString[j] != readString[j]) || !ret)
 				{
 					printf("Error verifying Unit ID.\n");
-					fflush(stdout);
 					ReturnCode = OPFAILURE;
 					return true; // unit id command found
 				}
@@ -576,7 +554,6 @@ bool Ccmd_app::unitIDArg(TextVec& args)
 					break;
 			}
 			printf("Unit ID successfully assigned...\n");
-			fflush(stdout);
 			resetOnExit = true;
 			return true;
 		}
@@ -602,7 +579,7 @@ bool Ccmd_app::selectUnitArg(TextVec& args)
 
 			if ((TXT_LENGTH(args[i]) > 2) && !listFWVer)
 			{ // find specific unit
-				_tcsncpy_s(unitIDString, &args[i][2], TXT_LENGTH(args[i])-2);
+				_tcsncpy_s(unitIDString, XRIGHT(args[i],2), TXT_LENGTH(args[i])-2);
 				args[i] = (char *) "";
 				for (j = 0; j < 8; j++)
 				{
@@ -630,7 +607,6 @@ bool Ccmd_app::selectUnitArg(TextVec& args)
 							printf("\nNo PICkit 2 Units Found...\n");
 						else
 							printf("\nPICkit 2 with Unit ID '%s' not found.\n", unitIDString);
-						fflush(stdout);
 						break;
 					}
 				}				
@@ -698,14 +674,12 @@ bool Ccmd_app::selectUnitArg(TextVec& args)
 						}
 
 						printf("\n");
-						fflush(stdout);
 						PicFuncs.ClosePICkit2Device();
 					}
 					else
 					{
 						if (j == 0)
 							printf("\nNo PICkit 2 Units Found...\n");
-						fflush(stdout);
 						break;
 					}
 				}
@@ -766,21 +740,19 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					// Set VDD voltage
 					if (!preserveArgs) // skip during auto-detect
 					{
-						tempf = (float)TXT_TO_DOUBLE(&args[i][2]);
+						tempf = (float)TXT_TO_DOUBLE(XRIGHT(args[i],2));
 						if (tempf > PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].VddMax)
 						{
 							printf("-A Vdd setpoint exceeds maximum for this device of %.1fV\n", 
 									PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].VddMax);
 							ret = false;
 							ReturnCode = INVALID_CMDLINE_ARG;
-							fflush(stdout);
 						}
 						if (tempf < 2.5)
 						{
 							printf("-A Vdd setpoint below PICkit 2 minimum of 2.5V\n");
 							ret = false;
 							ReturnCode = INVALID_CMDLINE_ARG;
-							fflush(stdout);
 						}
 						PicFuncs.SetVddSetPoint(tempf);
 						args[i] = (char *)"";
@@ -792,7 +764,7 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					if (!preserveArgs) // skip if still looking for a part
 					{
 						// Hex File Selection
-						_tcsncpy_s(tempString, &args[i][2], TXT_LENGTH(args[i])-2);
+						_tcsncpy_s(tempString, XRIGHT(args[i],2), TXT_LENGTH(args[i])-2);
 						args[i] = (char *) "";
 						j = 1;
 						while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
@@ -851,11 +823,10 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					if (args[i][2] == 0)
 					{ // no specified value - illegal
 						printf("-L Invalid value.\n");
-						fflush(stdout);
 						ret = false;
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
-					else if (getValue(&tempi, &args[i][2]))
+					else if (getValue(&tempi, XRIGHT(args[i],2)))
 					{
 						if (tempi > 16)
 							tempi = 16;
@@ -864,7 +835,6 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					else
 					{ // no specified value - illegal
 						printf("-L Invalid value.\n");
-						fflush(stdout);
 						ret = false;
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
@@ -886,13 +856,12 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					if (preserveArgs)
 					{ // cannot be used with part detect
 						printf("-V Cannot be used with part auto-detect.\n");
-						fflush(stdout);
 						ret = false;
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
 					else
 					{
-						tempf = (float)TXT_TO_DOUBLE(&args[i][2]);
+						tempf = (float)TXT_TO_DOUBLE(XRIGHT(args[i],2));
 						PicFuncs.SetVppSetPoint(tempf);
 						args[i] = (char *) "";
 					}
@@ -915,7 +884,6 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					if (preserveArgs)
 					{ // cannot be used with part detect
 						printf("-X Cannot be used with part auto-detect.\n");
-						fflush(stdout);
 						ret = false;
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
@@ -926,7 +894,6 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 							printf("-X This part does not support VPP first program mode\n");
 							ret = false;
 							ReturnCode = INVALID_CMDLINE_ARG;
-							fflush(stdout);
 						}
 						PicFuncs.SetVppFirstEnable(true);	
 							args[i] = (char *) "";
@@ -947,7 +914,6 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 						printf("-Z Preserve EEData must be used in conjunction with the -M program command.\n");
 						ret = false;
 						ReturnCode = INVALID_CMDLINE_ARG;
-						fflush(stdout);
 					}
 					if (!preserveArgs)
 						args[i] = (char *) "";
@@ -963,7 +929,6 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 	if (PicFuncs.GetSelfPowered() && PicFuncs.GetVppFirstEnable())
 	{
 		printf("-W -X VPP first not supported with external power\n");
-		fflush(stdout);
 		ret = false;
 		ReturnCode = INVALID_CMDLINE_ARG;
 	}
@@ -1055,21 +1020,18 @@ bool Ccmd_app::priority2Args(TextVec& args)
 			if (PicFuncs.FamilyIsKeeloq())
 			{
 				printf("BlankCheck not supported for KEELOQ devices.\n");
-				fflush(stdout);
 				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
 			}
 			else if (PicFuncs.FamilyIsMCP())
 			{
 				printf("BlankCheck not supported for MCP devices.\n");
-				fflush(stdout);
 				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
 			}
 			else if (PicFuncs.ReadDevice(BLANK_CHECK, true, true, true, true))
 			{
 				printf("Device is blank\n");
-				fflush(stdout);
 			}
 			else
 			{
@@ -1091,7 +1053,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 				{
 					if ((checkSwitch(args[j])) && ((args[j][1] == 'M') || (args[j][1] == 'm')))
 					{
-						ret = getValue(&PicFuncs.DeviceBuffers->OSCCAL, &args[i][2]);
+						ret = getValue(&PicFuncs.DeviceBuffers->OSCCAL, XRIGHT(args[i],2));
 						if (ret)
 						{
 							PicFuncs.OverwriteOSCCAL = true;
@@ -1099,7 +1061,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 						else
 						{
 							printf("-U Error parsing value.\n");
-							fflush(stdout);
 							ReturnCode = INVALID_CMDLINE_ARG;
 						}
 					}
@@ -1107,7 +1068,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 				if (!PicFuncs.OverwriteOSCCAL)
 				{
 					printf("-U Overwrite OSCCAL must be used in conjunction with the -M program command.\n");
-					fflush(stdout);
 					ret = false;
 					ReturnCode = INVALID_CMDLINE_ARG;
 				}
@@ -1115,7 +1075,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 			else
 			{
 					printf("-U Overwrite OSCCAL cannot be used with this device.\n");
-					fflush(stdout);
 					ret = false;
 					ReturnCode = INVALID_CMDLINE_ARG;
 			}
@@ -1130,14 +1089,12 @@ bool Ccmd_app::priority2Args(TextVec& args)
 			if (PicFuncs.FamilyIsKeeloq())
 			{
 				printf("Erase not supported for KEELOQ devices.\n");
-				fflush(stdout);
 				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
 			}
 			else if (PicFuncs.FamilyIsMCP())
 			{
 				printf("Erase not supported for MCP devices.\n");
-				fflush(stdout);
 				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
 			}
@@ -1146,7 +1103,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 				&& (PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ConfigMasks[PROTOCOL_CFG] != UNIO_BUS))
 			{ // Microwire / UNIO have a true "chip erase".  Other devices must write every byte blank.
 				printf("Erasing Device...\n");
-				fflush(stdout);
 				if (!PicFuncs.SerialEEPROMErase())
 				{
 					ret = false;
@@ -1156,7 +1112,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 			else
 			{
 				printf("Erasing Device...\n");
-				fflush(stdout);
 				PicFuncs.EraseDevice(true, !preserveEEPROM, &usingLowVoltageErase);
 			}
 		}
@@ -1257,7 +1212,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 									if (preserveEEPROM)
 									{
 										printf("Cannot both program and preserve EEData memory.\n");
-										fflush(stdout);
 										ReturnCode = INVALID_CMDLINE_ARG;
 										ret = false;
 									}
@@ -1293,7 +1247,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 										if ((configLocation < (int)PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ProgramMem) && (configWords > 0))
 										{
 											printf("This device has configuration words in Program Memory.\nThey cannot be programmed separately.\n");
-											fflush(stdout);
 											ReturnCode = INVALID_CMDLINE_ARG;
 											ret = false;
 										}
@@ -1310,7 +1263,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 							case 'v':
 							case 'V':
 								{
-								_tcsncpy_s(tempString, &args[i][3], TXT_LENGTH(args[i])-3);
+								_tcsncpy_s(tempString, XRIGHT(args[i],3), TXT_LENGTH(args[i])-3);
 								args[i] = (char *) "";
 								int k = 1;
 								if (((i+k) < args.size()) && (!checkSwitch(args[i+k])))
@@ -1348,7 +1301,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 					if (ret)
 					{
 						printf("Program Succeeded.\n");
-						fflush(stdout);
 					}
 					else
 					{
@@ -1360,14 +1312,12 @@ bool Ccmd_app::priority2Args(TextVec& args)
 				else
 				{
 					printf("Invalid Memory region entered for program\n");
-					fflush(stdout);
 					ReturnCode = INVALID_CMDLINE_ARG;
 				}
 			}
 			else
 			{
 				printf("No Image loaded.\nPlease load a hex file before programming or verifying.\n");
-				fflush(stdout);
 				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
 			}
@@ -1385,7 +1335,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 				if (PicFuncs.FamilyIsKeeloq())
 				{
 					printf("Verify not supported for KEELOQ devices.\n");
-					fflush(stdout);
 					ret = false;
 				}
 				else if (args[i][2] == 0)
@@ -1436,7 +1385,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 									if ((configLocation < (int)PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ProgramMem) && (configWords > 0))
 									{
 										printf("This device has configuration words in Program Memory.\n");
-										fflush(stdout);
 										ReturnCode = INVALID_CMDLINE_ARG;
 										ret = false;
 									}
@@ -1461,7 +1409,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 					if (ret)
 					{
 						printf("Verify Succeeded.\n");
-						fflush(stdout);
 					}
 					else
 					{
@@ -1473,14 +1420,12 @@ bool Ccmd_app::priority2Args(TextVec& args)
 				else
 				{
 					printf("Invalid Memory region entered for verify\n");
-					fflush(stdout);
 					ReturnCode = INVALID_CMDLINE_ARG;
 				}
 			}
 			else
 			{
 				printf("No Image loaded.\nPlease load a hex file before programming or verifying.\n");
-				fflush(stdout);
 				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
 			}
@@ -1502,7 +1447,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 			else if (PicFuncs.FamilyIsKeeloq())
 			{
 				printf("Read not supported for KEELOQ devices.\n");
-				fflush(stdout);
 				ret = false;
 			}
 			else
@@ -1513,7 +1457,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 					case 'F':
 							if (PicFuncs.ReadDevice(READ_MEM, true, true, true, true))
 							{
-								_tcsncpy_s(tempString, &args[i][3], TXT_LENGTH(args[i])-3);
+								_tcsncpy_s(tempString, XRIGHT(args[i],3), TXT_LENGTH(args[i])-3);
 								args[i] = (char *) "";
 								j = 1;
 								while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
@@ -1550,7 +1494,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 								if (ret)
 								{
 									printf("Read successfully.\n");
-									fflush(stdout);
 									hexLoaded = true;
 								}
 								else
@@ -1559,7 +1502,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 							else
 							{
 								printf("\nRead Error\n");
-								fflush(stdout);
 								ReturnCode = OPFAILURE;
 							}
 						break;
@@ -1567,7 +1509,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 					case 'p':
 					case 'P':
 						// Read Program mem range to screen
-						_tcsncpy_s(tempString, &args[i][3], TXT_LENGTH(args[i])-3);
+						_tcsncpy_s(tempString, XRIGHT(args[i],3), TXT_LENGTH(args[i])-3);
 						args[i] = (char *) "";
 						j = 1;
 						if (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
@@ -1581,13 +1523,11 @@ bool Ccmd_app::priority2Args(TextVec& args)
 							if (PicFuncs.ReadDevice(READ_MEM, true, false, false, false))
 							{
 								printf("Read successfully.\n");
-								fflush(stdout);
 								printProgramRange(startAddr, stopAddr);
 							}
 							else
 							{
 								printf("\nRead Error\n");
-								fflush(stdout);
 								ReturnCode = OPFAILURE;
 							}
 						}
@@ -1598,7 +1538,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 						if (PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].EEMem > 0)
 						{
 							// Read EE mem range to screen
-							_tcsncpy_s(tempString, &args[i][3], TXT_LENGTH(args[i])-3);
+							_tcsncpy_s(tempString, XRIGHT(args[i],3), TXT_LENGTH(args[i])-3);
 							args[i] = (char *) "";
 							j = 1;
 							if (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
@@ -1612,13 +1552,11 @@ bool Ccmd_app::priority2Args(TextVec& args)
 								if (PicFuncs.ReadDevice(READ_MEM, false, true, false, false))
 								{
 									printf("Read successfully.\n");
-									fflush(stdout);
 									printEEDataRange(startAddr, stopAddr);
 								}
 								else
 								{
 									printf("\nRead Error\n");
-									fflush(stdout);
 									ReturnCode = OPFAILURE;
 								}
 							}
@@ -1635,13 +1573,11 @@ bool Ccmd_app::priority2Args(TextVec& args)
 							if (PicFuncs.ReadDevice(READ_MEM, false, false, true, false))
 								{
 									printf("Read successfully.\n");
-									fflush(stdout);
 									printUserIDs();
 								}
 								else
 								{
 									printf("\nRead Error\n");
-									fflush(stdout);
 									ReturnCode = OPFAILURE;
 								}
 						}
@@ -1660,7 +1596,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 							if ((configLocation < (int)PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ProgramMem) && (configWords > 0))
 							{
 								printf("This device has configuration words in Program Memory.\n");
-								fflush(stdout);
 								ReturnCode = INVALID_CMDLINE_ARG;
 								ret = false;
 							}
@@ -1670,13 +1605,11 @@ bool Ccmd_app::priority2Args(TextVec& args)
 								if (PicFuncs.ReadDevice(READ_MEM, false, false, false, true))
 									{
 										printf("Read successfully.\n");
-										fflush(stdout);
 										printConfiguration();
 									}
 									else
 									{
 										printf("\nRead Error\n");
-										fflush(stdout);
 										ReturnCode = OPFAILURE;
 									}
 							}
@@ -1690,7 +1623,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 						{
 						unsigned int vector = PicFuncs.ReadVector();
 						printf("%8X\n", vector);
-						fflush(stdout);
 					    break;
 						}
 
@@ -1703,7 +1635,6 @@ bool Ccmd_app::priority2Args(TextVec& args)
 				if (ReturnCode != FILE_OPEN_ERROR)
 				{
 					printf("Illegal read parameter entered.\n");
-					fflush(stdout);
 					ReturnCode = INVALID_CMDLINE_ARG;
 				}
 			}
@@ -1768,7 +1699,6 @@ bool Ccmd_app::priority3Args(TextVec& args)
 						printf("This device does not have a Device ID.\n");
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
-					fflush(stdout);
 					break;
 
 				case 'K':
@@ -1783,7 +1713,6 @@ bool Ccmd_app::priority3Args(TextVec& args)
 						printf("The checksum can only be calculated when a hex file is loaded or written.\n");
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
-					fflush(stdout);
 					break;
 
 				default:
@@ -1829,7 +1758,6 @@ bool Ccmd_app::priority4Args(TextVec& args)
 					if (PicFuncs.GetSelfPowered())
 					{
 						printf("-W -T Cannot power an externally powered target.\n");
-						fflush(stdout);
 						ret = false;
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
@@ -1869,7 +1797,6 @@ bool Ccmd_app::delayArg(TextVec& args)
 					if (args[i][2] == 0)
 					{ // no specified value - illegal
 						printf("-H Invalid value.\n");
-						fflush(stdout);
 						ret = false;
 						ReturnCode = INVALID_CMDLINE_ARG;
 					}
@@ -1878,7 +1805,6 @@ bool Ccmd_app::delayArg(TextVec& args)
 						if ((args[i][2] == 'K') || (args[i][2] == 'k'))
 						{
 							printf("\nPress any key to exit.\n");
-							fflush(stdout);
 							tcgetattr(0, &tios);
 							tios.c_lflag &= (~(ICANON | ECHO));
 							tcsetattr(0, TCSANOW, &tios);
@@ -1886,26 +1812,23 @@ bool Ccmd_app::delayArg(TextVec& args)
 							tios.c_lflag |= (ICANON | ECHO);
 							tcsetattr(0, TCSANOW, &tios);
 						}
-						else if (getValue(&seconds, &args[i][2]))
+						else if (getValue(&seconds, XRIGHT(args[i],2)))
 						{
 							if (seconds == 0)
 							{ // bad value
 								printf("-H Invalid value.\n");
-								fflush(stdout);
 								ret = false;
 								ReturnCode = INVALID_CMDLINE_ARG;
 							}
 							else
 							{
 								printf("\nDelaying %d seconds before exit.\n", seconds);
-								fflush(stdout);
 								PicFuncs.DelaySeconds(seconds);
 							}
 						}
 						else 
 						{ // bad value
 							printf("-H Invalid value.\n");
-							fflush(stdout);
 							ret = false;
 							ReturnCode = INVALID_CMDLINE_ARG;
 						}
@@ -1972,7 +1895,6 @@ void Ccmd_app::printProgramRange(int startAddr, int stopAddr)
 
 	} while (startWord <= stopWord);
 	printf("\n");
-	fflush(stdout);
 }
 
 void Ccmd_app::printEEDataRange(int startAddr, int stopAddr)
@@ -2006,7 +1928,6 @@ void Ccmd_app::printEEDataRange(int startAddr, int stopAddr)
 
 	} while (startWord <= stopWord);
 	printf("\n");
-	fflush(stdout);
 }
 
 void Ccmd_app::printUserIDs(void)
@@ -2032,7 +1953,6 @@ void Ccmd_app::printUserIDs(void)
 
 	} while (startWord <= stopWord);
 	printf("\n");
-	fflush(stdout);
 }
 
 void Ccmd_app::printConfiguration(void)
@@ -2062,7 +1982,6 @@ void Ccmd_app::printConfiguration(void)
 
 	} while (startWord <= stopWord);
 	printf("\n");
-	fflush(stdout);
 }
 
 bool Ccmd_app::getRange(int* start, int* stop, _TCHAR* str_range)
@@ -2172,13 +2091,11 @@ bool Ccmd_app::findPICkit2(int unitIndex)
 									PicFuncs.FirmwareVersion.minor, PicFuncs.FirmwareVersion.dot);
 		printf("Use -D to download minimum required OS v%d.%02d.%02d or later\n", PicFuncs.FW_MAJ_MIN, 
 									PicFuncs.FW_MNR_MIN, PicFuncs.FW_DOT_MIN);
-		fflush(stdout);
 		ReturnCode = WRONG_OS;
 	}
 	else
 	{
 		printf("No PICkit 2 found.\n");
-		fflush(stdout);
 		ReturnCode = NO_PROGRAMMER;
 	}
 	return false;
@@ -2191,7 +2108,6 @@ void Ccmd_app::printMemError(void)
 		printf("Address   Good     Bad\n");
 		printf("%06X    %06X   %06X\n", PicFuncs.ReadError.address, PicFuncs.ReadError.expected, PicFuncs.ReadError.read);
 	}
-	fflush(stdout);
 }
 
 bool Ccmd_app::checkDevFilePathOptionB(TextVec& args, _TCHAR* path_string)
@@ -2214,12 +2130,11 @@ bool Ccmd_app::checkDevFilePathOptionB(TextVec& args, _TCHAR* path_string)
 	{
 		printf("-B No path given\n");
 		ReturnCode = INVALID_CMDLINE_ARG;
-		fflush(stdout);
 		return false;
 	}
 
 	// Get path to device file:
-	_tcsncpy_s(path_temp, &args[i][2], TXT_LENGTH(args[i])-2);
+	_tcsncpy_s(path_temp, XRIGHT(args[i],2), TXT_LENGTH(args[i])-2);
 	args[i] = (char *) "";
 	int j = 1;
 	while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
@@ -2714,7 +2629,6 @@ bool Ccmd_app::checkHelp1(TextVec& args)
 		displayHelp();
 	}
 
-	fflush(stdout);
 	return true;
 }
 
@@ -2914,7 +2828,7 @@ bool Ccmd_app::checkHelp2(TextVec& args, bool loadDeviceFileFailed)
 						{
 							_TCHAR searchTerm[MAX_PATH];
 							// get search term
-							_tcsncpy_s(searchTerm, &args[i][3], TXT_LENGTH(args[i])-3);
+							_tcsncpy_s(searchTerm, XRIGHT(args[i],3), TXT_LENGTH(args[i])-3);
 							args[i] = (char *) "";
 							int j = 1;
 							while (((i+j) < args.size()) && (!checkSwitch(args[i+j])))
@@ -2938,7 +2852,6 @@ bool Ccmd_app::checkHelp2(TextVec& args, bool loadDeviceFileFailed)
 		}
 	}
 
-	fflush(stdout);
 	return true;
 }
 
@@ -3198,7 +3111,6 @@ void Ccmd_app::displayPartList(TextVec& args, _TCHAR* argSearch)
 	printf("        PIC16F636 (639)\n        93LC46A (C X8)\n");
 	printf("      then only the characters before the space are required for -P, Ex:\n");
 	printf("        -pPIC16F636\n        -p93LC46A\n");
-	fflush(stdout);
 }
 
 int Ccmd_app::strnatcmpWrapper(const void *a, const void *b)
