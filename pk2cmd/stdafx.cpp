@@ -7,7 +7,7 @@
 // Software must have this entire copyright and disclaimer notice prominently
 // posted in a location where end users will see it (e.g., installation program,
 // program headers, About Box, etc.).  To the maximum extent permitted by law,
-// this Software is distributed “AS IS” and WITHOUT ANY WARRANTY INCLUDING BUT
+// this Software is distributed ï¿½AS ISï¿½ and WITHOUT ANY WARRANTY INCLUDING BUT
 // NOT LIMITED TO ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR
 // PARTICULAR PURPOSE, or NON-INFRINGEMENT. IN NO EVENT WILL MICROCHIP OR ITS
 // LICENSORS BE LIABLE FOR ANY INCIDENTAL, SPECIAL, INDIRECT OR CONSEQUENTIAL
@@ -21,7 +21,10 @@
 // stdafx.obj will contain the pre-compiled type information
 
 #include "stdafx.h"
-#include	<stdarg.h>
+//#include	<stdarg.h>
+#include <cstdio>
+#include <cstdarg>
+#include <cstdlib>
 
 // TODO: reference any additional headers you need in STDAFX.H
 // and not in this file
@@ -128,3 +131,56 @@ int fopen_s(FILE **fp, char *path, const char *spec)
 	return errno;
 }
 
+
+
+static int preFormatOnto(std::string& result, char * buffer, size_t bufferSize, const char * format, va_list arg)
+{
+	int messageSize = vsnprintf(buffer, bufferSize, format, arg);
+	if(messageSize < (int)bufferSize) {
+		result = buffer;
+		return 0;
+	}
+	else {
+		return messageSize + 1;
+	}
+}
+
+static void vFormatOnto(std::string& result, const char* fmt, va_list args) {
+	int neededSize;
+	va_list args0, args1;
+
+	va_copy(args0, args);
+	va_copy(args1, args);
+
+	{
+		int size = 128;
+		char buffer[size];
+		neededSize = preFormatOnto(result, buffer, size, fmt, args0);
+	}
+
+	if(neededSize > 0)
+	{
+		char* buffer = new char[neededSize];
+		preFormatOnto(result, buffer, neededSize, fmt, args1);
+		delete buffer;
+	}
+
+	va_end(args1);
+	va_end(args0);
+}
+
+void formatOnto(std::string& result, const char* fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	vFormatOnto(result, fmt, args);
+	va_end(args);
+}
+
+std::string format(const char* fmt, ...) {
+	va_list args;
+	std::string result;
+	va_start(args, fmt);
+	vFormatOnto(result, fmt, args);
+	va_end(args);
+	return result;
+}

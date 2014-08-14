@@ -63,5 +63,8 @@ extern int	fopen_s(FILE **fp, char *path, const char *spec);
 #define XRIGHTCOPY(dst, src, skip) _tcsncpy_s(dst, XRIGHT(src,skip), TXT_LENGTH(src)-skip);
 #define XCOPY28(dst, src) _tcsncpy_s(dst, src, 28)
 
+// C++ string adaptation for sprintf
+void formatOnto(std::string& result, const char* fmt, ...);
+std::string format(const char* fmt, ...);
 
 // TODO: reference additional headers your program requires here
