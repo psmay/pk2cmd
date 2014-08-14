@@ -20,7 +20,7 @@ CC=g++
 # Uncomment this for no debugging (default)
 DBG=-O2
 OPTS=-Wall -D_GNU_SOURCE $(DBG)
-OBJS=cmd_app.o DeviceData.o DeviceFile.o ImportExportHex.o PICkitFunctions.o PIC32PE.o Pk2BootLoader.o pk2cmd.o stdafx.o pk2usbcommon.o pk2usb.o P24F_PE.o dsP33_PE.o strnatcmp.o
+OBJS=cmd_app.o LongText.o DeviceData.o DeviceFile.o ImportExportHex.o PICkitFunctions.o PIC32PE.o Pk2BootLoader.o pk2cmd.o stdafx.o pk2usbcommon.o pk2usb.o P24F_PE.o dsP33_PE.o strnatcmp.o
 
 # Grab the version of libusb in /usr/local if possible:
 LIBUSB=/usr/local
@@ -37,7 +37,10 @@ all: $(APP)
 $(APP): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS) 
 
-cmd_app.o: cmd_app.cpp cmd_app.h stdafx.h
+LongText.o: LongText.cpp LongText.h
+	$(CC) $(CFLAGS) -o $@  -c $<
+
+cmd_app.o: cmd_app.cpp cmd_app.h stdafx.h LongText.h
 	$(CC) $(CFLAGS) -o $@  -c $<
 
 DeviceData.o: DeviceData.cpp DeviceData.h stdafx.h

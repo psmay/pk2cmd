@@ -31,6 +31,8 @@ extern "C"{
 	#include "strnatcmp.h"
 }
 
+#include "LongText.h"
+
 #define DEVICE_FILE_NAME "PK2DeviceFile.dat"
 #define DEVICE_FILE_NAME_LENGTH 17
 
@@ -2204,6 +2206,7 @@ bool Ccmd_app::checkDevFilePathOptionB(TextVec& args, _TCHAR* path_string)
 	return true;
 }
 
+
 bool Ccmd_app::checkHelp1(TextVec& args)
 { // Helps that don't need the device file.
 	int i;
@@ -2225,7 +2228,7 @@ bool Ccmd_app::checkHelp1(TextVec& args)
 		if (TXT_SEEK_TCHAR(*parg, '?'))
 			break;
 	}
-	
+
 	if (i == NSIZE(args)) // none found
 		return false;
 
@@ -2238,42 +2241,7 @@ bool Ccmd_app::checkHelp1(TextVec& args)
 				{
 					if (((*parg)[2] == 'e') || ((*parg)[2] == 'E'))
 					{
-						cout
-						<< "PK2CMD return codes:" << endl
-						<< "Value   Code                    Notes" << endl
-						<< "-----   ----                    -----" << endl
-						<< "0       OPSUCCESS              -Returned if all selected operations complete" << endl
-						<< "                                successfully." << endl
-						<< "5       VOLTAGE_ERROR          -A Vdd and/or Vpp voltage error was detected." << endl
-						<< "                                This could be due to PICkit 2 being " << endl
-						<< "                                improperly connected to a part, incorrect" << endl
-						<< "                                part selection, or interference from other" << endl
-						<< "                                circuitry on the target board." << endl
-						<< "7       OPFAILURE              -Returned if an operation fails and a more" << endl
-						<< "                                specific error does not exist." << endl
-						<< "10      NO_PROGRAMMER          -The PK2CMD executable is unable to find a" << endl
-						<< "                                connected PICkit 2 programmer." << endl
-						<< "11      WRONG_OS                -Returned if the OS firmware must be updated" << endl
-						<< "                                before being used with this version of" << endl
-						<< "                                PK2CMD." << endl
-						<< "15      FILE_OPEN_ERROR        -Returned if a file specified for reading to" << endl
-						<< "                                (-gf...) cannot be opened for writing." << endl
-						<< "24      DEVICEFILE_ERROR       -The PK2CMD executable cannot find the device" << endl
-						<< "                                file " DEVICE_FILE_NAME " or the device file" << endl
-						<< "                                may be corrupted." << endl
-						<< "28      UPDGRADE_ERROR         -Returned when an OS firmware upgade (-d...)" << endl
-						<< "                                fails." << endl
-						<< "34      PGMVFY_ERROR           -Returned if a program or verify operation" << endl
-						<< "                                fails." << endl
-						<< "36      INVALID_CMDLINE_ARG    -A syntax error in a command line argument" << endl
-						<< "                                was detected, an invalid combination of " << endl
-						<< "                                operations was entered, an invalid value was" << endl
-						<< "                                entered, or a memory region was selected" << endl
-						<< "                                that is not supported by the current device." << endl
-						<< "37      INVALID_HEXFILE        -Error opening or loading a specified hex" << endl
-						<< "                                file (-f...)." << endl
-						<< "39      AUTODETECT_FAILED       A part autodetect operation failed to find" << endl
-						<< "                                a known part." << endl << endl;
+						LongText::lx_qe();
 					}
 					else if (((*parg)[2] == 'l') || ((*parg)[2] == 'L'))
 					{
@@ -2293,393 +2261,106 @@ bool Ccmd_app::checkHelp1(TextVec& args)
 
 			case 'a':
 			case 'A':
-				cout << "Specifies the VDD voltage that the device is programmed at.  The value" << endl;
-				cout << "entered must be less than the allowed maximum of the device and 5.0 Volts" << endl;
-				cout << "(whichever is less), and greater than the allowed minimum of the device and" << endl;
-				cout << "2.5 Volts (whichever is greater).  A default voltage for the device will be" << endl;
-				cout << "used if this command is not specified." << endl << endl;
-				cout << "The parameter for this command is the floating point value of the desired" << endl;
-				cout << "VDD voltage." << endl << endl;
-				cout << "Syntax Example -a4.5" << endl;
+				LongText::lx_a();
 				break;
-
 			case 'b':
 			case 'B':
-				cout << "Specifies the path to the device file " DEVICE_FILE_NAME ".  By default, the" << endl;
-				cout << "directory from which the executable is searched first, then the PATH" << endl;
-				cout << "environment variable.  This option can be used to explicity specify the" << endl;
-				cout << "path to the device file." << endl << endl;
-				cout << "The parameter for this command is the complete file path to" << endl;
-				cout << DEVICE_FILE_NAME ", not including the filename." << endl << endl;
-				cout << "Syntax Example -fc:\\pickit_2\\pk2cmd_dir" << endl;
+				LongText::lx_b();
 				break;
-
 			case 'c':
 			case 'C':
-				cout << "Checks to see if the device is blank or not. Each memory region (Program," << endl;
-				cout << "EEPROM, Configuration, and User ID memory) will be checked, and a message" << endl;
-				cout << "indicating whether or not the device is blank, will be displayed. If the" << endl;
-				cout << "device is not blank, the memory region and location of the first error" << endl;
-				cout << "will be displayed." << endl << endl;
-				cout << "This command takes no parameters." << endl << endl;
-				cout << "Syntax Example -c" << endl;
+				LongText::lx_c();
 				break;
-
 			case 'd':
 			case 'D':
-				cout << "Upgrades the firmware on the programmer. This command must be done" << endl;
-				cout << "independently of any other commands." << endl << endl;
-				cout << "The parameter for this command is the complete file path to the .hex" << endl;
-				cout << "file to be downloaded." << endl << endl;
-				cout << "Syntax Example -dc:\\filepath\\PK2V021000.hex" << endl;
+				LongText::lx_d();
 				break;
-
 			case 'e':
 			case 'E':
-				cout << "Erases the device.  A warning will be issued if the device can" << endl;
-				cout << "only be bulk erased and VDD is below the bulk erase voltage." << endl << endl;
-				cout << "This command takes no parameters." << endl << endl;
-				cout << "Syntax Example -e" << endl;
+				LongText::lx_e();
 				break;
-
 			case 'f':
 			case 'F':
-				cout << "Loads a hex file to the programmer. The device will not actually be" << endl;
-				cout << "programmed with the contents of the transferred hex file unless the" << endl;
-				cout << "program command (-m) is also issued." << endl << endl;
-				cout << "Binary format files are also supported for serial EEPROM devices only." << endl;
-				cout << "To load a binary file, the filename must end in BIN, ex: myfile.bin" << endl << endl;
-				cout << "The parameter for this command is the complete file path to the hex" << endl;
-				cout << "file to be loaded" << endl << endl;
-				cout << "Syntax Example -fc:\\filepath\\myfile.hex" << endl;
+				LongText::lx_f();
 				break;
-
 			case 'g':
 			case 'G':
-				cout << "Reads the device and outputs it to either the screen or a hexfile" << endl;
-				cout << "based on the type of read performed. The command must be immediately" << endl;
-				cout << "followed by the type of read, which can be one of the following:" << endl;
-				cout << "     f = Read into hex file. This command must be immediately followed" << endl;
-				cout << "         by the complete file path and name of the file to be created." << endl;
-				cout << "         Serial EEPROMs only may read into a binary file.  A binary file" << endl;
-				cout << "         will be created if the filename ends in BIN, ex: myfile.bin" << endl;
-				cout << "     p = Read program memory and output the result to the screen. This" << endl;
-				cout << "         command must be immediately followed by the hex address range" << endl;
-				cout << "         to be read, which must be in the form of x-y, where x = start" << endl;
-				cout << "         address and y = end address." << endl;
-				cout << "     e = Read EEData memory and output the result to the screen. This" << endl;
-				cout << "         command must be immediately followed by the hex address range" << endl;
-				cout << "         to be read, which must be in the form of x-y, where x = start" << endl;
-				cout << "         address and y = end address." << endl;
-				cout << "     i = Read User ID memory and output the result to the screen. No" << endl;
-				cout << "         further parameters are required for this command." << endl;
-				cout << "     c = Read Configuration memory and output the result to the screen." << endl;
-				cout << "         No further parameters are required for this command." << endl;
-				cout << "Multiple types of read commands can be included in the same command line." << endl;
-				cout << "NOTE: For HCS and serial EEPROM devices, memory is considered region 'P'" << endl;
-				cout << endl;
-				cout << "Syntax Examples -gfc:\\filepath\\myfile" << endl;
-				cout << "                -gp100-200" << endl;
-				cout << "                -gi -ge0-40 -gc" << endl;
+				LongText::lx_g();
 				break;
-
 			case 'h':
 			case 'H':
-				cout << "If this switch is included, PK2CMD will delay before exiting.  If the value " << endl;
-				cout << "is set to 'K', then PK2CMD will wait for a keypress before exiting. If the " << endl;
-				cout << "value is set to a number from 1 to 9, then it will delay the given number" << endl;
-				cout << "of seconds before exiting." << endl;
-				cout << endl;
-				cout << "The parameter for this command is the number of seconds (max = 9) to delay" << endl;
-				cout << "before exiting.  Parameter K will cause it to wait for a keypress." << endl;
-				cout << endl;
-				cout << "Syntax Examples -h3" << endl;
-				cout << "                -hk" << endl;
+				LongText::lx_h();
 				break;
-
 			case 'i':
 			case 'I':
-				cout << "Reads and displays the value in the Device ID location of the device," << endl;
-				cout << "as well as the silicon revision code." << endl;
-				cout << endl;
-				cout << "This will also display the device name that matches the returned Device ID," << endl;
-				cout << "and warn if the Device ID does not match the device specified using the -p" << endl;
-				cout << "command." << endl;
-				cout << endl;
-				cout << "This command takes no parameters." << endl;
-				cout << endl;
-				cout << "Syntax Example -i" << endl;
+				LongText::lx_i();
 				break;
-
 			case 'j':
 			case 'J':
-				cout << "This switch will display a percentage completion for programming operations" << endl;
-				cout << "instead of the rotating slash.  If the switch is followed by the optional" << endl;
-				cout << "parameter 'n', then each percent update is printed on a newline.  This option" << endl;
-				cout << "is intended for GUI interfaces needing a newline to update the display." << endl;
-				cout << endl;
-				cout << "The optional parameter for this command, N, will print percentage updates" << endl;
-				cout << "on a new line." << endl;
-				cout << endl;
-				cout << "Syntax Examples -j" << endl;
-				cout << "                -jn" << endl;
+				LongText::lx_j();
 				break;
-
-			case 'l':
-			case 'L':
-				cout << "Sets the ICSP clock (PGC) period to the given value, which must be a value" << endl;
-				cout << "between 1 and 16.  The value specifies the clock period in microseconds." << endl;
-				cout << "The default value is 1, which gives a period of 1us and an ICSP clock rate" << endl;
-				cout << "of 1 MHz.  A value of 2 gives a period of 2us and a clock rate of 500 kHz." << endl;
-				cout << "Slowing down the programming clock can help resolve programming issues with" << endl;
-				cout << "heavily loaded PGx lines and long programming cables.  A value of 4 usually" << endl;
-				cout << "resolves most such issues, but programming takes longer." << endl;
-				cout << endl;
-				cout << "The parameter for this command is a decimal value between 1 and 16 inclusive." << endl;
-				cout << endl;
-				cout << "Syntax Example -l4" << endl;
-				break;
-
 			case 'k':
 			case 'K':
-				cout << "Displays the checksum of a loaded hexfile. This command must be" << endl;
-				cout << "accompanied by the Hex File Selection command (-f)." << endl;
-				cout << endl;
-				cout << "This command takes no parameters." << endl;
-				cout << endl;
-				cout << "Syntax Example -k" << endl;
+				LongText::lx_k();
 				break;
-
+			case 'l':
+			case 'L':
+				LongText::lx_l();
+				break;
 			case 'm':
 			case 'M':
-				cout << "Programs the device with the contents of the loaded hex file." << endl;
-				cout << "The entire device can be programmed, or just selected memory regions. If one" << endl;
-				cout << "or more selected regions are to be programmed, the program command must be" << endl;
-				cout << "immediately followed by a memory region parameter. Valid parameters are:" << endl;
-				cout << "     P - program memory" << endl;
-				cout << "     E - EEPROM" << endl;
-				cout << "     I - ID Memory" << endl;
-				cout << "     C - Configuration Memory" << endl;
-				cout << "If no memory region parameter is entered, the entire device will be erased and" << endl;
-				cout << "then programmed. Otherwise only the selected memory regions will be programmed" << endl;
-				cout << "without being first erased. Multiple program commands may be entered on one " << endl;
-				cout << format("command line.\"Program Succeeded\" will be displayed if the operation is ") << endl;
-				cout << "successful, otherwise the first address of the first memory region where " << endl;
-				cout << "programming failed will be displayed along with a description of the failure." << endl;
-				cout << "NOTE: For HCS and serial EEPROM devices, memory is considered region 'P'" << endl;
-				cout << endl;
-				cout << "This command may be used without parameters or with a memory region." << endl;
-				cout << endl;
-				cout << "Syntax Examples -m" << endl;
-				cout << "                -mP -mI -mE" << endl;
+				LongText::lx_m();
 				break;
-
 			case 'n':
 			case 'N':
-				cout << "Assigns the given string to the PICkit 2 unit as the Unit ID.  The Unit ID is" << endl;
-				cout << "useful in uniquely identifying a PICkit 2 unit.  When multiple PICkit 2 units" << endl;
-				cout << "are connected to a PC, a specific PICkit 2 may be selected using the -S" << endl;
-				cout << "option with the Unit ID. " << endl;
-				cout << endl;
-				cout << "To assign a Unit ID to a PICkit 2, connect only that one unit to the PC and" << endl;
-				cout << "use this option.  To remove a Unit ID, do not include a string after the -N" << endl;
-				cout << "option.  A Unit ID may contain 14 characters maximum.  The Unit ID is stored" << endl;
-				cout << "in non-volatile memory in the PICkit 2 unit itself, and remains assigned" << endl;
-				cout << "changed by a user." << endl;
-				cout << endl;
-				cout << "Syntax Examples -nLab1B   (Set Unit ID = 'Lab1B')" << endl;
-				cout << "                -n        (clear Unit ID)" << endl;
+				LongText::lx_n();
 				break;
-
 			case 'p':
 			case 'P':
-				cout << "There are three ways to use this option:" << endl;
-				cout << "  1 : -P<part>" << endl;
-				cout << "      Specify the part number of the device explicitly.  This is the" << endl;
-				cout << "      recommended use.  Example: -pPIC16F887" << endl;
-				cout << "  2 : -PF<id>" << endl;
-				cout << "      Auto-Detect a target part connected to PICkit 2 within a given family." << endl;
-                cout << "      Use '-pf' for a list of auto-detectable families and their family ID" << endl;
-				cout << "      number.  Not all part families support detection.  No programming " << endl;
-				cout << "      operations are performed when -PF is used without an ID parameter." << endl;
-				cout << "      Use '-pf<id>' to auto-detect a part within a given family using" << endl;
-				cout << "      the family ID from the listing.  Example: -pf2" << endl;
-				cout << "  3 : -P" << endl;
-				cout << "      Auto-Detect any part in all auto-detectable families when -p is" << endl;
-				cout << "      is used with no parameters.  Example: -p" << endl;
-				cout << endl;
-				cout << "The -V and -X options may NOT be used with any form of auto-detect." << endl;
-				cout << "During auto-detect, VDD is ALWAYS 3.0 Volts unless -W is used.  After a part" << endl;
-				cout << "is detected, the device VDD default or -A voltage is used for remaining" << endl;
-                cout << "operations." << endl;
-				cout << endl;
-				cout << "Auto-detecting can be slower than explicitly specifying the part name." << endl;
-                cout << endl;
-				cout << "WARNING: SOME DEVICE FAMILIES USE A VPP VOLTAGE OF 12 VOLTS ON THE MCLR" << endl;
-				cout << "PIN.  THIS VOLTAGE MAY DAMAGE DEVICES FROM OTHER FAMILIES.  NEVER USE" << endl;
-				cout << "AN AUTODETECT OPTION ON A TARGET WITHOUT A KNOWN GOOD PROGRAMMING" << endl;
-				cout << "CONNECTION.  IT IS SAFER TO AUTO-DETECT WITHIN A GIVEN FAMILY (-PF) THAN" << endl;
-				cout << "WITH ALL DETECTABLE FAMILIES." << endl;
-				cout << endl;
-				cout << "Auto-detecting in all families goes through a special sequence of searching" << endl;
-				cout << "each family to prevent placing damaging voltages on parts.  However, if a" << endl;
-				cout << "programming connection problem prevents a part from being found, it may be" << endl;
-				cout << "exposed to damaging high voltages as other families are searched." << endl;
-				cout << endl;
-				cout << "PK2CMD -?P may be used to list all supported devices and their families." << endl;
-				cout << "PK2CMD -?P<str> may be used to list only devices matching the search string." << endl;
+				LongText::lx_p();
 				break;
-
 			case 'q':
 			case 'Q':
-				cout << "Disables use of a Programming Executive (PE) for PIC24 or dsPIC33 devices." << endl;
-				cout << "Low-level ICSP is used instead (as in prior versions of PK2CMD)." << endl;
-				cout << endl;
-				cout << "Using the PE results in much faster programming operations, and implements" << endl;
-				cout << "the Device ID Corruption workaround for PIC24H/dsPIC33 devices.  However," << endl;
-				cout << "Blank Check, Programming, and Verify operations will not provide the address" << endl;
-				cout << "and data for failing locations for PIC24H/dsPIC33 as the PE only returns a" << endl;
-				cout << "Good/Bad response.  Disable the PE for address and data information." << endl;
-				cout << endl;
-				cout << "The Programming Executive (PE) for PIC24H and dsPIC33F parts may fail on" << endl;
-				cout << "certain programming ports of certain 44-Pin devices. Known problems exist" << endl;
-				cout << "with using the PGC3/PGD3 port on the following devices:" << endl;
-				cout << "PIC24HJ16GP304, PIC24HJ32GP204" << endl;
-				cout << "dsPIC33FJ16GP304, dsPIC33FJ32GP204, dsPIC33FJ16MC304, dsPIC33FJ32MC204" << endl;
-				cout << endl;
-				cout << "Syntax Example -q" << endl;
+				LongText::lx_q();
 				break;
-
 			case 'r':
 			case 'R':
-				cout << "Releases (3-states) the PICkit 2 /MCLR pin after programming operations" << endl;
-				cout << "complete.  If not specified, then /MCLR is asserted (driven low)." << endl;
-				cout << endl;
-				cout << "There are no parameters for this command." << endl;
-				cout << endl;
-				cout << "Syntax Example -r" << endl;
+				LongText::lx_r();
 				break;
-
 			case 's':
 			case 'S':
-				cout << "When more than one PICkit 2 unit is attached to a PC, this option allows" << endl;
-				cout << "a specific unit to be selected using its Unit ID.  The Unit ID is assigned" << endl;
-				cout << "with the -N option." << endl;
-				cout << endl;
-				cout << "When -S is used without an argument, all attached PICkit 2 units and their" << endl;
-				cout << "Unit IDs will be listed.  Units that do not have a Unit ID assigned will" << endl;
-				cout << "show a dash (-) in the Unit ID column.  When -S is used this way, all other" << endl;
-				cout << "options will be ignored." << endl;
-				cout << endl;
-				cout << "A single character argument of '#' may also be used.  This will list all" << endl;
-				cout << "PICkit 2 units with their Unit IDs and Firmware Versions.  NOTE that this" << endl;
-				cout << "is NOT safe to use when another application is already accessing a PICkit 2" << endl;
-				cout << "unit and may corrupt that USB connection. Also, a Unit ID of the single" << endl;
-				cout << "character '#' is not valid, but may used with longer IDs for example '#1'" << endl;
-				cout << "or '#two' are valid." << endl;
-				cout << endl;
-				cout << "To select a specific unit from among the attached PICkit 2 units to execute" << endl;
-				cout << "a given set of command options, follow the -S option with the Unit ID string" << endl;
-				cout << "of the intended PICkit 2 unit." << endl;
-				cout << endl;
-				cout << "This command may be used with or without a parameter." << endl;
-				cout << endl;
-				cout << "Syntax Example -s        (list connected PICkit 2 units - SAFE)" << endl;
-				cout << "               -s#       (list connected units with FW versions - UNSAFE)" << endl;
-				cout << "               -sLab1B   (use the PICkit 2 with Unit ID string 'Lab1B')" << endl;
-				cout << "               -#3       (use the PICkit 2 with Unit ID string '#3')" << endl;
+				LongText::lx_s();
 				break;
-
 			case 't':
 			case 'T':
-				cout << "Enables the Vdd output pin after programming operations are complete." << endl;
-				cout << "If not specified, then Vdd is turned off.  Use -a<> to set the voltage." << endl;
-				cout << endl;
-				cout << "There are no parameters for this command." << endl;
-				cout << endl;
-				cout << "Syntax Example -t" << endl;
+				LongText::lx_t();
 				break;
-
 			case 'u':
 			case 'U':
-				cout << "Specifies a new OSCCAL value in hex. Used with a Program command, the device" << endl;
-				cout << "will be programmed with this new value. No error checking is done on the value." << endl;
-				cout << endl;
-				cout << "Syntax Example /uC80 or /u0x347C" << endl;
+				LongText::lx_u();
 				break;
-
 			case 'v':
 			case 'V':
-				cout << "Specifies the Vpp value, in volts, that the device will be programmed with." << endl;
-				cout << "If not entered, the default value for the device is used.  Normally this" << endl;
-				cout << "value should not be specified." << endl;
-				cout << endl;
-				cout << "The parameter for this command is the floating point value of the desired" << endl;
-				cout << "Vpp voltage." << endl;
-				cout << endl;
-				cout << "Syntax Example -v13.00" << endl;
+				LongText::lx_v();
 				break;
-
 			case 'w':
 			case 'W':
-				cout << "If this switch is included, the target circuit will not be powered by the " << endl;
-				cout << "programmer and should be powered by an external power source. If this switch" << endl;
-				cout << "is not included, the target circuit will be powered by the programmer. The" << endl;
-				cout << "PICkit 2 is limited to an external power source voltage range of 2.5 Volts" << endl;
-				cout << "to 5.0 Volts." << endl;
-				cout << endl;
-				cout << "There are no parameters for this command." << endl;
-				cout << endl;
-				cout << "Syntax Example -w" << endl;
+				LongText::lx_w();
 				break;
-
 			case 'x':
 			case 'X':
-				cout << "If this switch is included, PICkit 2 will attempt to program the device " << endl;
-				cout << "using the VPP first program entry method.  Not all families and devices" << endl;
-				cout << "support this feature." << endl;
-				cout << endl;
-				cout << "There are no parameters for this command." << endl;
-				cout << endl;
-				cout << "Syntax Example -x" << endl;
-
+				LongText::lx_x();
+				break;
 			case 'y':
 			case 'Y':
-				cout << "Verifies the device against the selected hex file on the programmer." << endl;
-				cout << "The entire device can be verified, or just selected memory regions. If one" << endl;
-				cout << "or more selected regions are to be verified, the verify command must be" << endl;
-				cout << "immediately followed by a memory region parameter. Valid parameters are:" << endl;
-				cout << "     P - program memory" << endl;
-				cout << "     E - EEPROM" << endl;
-				cout << "     I - ID Memory" << endl;
-				cout << "     C - Configuration Memory" << endl;
-				cout << "If no memory region parameter is entered, the entire device will be verified," << endl;
-				cout << "otherwise only the selected memory regions will be verified. Multiple verify" << endl;
-				cout << format("commands may be entered on one command line. \"Verify Succeeded\" will be") << endl;
-				cout << "displayed if the operation is successful, otherwise the first address of the" << endl;
-				cout << "first memory region where verification failed will be displayed along with a" << endl;
-				cout << "description of the failure." << endl;
-				cout << "NOTE: For HCS and serial EEPROM devices, memory is considered region 'P'" << endl;
-				cout << endl;
-				cout << "This command may be used without parameters or with a memory region." << endl;
-				cout << endl;
-				cout << "Syntax Examples -y" << endl;
-				cout << "                -yP -yI -yE" << endl;
+				LongText::lx_y();
 				break;
-
 			case 'z':
 			case 'Z':
-				cout << "If this switch is included, then a complete device programming operation (-m)" << endl;
-				cout << "will preserve and not overwrite the existing EEPROM data memory on the device" << endl;
-				cout << endl;
-				cout << "There are no parameters for this command." << endl;
-				cout << endl;
-				cout << "Syntax Example -z" << endl;
+				LongText::lx_z();
 				break;
-
 			default:
 				return false; // may be one that needs the device file.
-
 		}
 	}
 	else
@@ -2690,147 +2371,10 @@ bool Ccmd_app::checkHelp1(TextVec& args)
 	return true;
 }
 
+
 void Ccmd_app::displayHelp(void)
 {
-	cout << "                        PICkit 2 COMMAND LINE HELP" << endl;
-	cout << "Options              Description                              Default" << endl;
-	cout << "----------------------------------------------------------------------------" << endl;
-    cout << "A<value>             Set Vdd voltage                          Device Specific" << endl;
-	cout << "B<path>              Specify the path to " DEVICE_FILE_NAME "    Searches PATH" << endl;
-	cout << "                                                              and calling dir" << endl;
-    cout << "C                    Blank Check Device                       No Blank Check" << endl;
-    cout << "D<file>              OS Download                              None" << endl;
-    cout << "E                    Erase Flash Device                       Do Not Erase" << endl;
-    cout << "F<file>              Hex File Selection                       None" << endl;
-    cout << "G<Type><range/path>  Read functions                           None" << endl;
-    cout << "                     Type F: = read into hex file," << endl;
-    cout << "                             path = full file path," << endl;
-    cout << "                             range is not used" << endl;
-    cout << "                     Types P,E,I,C: = ouput read of Program," << endl;
-    cout << "                             EEPROM, ID and/or Configuration" << endl;
-    cout << "                             Memory to the screen. P and E" << endl;
-    cout << "                             must be followed by an address" << endl;
-    cout << "                             range in the form of x-y where" << endl;
-    cout << "                             x is the start address and y is" << endl;
-    cout << "                             the end address both in hex," << endl;
-    cout << "                             path is not used" << endl;
-    cout << "                             (Serial EEPROM memory is 'P')" << endl;
-    cout << "H<value>             Delay before Exit                        Exit immediately" << endl;
-    cout << "                         K = Wait on keypress before exit" << endl;
-    cout << "                         1 to 9 = Wait <value> seconds" << endl;
-    cout << "                                  before exit" << endl;
-    cout << "I                    Display Device ID & silicon revision     Do Not Display" << endl;
-	cout << "J<newlines>          Display operation percent complete       Rotating slash" << endl;
-	cout << "                         N = Each update on newline" << endl;
-    cout << "K                    Display Hex File Checksum                Do Not Display" << endl;
-    cout << "L<rate>              Set programming speed                    Fastest" << endl;
-    cout << "                     <rate> is a value of 1-16, with 1 being" << endl;
-	cout << "                     the fastest." << endl;
-    cout << "M<memory region>     Program Device                           Do Not Program" << endl;
-    cout << "                     memory regions:" << endl;
-    cout << "                         P = Program memory" << endl;
-    cout << "                         E = EEPROM" << endl;
-    cout << "                         I = ID memory" << endl;
-    cout << "                         C = Configuration memory" << endl;
-    cout << "                         If no region is entered, the entire" << endl;
-    cout << "                         device will be erased & programmed." << endl;
-    cout << "                         If a region is entered, no erase" << endl;
-    cout << "                         is performed and only the given" << endl;
-    cout << "                         region is programmed." << endl;
-    cout << "                         All programmed regions are verified." << endl;
-    cout << "			            (serial EEPROM memory is 'P')" << endl;
-    cout << "N<string>            Assign Unit ID string to first found     None" << endl;
-    cout << "                     PICkit 2 unit.  String is limited to 14" << endl;
-    cout << "                     characters maximum.  May not be used" << endl;
-    cout << "                     with other options." << endl;
-    cout << "                     Example: -NLab1B" << endl;
-    cout << "P<part>              Part Selection. Example: -PPIC16f887     (Required)" << endl;
-	cout << "P                    Auto-Detect in all detectable families" << endl;
-	cout << "PF                   List auto-detectable part families" << endl;
-	cout << "PF<id>               Auto-Detect only within the given part" << endl;
-	cout << "                     family, using the ID listed with -PF" << endl;
-	cout << "                     Example: -PF2" << endl;
-	cout << "Q                    Disable PE for PIC24/dsPIC33 devices     Use PE" << endl;
-    cout << "R                    Release /MCLR after operations           Assert /MCLR" << endl;
-    cout << "S<string/#>          Use the PICkit 2 with the given Unit ID  First found unit" << endl;
-    cout << "                     string.  Useful when multiple PICkit 2" << endl;
-    cout << "                     units are connected." << endl;
-    cout << "                     Example: -SLab1B" << endl;
-    cout << "                     If no <string> is entered, then the" << endl;
-    cout << "                     Unit IDs of all connected units will be" << endl;
-    cout << "                     displayed.  In this case, all other " << endl;
-    cout << "                     options are ignored. -S# will list units" << endl;
-	cout << "                     with their firmware versions." << endl;
-	cout << "                     See help -s? for more info." << endl;
-    cout << "T                    Power Target after operations            Vdd off" << endl;
-    cout << "U<value>             Program OSCCAL memory, where:            Do Not Program" << endl;
-    cout << "                      <value> is a hexadecimal number" << endl;
-    cout << "                      representing the OSCCAL value to be" << endl;
-    cout << "                      programmed. This may only be used in" << endl;
-    cout << "                      conjunction with a programming " << endl;
-    cout << "                      operation." << endl;
-    cout << "V<value>             Vpp override                             Device Specific" << endl;
-    cout << "W                    Externally power target                  Power from Pk2" << endl;
-	cout << "X                    Use VPP first Program Entry Method       VDD first" << endl;
-    cout << "Y<memory region>     Verify Device                            Do Not Verify" << endl;
-    cout << "                         P = Program memory" << endl;
-    cout << "                         E = EEPROM" << endl;
-    cout << "                         I = ID memory" << endl;
-    cout << "                         C = Configuration memory" << endl;
-    cout << "                         If no region is entered, the entire" << endl;
-    cout << "                         device will be verified." << endl;
-    cout << "                         (Serial EEPROM memory is 'P')" << endl;
-    cout << "Z                    Preserve EEData on Program               Do Not Preserve" << endl;
-    cout << "?                    Help Screen                              Not Shown" << endl;
-    cout << endl;
-    cout << "     Each option must be immediately preceeded by a switch, Which can" << endl;
-    cout << "     be either a dash <-> or a slash </> and options must be separated" << endl;
-    cout << "     by a single space." << endl;
-    cout << endl;
-    cout << "     Example:   PK2CMD /PPIC16F887 /Fc:\\mycode /M" << endl;
-    cout << "                               or" << endl;
-    cout << "                PK2CMD -PPIC16F887 -Fc:\\mycode -M" << endl;
-    cout << endl;
-    cout << "     Any option immediately followed by a question mark will invoke" << endl;
-    cout << "     a more detailed description of how to use that option." << endl;
-    cout << endl;
-    cout << "     Commands and their parameters are not case sensitive. Commands will" << endl;
-    cout << "     be processed according to command order of precedence, not the order" << endl;
-    cout << "     in which they appear on the command line. " << endl;
-    cout << "	Precedence:" << endl;
-    cout << "                -?      (first)" << endl;
-	cout << "                -B" << endl;
-	cout << "                -S" << endl;
-    cout << "                -D" << endl;
-	cout << "                -N" << endl;
-    cout << "                -P" << endl;
-    cout << "                -A -F -J -L -Q -V -W -X -Z" << endl;
-    cout << "                -C" << endl;
-    cout << "                -U" << endl;
-    cout << "                -E" << endl;
-    cout << "                -M" << endl;
-    cout << "                -Y" << endl;
-    cout << "                -G" << endl;
-    cout << "                -I -K" << endl;
-    cout << "                -R -T" << endl;
-    cout << "                -H      (last)" << endl;
-    cout << "		" << endl;
-    cout << "     The program will return an exit code upon completion which will" << endl;
-    cout << "     indicate either successful completion, or describe the reason for" << endl;
-    cout << "     failure. To view the list of exit codes and their descriptions," << endl;
-    cout << "     type -?E on the command line." << endl;
-	cout << endl;
-	cout << "     type -?V on the command line for version information." << endl;
-	cout << endl;
-	cout << "     type -?L on the command line for license information." << endl;
-	cout << endl;
-	cout << "     type -?P on the command line for a listing of supported devices." << endl;
-	cout << "     type -?P<string> to search for and display a list of supported devices" << endl;
-	cout << "                      beginning with <string>." << endl;
-	cout << endl;
-	cout << "     Special thanks to the following individuals for their critical" << endl;
-	cout << "     contributions to the development of this software:" << endl;
-	cout << "		Jeff Post, Xiaofan Chen, and Shigenobu Kimura" << endl;
+	LongText::lx_display_help();
 }
 
 bool Ccmd_app::checkHelp2(TextVec& args, bool loadDeviceFileFailed)
@@ -2917,203 +2461,13 @@ bool Ccmd_app::checkHelp2(TextVec& args, bool loadDeviceFileFailed)
 	return true;
 }
 
+
 void Ccmd_app::displayLicense(void)
 {
-	cout << "IMPORTANT: " << endl;
-	cout << "YOU MUST ACCEPT THE TERMS AND CONDITIONS OF THIS LICENSE AGREEMENT" << endl;
-	cout << "TO RECEIVE A LICENSE FOR THE ACCOMPANYING SOFTWARE.  TO ACCEPT THE" << endl;
-    cout << "TERMS OF THIS LICENSE, OPEN THIS PACKAGE AND PROCEED WITH THE" << endl;
-	cout << "DOWNLOAD OR USE OF THE SOFTWARE.  IF YOU DO NOT ACCEPT THESE LICENSE" << endl;
-	cout << "TERMS, DO NOT OPEN THIS PACKAGE, DOWNLOAD, OR USE THIS SOFTWARE." << endl;
-	cout << endl;
-	cout << "PICkit(tm) 2 PK2CMD SOFTWARE LICENSE " << endl;
-	cout << endl;
-	cout << "This License Agreement (Agreement) is a contract between You (as" << endl;
-	cout << "an individual or as a representative of your employer) and" << endl;
-	cout << format("Microchip Technology Incorporated (\"Company\") for the PICkit(tm) 2") << endl;
-	cout << "PK2CMD software (including source code) accompanying this Agreement" << endl;
-	cout << format("(the \"Software\").  In consideration for access to the Software, You") << endl;
-	cout << "agree to be bound by this Agreement. " << endl;
-	cout << endl;
-	cout << "1.  LICENSE GRANT. Subject to all of the terms and conditions of" << endl;
-	cout << "this Agreement, Company grants You a non-exclusive, non-" << endl;
-	cout << "sublicensable, non-transferable license to use the Software with" << endl;
-	cout << "Company products, modify the Software for use with Company products," << endl;
-	cout << "and market, sell or otherwise distribute: " << endl;
-	cout << endl;
-	cout << "(a) Your end application that integrates Software and Company" << endl;
-	cout << format("    products (\"Licensee Product\"); or ") << endl;
-	cout << endl;
-	cout << "(b) Your modifications to the Software provided that the modified" << endl;
-	cout << "    Software has the following copyright and disclaimer notice" << endl;
-	cout << "    prominently posted in a location where end users will see it" << endl;
-	cout << "    (e.g., installation program, program headers, About Box, etc.):" << endl;
-	cout << endl;
-	cout << format("\"Copyright (c) 2005-2009 Microchip Technology Inc. All rights") << endl;
-	cout << "reserved. This version of the PICkit(tm) 2 PK2CMD Software has been" << endl;
-	cout << "modified by [INSERT YOUR NAME, DATE OF SOFTWARE MODIFICATION HERE]." << endl;
-	cout << "You may use, copy, modify and distribute the Software for use with" << endl;
-	cout << "Microchip products only.  If you distribute the Software or its" << endl;
-	cout << "derivatives, the Software must have this copyright and disclaimer" << endl;
-	cout << "notice prominently posted in a location where end users will see it" << endl;
-	cout << "(e.g., installation program, program headers, About Box, etc.).  To" << endl;
-	cout << "the maximum extent permitted by law, this Software is distributed" << endl;
-	cout << format("\"AS IS\" and WITHOUT ANY WARRANTY INCLUDING BUT NOT LIMITED TO ANY") << endl;
-	cout << "IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR PARTICULAR PURPOSE," << endl;
-	cout << "or NON-INFRINGEMENT. IN NO EVENT WILL MICROCHIP OR ITS LICENSORS BE" << endl;
-	cout << "LIABLE FOR ANY INCIDENTAL, SPECIAL, INDIRECT OR CONSEQUENTIAL" << endl;
-	cout << "DAMAGESOF ANY KIND ARISING FROM OR RELATED TO THE USE, MODIFICATION" << endl;
-	cout << format("OR DISTRIBUTION OF THIS SOFTWARE OR ITS DERIVATIVES.\"" "") << endl;
-	cout << endl;
-	cout << "You may not copy or reproduce all or any portion of Software, except" << endl;
-	cout << "to the extent that such activity is specifically allowed by this" << endl;
-	cout << "Agreement or expressly permitted by applicable law notwithstanding" << endl;
-	cout << "the foregoing limitations." << endl;
-	cout << endl;
-	cout << "All copies of the Software created by You or for You, including" << endl;
-	cout << "derivatives, must include the copyright, trademark and other" << endl;
-	cout << "proprietary notices as they appear on the original or, in the event" << endl;
-	cout << "You modified the Software, the notice listed above. You may not" << endl;
-	cout << "remove or alter any identifying screen that is produced by the" << endl;
-	cout << "Software." << endl;
-	cout << endl;
-	cout << "2.  OWNERSHIP AND TITLE. Software is licensed pursuant to the" << endl;
-	cout << "    Agreement, not sold.  All right, title and interest, including" << endl;
-	cout << "    intellectual property rights, in and to Software, derivatives" << endl;
-	cout << "    thereof, implementation of the Software in microcontrollers," << endl;
-	cout << "    and hardware and software implementations of Software or" << endl;
-	cout << "    derivatives shall remain in Company. You will not obtain" << endl;
-	cout << "    ownership rights to derivatives of Software, and by accepting" << endl;
-	cout << "    the terms of this Agreement assign any such rights to Company" << endl;
-	cout << "    that You do receive.  Except as specifically stated in the" << endl;
-	cout << "    Agreement, you are granted no other rights, express or implied," << endl;
-	cout << "    to the Software, derivatives thereof, or other Company" << endl;
-	cout << "    intellectual property such as trade secrets, patents, " << endl;
-	cout << "    copyrights, and trademarks." << endl;
-	cout << endl;
-	cout << "3.  CONFIDENTIALITY. You agree not to disclose Software to any" << endl;
-	cout << "    third party, except as permitted by this Agreement.  To the" << endl;
-	cout << "    extent that Software becomes part of the public domain, is" << endl;
-	cout << "    independently developed, or obtained free from any obligation" << endl;
-	cout << "    of confidentiality then the obligation of confidentiality" << endl;
-	cout << "    under this Agreement shall not apply." << endl;
- 	cout << endl;
-	cout << "4.  COPYRIGHT. The Software is protected by U.S. copyright laws" << endl;
-	cout << "    and international copyright treaties, as well as other" << endl;
-	cout << "    intellectual property laws and treaties." << endl;
-	cout << endl;
-	cout << "5.  TERMINATION OF AGREEMENT. Without prejudice to any other" << endl;
-	cout << "    rights, Company may terminate this Agreement if You fail to" << endl;
-	cout << "    comply with the terms and conditions of this Agreement." << endl;
-	cout << "    Upon termination, You shall immediately: (a) stop using and" << endl;
-	cout << "    distributing the Software and derivatives thereof; (b) destroy" << endl;
-	cout << "    all copies of the Software and derivatives in your possession;" << endl;
-	cout << "    and (c) remove Software from any of Your tangible media and" << endl;
-	cout << "    from systems on which the Software exists.  Termination of" << endl;
-	cout << "    this License shall not affect the right of any end user or" << endl;
-	cout << "    consumer to use Licensee Product or modified Software;" << endl;
-	cout << "    provided that such product or modified Software was purchased" << endl;
-	cout << "    or distributed prior to the termination of this License." << endl;
-	cout << endl;
-	cout << "6.  DANGEROUS APPLICATIONS. You acknowledge that Software has not" << endl;
-	cout << "    been designed to be fault tolerant.  You warrant that You will" << endl;
-	cout << "    not use Software or derivatives in a dangerous, hazardous, or" << endl;
-	cout << "    life supporting application where the failure of such" << endl;
-	cout << "    application could lead directly to death, personal injury, or" << endl;
-	cout << "    environmental damage." << endl;
-	cout << endl;
-	cout << "7.  INDEMNITY. You will indemnify and hold Company and its" << endl;
-	cout << "    licensor(s), its related companies and its suppliers, harmless" << endl;
-	cout << "    for, from and against, any claims, costs (including attorney's" << endl;
-	cout << "    fees), damages or liabilities, including without limitation" << endl;
-	cout << "    product liability claims, arising out of: (a) Your use," << endl;
-	cout << "    modification and distribution of the Software and its" << endl;
-	cout << "    derivatives; or (b) violation of this Agreement. COMPANY AND" << endl;
-	cout << "    ITS LICENSOR(S) ASSUME NO RESPONSIBILITY FOR, NOR INDEMNIFY" << endl;
-	cout << "    YOU AGAINST, ANY PATENT, COPYRIGHT OR OTHER INTELLECTUAL" << endl;
-	cout << "    PROPERTY CLAIMS BROUGHT AGAINST YOU RELATING TO THE SOFTWARE." << endl;
-	cout << endl;
-	cout << "8.  NO WARRANTY. TO THE MAXIMUM EXTENT PERMITTED BY LAW, COMPANY" << endl;
-	cout << format("    AND ITS LICENSOR PROVIDE SOFTWARE \"AS IS\" AND EXPRESSLY") << endl;
-	cout << "    DISCLAIM ANY WARRANTY OF ANY KIND, WHETHER EXPRESS OR IMPLIED," << endl;
-	cout << "    INCLUDING BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF" << endl;
-	cout << "    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR" << endl;
-	cout << "    NON-INFRINGEMENT. YOU ASSUME THE ENTIRE RISK ARISING OUT OF" << endl;
-	cout << "    USE OR PERFORMANCE OF SOFTWARE, AS WELL AS ANY DERIVATIVES OF" << endl;
-	cout << "    THE SOFTWARE MADE FOR YOU OR ON YOUR BEHALF.  COMPANY AND ITS" << endl;
-	cout << "    LICENSOR(S) ASSUME NO RESPONSIBILITY FOR THE ACCURACY OR" << endl;
-	cout << "    ERRORS OR OMISSIONS OF SOFTWARE AND DO NOT WARRANT THE" << endl;
-	cout << "    FOLLOWING: (A) THE FUNCTIONS CONTAINED IN SOFTWARE WILL MEET" << endl;
-	cout << "    YOUR REQUIREMENTS; (B) THE OPERATION OF SOFTWARE WILL BE" << endl;
-	cout << "    UNINTERRUPTED OR ERROR-FREE; OR (C) ANY DEFECTS IN SOFTWARE" << endl;
-	cout << "    WILL BE CORRECTED. " << endl;
-	cout << endl;
-	cout << "9.  LIMITATION OF LIABILITY. COMPANY AND ITS LICENSOR TOTAL" << endl;
-	cout << "    AGGREGATE LIABILITY IN CONTRACT, WARRANTY, TORT (INCLUDING" << endl;
-	cout << "    NEGLIGENCE OR BREACH OF STATUTORY DUTY), STRICT LIABILITY," << endl;
-	cout << "    INDEMNITY, CONTRIBUTION, OR OTHERWISE, SHALL NOT EXCEED THE" << endl;
-	cout << "    LICENSE FEE YOU PAID FOR THE SOFTWARE. IN NO EVENT SHALL" << endl;
-	cout << "    COMPANY AND ITS LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL," << endl;
-	cout << "    INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA," << endl;
-	cout << "    HARM TO YOUR EQUIPMENT, COST OF PROCUREMENT OF SUBSTITUTE" << endl;
-	cout << "    GOODS, TECHNOLOGY OR SERVICES, ANY CLAIMS BY THIRD PARTIES" << endl;
-	cout << "    (INCLUDING BUT NOT LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS" << endl;
-	cout << "    FOR INDEMNITY OR CONTRIBUTION, OR OTHER SIMILAR COSTS. If any" << endl;
-	cout << "    remedy is determined to have failed of its essential purpose," << endl;
-	cout << "    all limitations of liability and exclusion of damages set forth" << endl;
-	cout << "    in the limited warranty shall remain in effect." << endl;
-	cout << endl;
-	cout << "10. SURVIVAL.  Sections 2-15 shall survive termination of this" << endl;
-	cout << "     Agreement. " << endl;
-	cout << endl;
-	cout << "11. CHOICE OF LAW; VENUE; LIMITATIONS ON CLAIMS. You agree that" << endl;
-	cout << "    this Agreement and any conflicts regarding Software, shall be" << endl;
-	cout << "    construed, interpreted and governed by the laws, and subject" << endl;
-	cout << "    to the exclusive jurisdiction of the state or territory in the" << endl;
-	cout << format("    Company Terms and Conditions of Sale (\"T&Cs\").  In the event") << endl;
-	cout << "    that the T&Cs do not apply or the choice of law or" << endl;
-	cout << "    jurisdiction are not indicated therein, then this Agreement" << endl;
-	cout << "    shall be construed, interpreted and governed by the laws, and" << endl;
-	cout << "    subject to the exclusive jurisdiction of the State of Arizona," << endl;
-	cout << "    U.S.A. without regard to any conflict of laws principles. You" << endl;
-	cout << "    agree that regardless of any law to the contrary, any cause of" << endl;
-	cout << "    action related to or arising out of this Agreement or Software" << endl;
-	cout << "    must be filed within one year after such cause of action" << endl;
-	cout << "    arose, or be considered waived." << endl;
-	cout << endl;
-	cout << "12. EXPORT COMPLIANCE. You will not export or re-export Software," << endl;
-	cout << "    technical data, direct products thereof or any other items" << endl;
-	cout << "    which would violate any applicable export control laws and" << endl;
-	cout << "    regulations including, but not limited to, those of the United" << endl;
-	cout << "    States and the United Kingdom.  You agree that it is Your" << endl;
-	cout << "    responsibility to obtain copies of and to familiarize yourself" << endl;
-	cout << "    fully with these laws and regulations to avoid violation." << endl;
-	cout << endl;
-	cout << "13. ASSIGNMENT. Neither this agreement nor any rights, licenses" << endl;
-	cout << "    or obligations hereunder, may be assigned by You without the" << endl;
-	cout << "    Company's prior written approval." << endl;
-	cout << endl;
-	cout << "14. ENTIRE AGREEMENT: MODIFICATIONS AND WAIVER. This Agreement" << endl;
-	cout << "    constitutes the entire agreement of the parties with respect" << endl;
-	cout << "    to the subject matter of this Agreement, and merges and" << endl;
-	cout << "    supersedes all communications relating to this subject matter," << endl;
-	cout << "    whether written or oral. Except as expressly set forth in this" << endl;
-	cout << "    Agreement, no modification of this Agreement will be effective" << endl;
-	cout << "    unless made in writing signed by Company.  No failure or delay" << endl;
-	cout << "    by Company or its licensor(s) to assert any rights or remedies" << endl;
-	cout << "    arising from a breach of this Agreement shall be construed as a" << endl;
-	cout << "    waiver or a continuing waiver of such rights and remedies, nor" << endl;
-	cout << "    shall failure or delay to assert a breach be deemed to waive that" << endl;
-	cout << "    or any other breach. If any part of this Agreement is found by a" << endl;
-	cout << "    court of competent jurisdiction to be invalid, unlawful or" << endl;
-	cout << "    unenforceable then such part shall be severed from the remainder" << endl;
-	cout << "    of this Agreement and replaced with a valid provision that comes" << endl;
-	cout << "    closest to the intention underlying the invalid provision." << endl;
-	cout << endl;
-	cout << "Copyright (c) 2005-2009, Microchip Technology Inc. All rights" << endl;
-	cout << "reserved. " << endl;
-
+	LongText::lx_display_license();
 }
+
+
 
 void Ccmd_app::displayPartList(TextVec& args, _TCHAR* argSearch)
 {
@@ -3169,10 +2523,7 @@ void Ccmd_app::displayPartList(TextVec& args, _TCHAR* argSearch)
 		}
 	}
 
-	cout << endl << "NOTE: If the name contains a space with additional info in parentheses, Ex:" << endl;
-	cout << "        PIC16F636 (639)" << endl << "        93LC46A (C X8)" << endl;
-	cout << "      then only the characters before the space are required for -P, Ex:" << endl;
-	cout << "        -pPIC16F636" << endl << "        -p93LC46A" << endl;
+	LongText::lx_partlist_notice();
 }
 
 int Ccmd_app::strnatcmpWrapper(const void *a, const void *b)
