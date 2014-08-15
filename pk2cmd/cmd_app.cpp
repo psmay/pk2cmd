@@ -36,7 +36,26 @@ extern "C"{
 #define DEVICE_FILE_NAME "PK2DeviceFile.dat"
 #define DEVICE_FILE_NAME_LENGTH 17
 
+
 #define NSIZE(v) (int)(v.size())
+#define ERRTEXT(t) (cout << (t) << endl)
+#define ERRSET(v,t) { ReturnCode = v; ERRTEXT(t); }
+#define ERRSET0(v) { ReturnCode = v; }
+#define ERRSET_PGMVFY() ERRSET0(PGMVFY_ERROR)
+#define ERRSET_CMDLINE(t) ERRSET(INVALID_CMDLINE_ARG,t)
+#define ERRSET_DEVICEFILE(t) ERRSET(DEVICEFILE_ERROR,t)
+#define ERRSET_VOLTAGE(t) ERRSET(VOLTAGE_ERROR,t)
+#define ERRSET_AUTODETECT(t) ERRSET(AUTODETECT_FAILED,t)
+#define ERRSET_AUTODETECT0() ERRSET0(AUTODETECT_FAILED)
+#define ERRSET_OP(t) ERRSET(OPFAILURE,t)
+#define ERRSET_OP0() ERRSET0(OPFAILURE)
+#define ERRSET_HEXFILE() ERRSET0(INVALID_HEXFILE)
+#define ERRSET_READ() ERRSET_OP("Read Error")
+#define ERRSET_OPEN() ERRSET0(FILE_OPEN_ERROR)
+#define ERRSET_OS(t) ERRSET(WRONG_OS,t)
+#define ERRSET_PROGRAMMER(t) ERRSET(NO_PROGRAMMER,t)
+
+
 
 Ccmd_app::Ccmd_app(void)
 {
@@ -90,24 +109,21 @@ void Ccmd_app::PK2_CMD_Entry(TextVec& args)
 
 	if (!PicFuncs.ReadDeviceFile(tempString))
 	{
-		cout << format(DEVICE_FILE_NAME " device file not found.") << endl;
-		ReturnCode = DEVICEFILE_ERROR;
 		loadDeviceFileFailed = true;
+		ERRSET_DEVICEFILE(DEVICE_FILE_NAME " device file not found.");
 	}
 	else
 	{
 		char compatMinLevel = DevFileCompatLevelMin;
 		if (PicFuncs.DevFile.Info.Compatibility < compatMinLevel)
 		{
-			cout << format(DEVICE_FILE_NAME " device file is too old.") << endl;
-			ReturnCode = DEVICEFILE_ERROR;
 			loadDeviceFileFailed = true;
+			ERRSET_DEVICEFILE(DEVICE_FILE_NAME " device file is too old.");
 		}
 		if (PicFuncs.DevFile.Info.Compatibility > DevFileCompatLevel)
 		{
-			cout << format(DEVICE_FILE_NAME " device file requires an update of pk2cmd.") << endl;
-			ReturnCode = DEVICEFILE_ERROR;
 			loadDeviceFileFailed = true;
+			ERRSET_DEVICEFILE(DEVICE_FILE_NAME " device file requires an update of pk2cmd.");
 		}
 	}
 
@@ -142,13 +158,11 @@ void Ccmd_app::PK2_CMD_Entry(TextVec& args)
 		int status = PicFuncs.ReadPkStatus();
 		if ((STATUS_VDD_ERROR & status) > 0)
 		{
-			cout << "VDD Error detected.  Check target for proper connectivity." << endl;
-			ReturnCode = VOLTAGE_ERROR;
+			ERRSET_VOLTAGE("VDD Error detected.  Check target for proper connectivity.");
 		}
 		else if ((STATUS_VPP_ERROR & status) > 0)
 		{
-			cout << "VPP Error detected.  Check target for proper connectivity." << endl;
-			ReturnCode = VOLTAGE_ERROR;
+			ERRSET_VOLTAGE("VPP Error detected.  Check target for proper connectivity.");
 		}
 	}
 
@@ -298,8 +312,7 @@ void Ccmd_app::processArgs(TextVec& args)
 	}
 	if (i == NSIZE(args))
 	{ // no part specified
-		cout << "-P is a required option" << endl << endl;
-		ReturnCode = INVALID_CMDLINE_ARG;
+		ERRSET_CMDLINE("-P is a required option");
 		return;
 	}
 	XCOPY28(tempString, XRIGHT(*parg,2));
@@ -320,8 +333,7 @@ void Ccmd_app::processArgs(TextVec& args)
 		}
 		else
 		{
-			cout << "Auto-Detect: No known part found." << endl << endl;
-			ReturnCode = AUTODETECT_FAILED;
+			ERRSET_AUTODETECT("Auto-Detect: No known part found.");
 			return;
 		}
 	}
@@ -343,7 +355,7 @@ void Ccmd_app::processArgs(TextVec& args)
 		}
 		else
 		{ // detect failed
-			ReturnCode = AUTODETECT_FAILED;
+			ERRSET_AUTODETECT0();
 			return;
 		}
 	}
@@ -351,8 +363,7 @@ void Ccmd_app::processArgs(TextVec& args)
 	// look for the device in the device file - still need to do this on autodetect to properly set up buffers.
 	if(!PicFuncs.FindDevice(tempString))
 	{
-		cout << format("Could not find device %s.", tempString) << endl << endl;
-		ReturnCode = INVALID_CMDLINE_ARG;
+		ERRSET_CMDLINE(format("Could not find device %s.", tempString));
 		return;
 	}
 
@@ -360,8 +371,7 @@ void Ccmd_app::processArgs(TextVec& args)
 		return;
 	if (!checkArgsForBlankCheck(args))
 	{
-		cout << "-C Blank Check must be done independent of other programming commands." << endl;
-		ReturnCode = INVALID_CMDLINE_ARG;
+		ERRSET_CMDLINE("-C Blank Check must be done independent of other programming commands.");
 		return;
 	}
 	if (!priority2Args(args))
@@ -423,8 +433,7 @@ bool Ccmd_app::detectSpecificFamily(_TCHAR* idString, TextVec& args)
 
 	if (!getValue((unsigned int*)&familyID, idString))
 	{
-		cout << "-PF Illegal family ID value." << endl;
-		ReturnCode = INVALID_CMDLINE_ARG;
+		ERRSET_CMDLINE("-PF Illegal family ID value.");
 		return false;
 	}
 	// on auto detect, must run these args first
@@ -450,8 +459,7 @@ bool Ccmd_app::detectSpecificFamily(_TCHAR* idString, TextVec& args)
 			}
 		}
     }
-	cout << "-PF Illegal family ID value." << endl;
-	ReturnCode = INVALID_CMDLINE_ARG;
+	ERRSET_CMDLINE("-PF Illegal family ID value.");
 	return false;
 }
 
@@ -471,8 +479,7 @@ bool Ccmd_app::bootloadArg(TextVec& args)
 			PicFuncs.ClosePICkit2Device();
 			if ((pk2UnitIndex > 0) || (PicFuncs.DetectPICkit2Device(1, false)))
 			{
-				cout << endl << "To update the PICkit 2 OS, it must be the only unit connected." << endl;
-				ReturnCode = OPFAILURE;
+				ERRSET_OP("To update the PICkit 2 OS, it must be the only unit connected.");
 				return true;
 			}
 
@@ -491,22 +498,19 @@ bool Ccmd_app::bootloadArg(TextVec& args)
 			ret = Pk2BootLoadFuncs.ReadHexAndDownload(tempString, &PicFuncs, pk2UnitIndex);
 			if (!ret)
 			{
-				cout << "Error opening hex file." << endl;
-				ReturnCode = OPFAILURE;
+				ERRSET_OP("Error opening hex file.");
 				return true; // download command found
 			}
 			ret = Pk2BootLoadFuncs.ReadHexAndVerify(tempString, &PicFuncs);
 			if (!ret)
 			{
-				cout << "Error validating OS download." << endl;
-				ReturnCode = OPFAILURE;
+				ERRSET_OP("Error validating OS download.");
 				return true; // download command found
 			}
 			ret = PicFuncs.BL_WriteFWLoadedKey();
 			if (!ret)
 			{
-				cout << "Error with OS download." << endl;
-				ReturnCode = OPFAILURE;
+				ERRSET_OP("Error with OS download.");
 				return true; // download command found
 			}
 			cout << "Resetting PICkit 2..." << endl;
@@ -514,8 +518,7 @@ bool Ccmd_app::bootloadArg(TextVec& args)
 			Sleep(5000);
 			if (!PicFuncs.DetectPICkit2Device(pk2UnitIndex, true))
 			{
-				cout << "PICkit 2 failed to reset." << endl;
-				ReturnCode = OPFAILURE;
+				ERRSET_OP("PICkit 2 failed to reset.");
 				return true; // download command found
 			}
 			cout << "OS Update Successful." << endl;
@@ -551,8 +554,7 @@ bool Ccmd_app::unitIDArg(TextVec& args)
 			ret = PicFuncs.UnitIDWrite(writeString);
 			if (!ret)
 			{
-				cout << "Error writing Unit ID." << endl;
-				ReturnCode = OPFAILURE;
+				ERRSET_OP("Error writing Unit ID.");
 				return true; // unit id command found
 			}
 			ret = PicFuncs.UnitIDRead(readString);
@@ -566,8 +568,7 @@ bool Ccmd_app::unitIDArg(TextVec& args)
 			{
 				if ((writeString[j] != readString[j]) || !ret)
 				{
-					cout << "Error verifying Unit ID." << endl;
-					ReturnCode = OPFAILURE;
+					ERRSET_OP("Error verifying Unit ID.");
 					return true; // unit id command found
 				}
 				if (writeString[j] == 0)
@@ -774,16 +775,14 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 						tempf = (float)TXT_TO_DOUBLE(XRIGHT(*parg,2));
 						if (tempf > PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].VddMax)
 						{
-							cout << format("-A Vdd setpoint exceeds maximum for this device of %.1fV",
-									PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].VddMax) << endl;
 							ret = false;
-							ReturnCode = INVALID_CMDLINE_ARG;
+							ERRSET_CMDLINE(format("-A Vdd setpoint exceeds maximum for this device of %.1fV",
+									PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].VddMax));
 						}
 						if (tempf < 2.5)
 						{
-							cout << "-A Vdd setpoint below PICkit 2 minimum of 2.5V" << endl;
 							ret = false;
-							ReturnCode = INVALID_CMDLINE_ARG;
+							ERRSET_CMDLINE("-A Vdd setpoint below PICkit 2 minimum of 2.5V");
 						}
 						PicFuncs.SetVddSetPoint(tempf);
 						*parg = (char *)"";
@@ -833,7 +832,9 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 						if (ret)
 							hexLoaded = true;
 						else
-							ReturnCode = INVALID_HEXFILE;
+						{
+							ERRSET_HEXFILE();
+						}
 					}
 					break;
 
@@ -853,9 +854,8 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					// Set ICSP speed
 					if ((*parg)[2] == 0)
 					{ // no specified value - illegal
-						cout << "-L Invalid value." << endl;
 						ret = false;
-						ReturnCode = INVALID_CMDLINE_ARG;
+						ERRSET_CMDLINE("-L Invalid value.");
 					}
 					else if (getValue(&tempi, XRIGHT(*parg,2)))
 					{
@@ -865,9 +865,8 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					}
 					else
 					{ // no specified value - illegal
-						cout << "-L Invalid value." << endl;
 						ret = false;
-						ReturnCode = INVALID_CMDLINE_ARG;
+						ERRSET_CMDLINE("-L Invalid value.");
 					}
 					if (!preserveArgs)
 						*parg = (char *) "";
@@ -886,9 +885,8 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					// VPP override
 					if (preserveArgs)
 					{ // cannot be used with part detect
-						cout << "-V Cannot be used with part auto-detect." << endl;
 						ret = false;
-						ReturnCode = INVALID_CMDLINE_ARG;
+						ERRSET_CMDLINE("-V Cannot be used with part auto-detect.");
 					}
 					else
 					{
@@ -914,17 +912,15 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					// VPP first
 					if (preserveArgs)
 					{ // cannot be used with part detect
-						cout << "-X Cannot be used with part auto-detect." << endl;
 						ret = false;
-						ReturnCode = INVALID_CMDLINE_ARG;
+						ERRSET_CMDLINE("-X Cannot be used with part auto-detect.");
 					}
 					else
 					{
 						if (PicFuncs.DevFile.Families[PicFuncs.ActiveFamily].ProgEntryVPPScript == 0)
 						{
-							cout << "-X This part does not support VPP first program mode" << endl;
 							ret = false;
-							ReturnCode = INVALID_CMDLINE_ARG;
+							ERRSET_CMDLINE("-X This part does not support VPP first program mode");
 						}
 						PicFuncs.SetVppFirstEnable(true);	
 							*parg = (char *) "";
@@ -942,9 +938,8 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 					}
 					if (!preserveEEPROM)
 					{
-						cout << "-Z Preserve EEData must be used in conjunction with the -M program command." << endl;
 						ret = false;
-						ReturnCode = INVALID_CMDLINE_ARG;
+						ERRSET_CMDLINE("-Z Preserve EEData must be used in conjunction with the -M program command.");
 					}
 					if (!preserveArgs)
 						*parg = (char *) "";
@@ -959,9 +954,8 @@ bool Ccmd_app::priority1Args(TextVec& args, bool preserveArgs)
 	}	
 	if (PicFuncs.GetSelfPowered() && PicFuncs.GetVppFirstEnable())
 	{
-		cout << "-W -X VPP first not supported with external power" << endl;
 		ret = false;
-		ReturnCode = INVALID_CMDLINE_ARG;
+		ERRSET_CMDLINE("-W -X VPP first not supported with external power");
 	}
 
 	return ret;
@@ -1054,15 +1048,13 @@ bool Ccmd_app::priority2Args(TextVec& args)
 		{
 			if (PicFuncs.FamilyIsKeeloq())
 			{
-				cout << "BlankCheck not supported for KEELOQ devices." << endl;
-				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
+				ERRSET_CMDLINE("BlankCheck not supported for KEELOQ devices.");
 			}
 			else if (PicFuncs.FamilyIsMCP())
 			{
-				cout << "BlankCheck not supported for MCP devices." << endl;
-				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
+				ERRSET_CMDLINE("BlankCheck not supported for MCP devices.");
 			}
 			else if (PicFuncs.ReadDevice(BLANK_CHECK, true, true, true, true))
 			{
@@ -1097,23 +1089,20 @@ bool Ccmd_app::priority2Args(TextVec& args)
 						}
 						else
 						{
-							cout << "-U Error parsing value." << endl;
-							ReturnCode = INVALID_CMDLINE_ARG;
+							ERRSET_CMDLINE("-U Error parsing value.");
 						}
 					}
 				}
 				if (!PicFuncs.OverwriteOSCCAL)
 				{
-					cout << "-U Overwrite OSCCAL must be used in conjunction with the -M program command." << endl;
 					ret = false;
-					ReturnCode = INVALID_CMDLINE_ARG;
+					ERRSET_CMDLINE("-U Overwrite OSCCAL must be used in conjunction with the -M program command.");
 				}
 			}
 			else
 			{
-					cout << "-U Overwrite OSCCAL cannot be used with this device." << endl;
-					ret = false;
-					ReturnCode = INVALID_CMDLINE_ARG;
+				ret = false;
+				ERRSET_CMDLINE("-U Overwrite OSCCAL cannot be used with this device.");
 			}
 		}
 	}
@@ -1127,15 +1116,13 @@ bool Ccmd_app::priority2Args(TextVec& args)
 		{
 			if (PicFuncs.FamilyIsKeeloq())
 			{
-				cout << "Erase not supported for KEELOQ devices." << endl;
-				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
+				ERRSET_CMDLINE("Erase not supported for KEELOQ devices.");
 			}
 			else if (PicFuncs.FamilyIsMCP())
 			{
-				cout << "Erase not supported for MCP devices." << endl;
-				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
+				ERRSET_CMDLINE("Erase not supported for MCP devices.");
 			}
 			else if (PicFuncs.FamilyIsEEPROM() 
 				&& (PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ConfigMasks[PROTOCOL_CFG] != MICROWIRE_BUS)
@@ -1145,7 +1132,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 				if (!PicFuncs.SerialEEPROMErase())
 				{
 					ret = false;
-					ReturnCode = OPFAILURE;
+					ERRSET_OP0();
 				}
 			}
 			else
@@ -1178,7 +1165,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 						argError = ret;
 						if (!ret)
 						{
-							ReturnCode = PGMVFY_ERROR;
+							ERRSET_PGMVFY();
 						}
 						program = true;
 						eedata = false;
@@ -1216,7 +1203,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 							}
 							else
 							{
-								ReturnCode = PGMVFY_ERROR;
+								ERRSET_PGMVFY();
 							}
 						}
 					}
@@ -1252,9 +1239,8 @@ bool Ccmd_app::priority2Args(TextVec& args)
 								{
 									if (preserveEEPROM)
 									{
-										cout << "Cannot both program and preserve EEData memory." << endl;
-										ReturnCode = INVALID_CMDLINE_ARG;
 										ret = false;
+										ERRSET_CMDLINE("Cannot both program and preserve EEData memory.");
 									}
 									else
 									{
@@ -1287,9 +1273,8 @@ bool Ccmd_app::priority2Args(TextVec& args)
 										int configWords = PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ConfigWords;
 										if ((configLocation < (int)PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ProgramMem) && (configWords > 0))
 										{
-											cout << "This device has configuration words in Program Memory." << endl << "They cannot be programmed separately." << endl;
-											ReturnCode = INVALID_CMDLINE_ARG;
 											ret = false;
+											ERRSET_CMDLINE("This device has configuration words in Program Memory; they cannot be programmed separately.");
 										}
 										else
 										{
@@ -1347,20 +1332,18 @@ bool Ccmd_app::priority2Args(TextVec& args)
 					{
 						cout << format("%s Memory Errors", PicFuncs.ReadError.memoryType) << endl << endl;
 						printMemError();
-						ReturnCode = PGMVFY_ERROR;
+						ERRSET_PGMVFY();
 					}
 				}
 				else
 				{
-					cout << "Invalid Memory region entered for program" << endl;
-					ReturnCode = INVALID_CMDLINE_ARG;
+					ERRSET_CMDLINE("Invalid Memory region entered for program");
 				}
 			}
 			else
 			{
-				cout << "No Image loaded." << endl << "Please load a hex file before programming or verifying." << endl;
-				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
+				ERRSET_CMDLINE("No Image loaded. Please load a hex file before programming or verifying.");
 			}
 		}
 	}
@@ -1427,9 +1410,8 @@ bool Ccmd_app::priority2Args(TextVec& args)
 									int configWords = PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ConfigWords;
 									if ((configLocation < (int)PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ProgramMem) && (configWords > 0))
 									{
-										cout << "This device has configuration words in Program Memory." << endl;
-										ReturnCode = INVALID_CMDLINE_ARG;
 										ret = false;
+										ERRSET_CMDLINE("This device has configuration words in Program Memory.");
 									}
 									else
 										config = true;
@@ -1457,20 +1439,18 @@ bool Ccmd_app::priority2Args(TextVec& args)
 					{
 						cout << format("%s Memory Errors", PicFuncs.ReadError.memoryType) << endl << endl;
 						printMemError();
-						ReturnCode = PGMVFY_ERROR;
+						ERRSET_PGMVFY();
 					}
 				}
 				else
 				{
-					cout << "Invalid Memory region entered for verify" << endl;
-					ReturnCode = INVALID_CMDLINE_ARG;
+					ERRSET_CMDLINE("Invalid Memory region entered for verify");
 				}
 			}
 			else
 			{
-				cout << "No Image loaded." << endl << "Please load a hex file before programming or verifying." << endl;
-				ReturnCode = INVALID_CMDLINE_ARG;
 				ret = false;
+				ERRSET_CMDLINE("No Image loaded. Please load a hex file before programming or verifying.");
 			}
 		}
 	}
@@ -1542,12 +1522,13 @@ bool Ccmd_app::priority2Args(TextVec& args)
 									hexLoaded = true;
 								}
 								else
-									ReturnCode = FILE_OPEN_ERROR;
+								{
+									ERRSET_OPEN();
+								}
 							}
 							else
 							{
-								cout << endl << "Read Error" << endl;
-								ReturnCode = OPFAILURE;
+								ERRSET_READ();
 							}
 						break;
 
@@ -1572,8 +1553,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 							}
 							else
 							{
-								cout << endl << "Read Error" << endl;
-								ReturnCode = OPFAILURE;
+								ERRSET_READ();
 							}
 						}
 						break;
@@ -1601,8 +1581,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 								}
 								else
 								{
-									cout << endl << "Read Error" << endl;
-									ReturnCode = OPFAILURE;
+									ERRSET_READ();
 								}
 							}
 						}
@@ -1622,8 +1601,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 								}
 								else
 								{
-									cout << endl << "Read Error" << endl;
-									ReturnCode = OPFAILURE;
+									ERRSET_READ();
 								}
 						}
 						else
@@ -1640,9 +1618,8 @@ bool Ccmd_app::priority2Args(TextVec& args)
 							int configWords = PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ConfigWords;
 							if ((configLocation < (int)PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ProgramMem) && (configWords > 0))
 							{
-								cout << "This device has configuration words in Program Memory." << endl;
-								ReturnCode = INVALID_CMDLINE_ARG;
 								ret = false;
+								ERRSET_CMDLINE("This device has configuration words in Program Memory.");
 							}
 							else
 							{
@@ -1654,8 +1631,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 									}
 									else
 									{
-										cout << endl << "Read Error" << endl;
-										ReturnCode = OPFAILURE;
+										ERRSET_READ();
 									}
 							}
 						}
@@ -1679,8 +1655,7 @@ bool Ccmd_app::priority2Args(TextVec& args)
 			{
 				if (ReturnCode != FILE_OPEN_ERROR)
 				{
-					cout << "Illegal read parameter entered." << endl;
-					ReturnCode = INVALID_CMDLINE_ARG;
+					ERRSET_CMDLINE("Illegal read parameter entered.");
 				}
 			}
 		}
@@ -1743,8 +1718,7 @@ bool Ccmd_app::priority3Args(TextVec& args)
 					}
 					else
 					{
-						cout << "This device does not have a Device ID." << endl;
-						ReturnCode = INVALID_CMDLINE_ARG;
+						ERRSET_CMDLINE("This device does not have a Device ID.");
 					}
 					break;
 
@@ -1757,8 +1731,7 @@ bool Ccmd_app::priority3Args(TextVec& args)
 					}
 					else
 					{
-						cout << "The checksum can only be calculated when a hex file is loaded or written." << endl;
-						ReturnCode = INVALID_CMDLINE_ARG;
+						ERRSET_CMDLINE("The checksum can only be calculated when a hex file is loaded or written.");
 					}
 					break;
 
@@ -1806,9 +1779,8 @@ bool Ccmd_app::priority4Args(TextVec& args)
 					// Power Target
 					if (PicFuncs.GetSelfPowered())
 					{
-						cout << "-W -T Cannot power an externally powered target." << endl;
 						ret = false;
-						ReturnCode = INVALID_CMDLINE_ARG;
+						ERRSET_CMDLINE("-W -T Cannot power an externally powered target.");
 					}
 					else
 						PicFuncs.VddOn();
@@ -1847,9 +1819,8 @@ bool Ccmd_app::delayArg(TextVec& args)
 					// Delay before exit
 					if ((*parg)[2] == 0)
 					{ // no specified value - illegal
-						cout << "-H Invalid value." << endl;
 						ret = false;
-						ReturnCode = INVALID_CMDLINE_ARG;
+						ERRSET_CMDLINE("-H Invalid value.");
 					}
 					else
 					{
@@ -1867,9 +1838,8 @@ bool Ccmd_app::delayArg(TextVec& args)
 						{
 							if (seconds == 0)
 							{ // bad value
-								cout << "-H Invalid value." << endl;
 								ret = false;
-								ReturnCode = INVALID_CMDLINE_ARG;
+								ERRSET_CMDLINE("-H Invalid value.");
 							}
 							else
 							{
@@ -1879,9 +1849,8 @@ bool Ccmd_app::delayArg(TextVec& args)
 						}
 						else 
 						{ // bad value
-							cout << "-H Invalid value." << endl;
 							ret = false;
-							ReturnCode = INVALID_CMDLINE_ARG;
+							ERRSET_CMDLINE("-H Invalid value.");
 						}
 					}
 					break;
@@ -2138,16 +2107,13 @@ bool Ccmd_app::findPICkit2(int unitIndex)
 		{
 			return true;
 		}
-		cout << format("PICkit 2 found with Operating System v%d.%02d.%02d", PicFuncs.FirmwareVersion.major,
-									PicFuncs.FirmwareVersion.minor, PicFuncs.FirmwareVersion.dot) << endl;
-		cout << format("Use -D to download minimum required OS v%d.%02d.%02d or later", PicFuncs.FW_MAJ_MIN,
-									PicFuncs.FW_MNR_MIN, PicFuncs.FW_DOT_MIN) << endl;
-		ReturnCode = WRONG_OS;
+		ERRSET_OS(format("PICkit 2 found with Operating System v%d.%02d.%02d ; Use -D to download minimum required OS v%d.%02d.%02d or later", PicFuncs.FirmwareVersion.major,
+									PicFuncs.FirmwareVersion.minor, PicFuncs.FirmwareVersion.dot, PicFuncs.FW_MAJ_MIN,
+									PicFuncs.FW_MNR_MIN, PicFuncs.FW_DOT_MIN));
 	}
 	else
 	{
-		cout << "No PICkit 2 found." << endl;
-		ReturnCode = NO_PROGRAMMER;
+		ERRSET_PROGRAMMER("No PICkit 2 found.");
 	}
 	return false;
 }
@@ -2183,8 +2149,7 @@ bool Ccmd_app::checkDevFilePathOptionB(TextVec& args, _TCHAR* path_string)
 		return false; // -b not found
 	if ((*parg)[2] == 0)
 	{
-		cout << "-B No path given" << endl;
-		ReturnCode = INVALID_CMDLINE_ARG;
+		ERRSET_CMDLINE("-B No path given");
 		return false;
 	}
 
