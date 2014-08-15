@@ -701,6 +701,37 @@ void LongText::lx_display_help() {
 }
 
 void LongText::lx_display_license() {
+	cout
+		<< "Copyright © 2005-2009 Microchip Technology Inc. All rights reserved." << endl
+		<< "This version of the PICkit™ 2 PK2CMD Software has been modified by" << endl
+		<< "Peter S. May, 2014. The origin and modifications of the software are" << endl
+		<< "detailed in the \"Origin and Modifications\" section of the `README.md`" << endl
+		<< "file included with this distribution." << endl
+		<< endl
+		<< "You may use, copy, modify and distribute the Software for use with" << endl
+		<< "Microchip products only. If you distribute the Software or its" << endl
+		<< "derivatives, the Software must have this copyright and disclaimer notice" << endl
+		<< "prominently posted in a location where end users will see it (e.g.," << endl
+		<< "installation program, program headers, About Box, etc.). To the maximum" << endl
+		<< "extent permitted by law, this Software is distributed \"AS IS\" and" << endl
+		<< "WITHOUT ANY WARRANTY INCLUDING BUT NOT LIMITED TO ANY IMPLIED WARRANTY" << endl
+		<< "OF MERCHANTABILITY, FITNESS FOR PARTICULAR PURPOSE, or NON-INFRINGEMENT." << endl
+		<< "IN NO EVENT WILL MICROCHIP OR ITS LICENSORS BE LIABLE FOR ANY" << endl
+		<< "INCIDENTAL, SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND" << endl
+		<< "ARISING FROM OR RELATED TO THE USE, MODIFICATION OR DISTRIBUTION OF THIS" << endl
+		<< "SOFTWARE OR ITS DERIVATIVES." << endl
+		<< endl
+		<< "**THE CODE IN THIS REPOSITORY IS NOT FREE SOFTWARE!** While the source" << endl
+		<< "is provided to you to be visible and arbitrarily modifiable, it is based" << endl
+		<< "on code distributed under the terms of a *highly restrictive, non-free" << endl
+		<< "license* by the copyright holder, and, unfortunately, must in turn be" << endl
+		<< "distributed to you under this same license. The terms of this license" << endl
+		<< "may be found in the \"License Agreement with Microchip Technology\"" << endl
+		<< "section of the `README.md` file included with this distribution. **Do" << endl
+		<< "not copy, branch, or fork this repository** unless you have agreed to" << endl
+		<< "the terms of this license." << endl
+		<< endl;
+
 	cout << "IMPORTANT: " << endl
 			<< "YOU MUST ACCEPT THE TERMS AND CONDITIONS OF THIS LICENSE AGREEMENT"
 			<< endl

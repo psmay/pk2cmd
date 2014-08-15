@@ -4,13 +4,37 @@ pk2cmd
 Notice
 ------
 
-**THE CODE IN THIS REPOSITORY IS NOT FREE SOFTWARE**; it is distributed
-under a highly restrictive, non-free license (see below). **Do not copy,
-branch, or fork this repository** unless you have agreed to this
-license.
+Copyright © 2005-2009 Microchip Technology Inc. All rights reserved.
+This version of the PICkit™ 2 PK2CMD Software has been modified by
+Peter S. May, 2014. The origin and modifications of the software are
+detailed in the "Origin and Modifications" section of the `README.md`
+file included with this distribution.
 
-Origin
-------
+You may use, copy, modify and distribute the Software for use with
+Microchip products only. If you distribute the Software or its
+derivatives, the Software must have this copyright and disclaimer notice
+prominently posted in a location where end users will see it (e.g.,
+installation program, program headers, About Box, etc.). To the maximum
+extent permitted by law, this Software is distributed "AS IS" and
+WITHOUT ANY WARRANTY INCLUDING BUT NOT LIMITED TO ANY IMPLIED WARRANTY
+OF MERCHANTABILITY, FITNESS FOR PARTICULAR PURPOSE, or NON-INFRINGEMENT.
+IN NO EVENT WILL MICROCHIP OR ITS LICENSORS BE LIABLE FOR ANY
+INCIDENTAL, SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND
+ARISING FROM OR RELATED TO THE USE, MODIFICATION OR DISTRIBUTION OF THIS
+SOFTWARE OR ITS DERIVATIVES.
+
+**THE CODE IN THIS REPOSITORY IS NOT FREE SOFTWARE!** While the source
+is provided to you to be visible and arbitrarily modifiable, it is based
+on code distributed under the terms of a *highly restrictive, non-free
+license* by the copyright holder, and, unfortunately, must in turn be
+distributed to you under this same license. The terms of this license
+may be found in the "License Agreement with Microchip Technology"
+section of the `README.md` file included with this distribution. **Do
+not copy, branch, or fork this repository** unless you have agreed to
+the terms of this license.
+
+Origin and Modifications
+------------------------
 
 Code in this repository is from:
 
@@ -19,8 +43,20 @@ Code in this repository is from:
     (only changes to the non-Windows-specific files from the basis
     archive)
 
-With the exception of inconsequential formatting and filesystem changes,
-the contents of this repository consist only of the code listed above.
+This development branch is substantially modified from the original code
+with the direction of simplifying and modernizing the code to make it
+more understandable. Current and future modifications include, but are
+not limited to, the following:
+
+*   Code specific to any other target than `linux` has been removed.
+    Porting the simplified code for one target back to the other targets
+    is a less intractable problem then fixing all targets at once.
+*   C idioms are gradually being discarded in favor of C++ idioms, at
+    least where the C++ alternative is easier to understand. The
+    original code is, with the exception of class definitions, hardly
+    distinguishable from plain C and very strictly imperative; our
+    objective is to replace this with code that is as declarative as
+    possible.
 
 License Agreement with Microchip Technology
 ===========================================
