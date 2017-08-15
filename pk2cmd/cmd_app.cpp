@@ -351,7 +351,7 @@ void Ccmd_app::processArgs(int argc, _TCHAR* argv[])
 	// look for the device in the device file - still need to do this on autodetect to properly set up buffers.
 	if(!PicFuncs.FindDevice(tempString))
 	{
-		printf("The %s device is not supported: it's definition could not be found in the device defintions file.\n\n", tempString);
+		printf("The %s device is not supported: it's definition could not be found in the device definitions file.\n\n", tempString);
 		fflush(stdout);
 		ReturnCode = INVALID_CMDLINE_ARG;
 		return;
