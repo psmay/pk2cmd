@@ -319,7 +319,7 @@ pickit_dev *usbPickitOpen(int unitIndex, char *unitID)
 									printf("Error setting USB configuration.\n");
 									fflush(stdout);
 								}
-
+								usb_close(d);
 								return NULL;
 							}
 						}
@@ -333,7 +333,7 @@ pickit_dev *usbPickitOpen(int unitIndex, char *unitID)
 									"You may need to `rmmod hid` or patch your kernel's hid driver.\n");
 								fflush(stdout);
 							}
-
+							usb_close(d);
 							return NULL;
 						}
 	#endif
