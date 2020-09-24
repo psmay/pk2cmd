@@ -337,6 +337,9 @@ pickit_dev *usbPickitOpen(int unitIndex, char *unitID)
 							return NULL;
 						}
 	#endif
+						/* Need a reset here */
+						usb_reset(d);
+
 						cmd[0] = GETVERSION;
 						sendPickitCmd(d, cmd, 1);
 						recvUSB(d, 8, retData);
