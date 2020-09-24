@@ -183,7 +183,7 @@ int recvUSB(pickit_dev *d, int len, byte *dest)
 	{
 		if (verbose)
 		{
-			printf("recvUSB() PICkit USB read failed\n");
+			printf("recvUSB() PICkit USB read failed: %s\n", strerror(errno));
 			fflush(stdout);
 		}
 
@@ -339,7 +339,17 @@ pickit_dev *usbPickitOpen(int unitIndex, char *unitID)
 	#endif
 						cmd[0] = GETVERSION;
 						sendPickitCmd(d, cmd, 1);
-						recvUSB(d, 8, retData);
+						retval = recvUSB(d, 8, retData);
+						if (!retval)
+						{
+							if (verbose)
+							{
+								printf("Recieve failed\n");
+								fflush(stdout);
+							}
+							usb_close(d);
+							return NULL;
+						}
 
 						if (retData[5] == 'B')
 						{
