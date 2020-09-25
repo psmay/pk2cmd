@@ -9,6 +9,18 @@ under a highly restrictive, non-free license (see below). **Do not copy,
 branch, or fork this repository** unless you have agreed to this
 license.
 
+I (psmay) am not the author of this software and I do not actively
+maintain it.
+
+**Pull requests against this repository will be summarily ignored.**
+
+I have only posted this code here for posterity, to prevent it from
+being lost to entropy and to keep it where it can be found by anyone who
+might need it. If you have changes you think are necessary or helpful,
+fork this repo and make your fork known to the world---please!---but
+beware that anything you do with it is subject to the highly
+restrictive, non-free license below.
+
 Origin
 ------
 
