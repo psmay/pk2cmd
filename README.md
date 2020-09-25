@@ -17,7 +17,7 @@ maintain it.
 I have only posted this code here for posterity, to prevent it from
 being lost to entropy and to keep it where it can be found by anyone who
 might need it. If you have changes you think are necessary or helpful,
-fork this repo and make your fork known to the world---please!---but
+fork this repo and make your fork known to the world—please!—but
 beware that anything you do with it is subject to the highly
 restrictive, non-free license below.
 
