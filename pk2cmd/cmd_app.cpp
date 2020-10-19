@@ -8,7 +8,7 @@
 // Software must have this entire copyright and disclaimer notice prominently
 // posted in a location where end users will see it (e.g., installation program,
 // program headers, About Box, etc.).  To the maximum extent permitted by law,
-// this Software is distributed “AS IS” and WITHOUT ANY WARRANTY INCLUDING BUT
+// this Software is distributed "AS IS" and WITHOUT ANY WARRANTY INCLUDING BUT
 // NOT LIMITED TO ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR
 // PARTICULAR PURPOSE, or NON-INFRINGEMENT. IN NO EVENT WILL MICROCHIP OR ITS
 // LICENSORS BE LIABLE FOR ANY INCIDENTAL, SPECIAL, INDIRECT OR CONSEQUENTIAL
